@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside My Proxmox Homelab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+  <nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <!-- Dropdown Menu for Career -->
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="#education">Education & Certifications</a></li>
+  </ul>
+</nav>
+
+  <div id="main-content">
+ <main class="container">
+    <a href="projects.html" style="color:#58a6ff;">← Back to Projects</a>
+    <h1>Inside My Proxmox Homelab</h1>
+    <p><em>A Cybersecurity Playground for Real-World Skills and Threat Response</em></p>
+
+    <p>Over the past few months, I’ve been steadily building out a Homelab that not only sharpens my technical skills, but also simulates real-world cybersecurity workflows. Powered by Proxmox, my virtualized lab mimics an enterprise IT environment, complete with Windows Server, pfSense firewall, and a Wazuh SIEM for centralized monitoring.</p>
+
+    <p>While it's been a rewarding project from a technical perspective, it’s also become a space where I actively respond to real security threats—one of which I’ll talk about shortly.</p>
+
+    <h3>🚀 What My Homelab Looks Like</h3>
+    <p>The heart of the lab is Proxmox VE, an open-source virtualization platform that allows me to spin up and manage multiple VMs. Here’s a breakdown of the core setup:</p>
+    <ul>
+      <li>Windows Server 2022: Configured to handle DNS, DHCP, and Active Directory roles.</li>
+      <li>Windows 10 Workstation: A domain-joined client VM used to test policy enforcement, user access control, and endpoint behavior.</li>
+      <li>pfSense Firewall: Manages internal segmentation, NAT rules, and acts as a front line for inbound/outbound traffic control.</li>
+      <li>Wazuh 4.5 SIEM: Integrated for real-time log collection, rule-based alerting, and CVE detection.</li>
+    </ul>
+    <p>My goal was never just to "build servers" — I wanted a lab that monitors itself, exposes weaknesses, and allows me to fix them before an attacker would.</p>
+
+    <h3>🧠 Real Threat, Real Response: CVE-2025-29824</h3>
+    <p>A few weeks ago, my Wazuh instance flagged a suspicious log entry related to a known vulnerability: <strong>CVE-2025-29824</strong> — a privilege escalation flaw in the Windows Common Log File System (CLFS) driver. Left unpatched, it allows local users to gain elevated privileges and execute code.</p>
+
+    <p>Here’s how I handled it:</p>
+    <ol>
+      <li><strong>Detection</strong> – Wazuh alerted me to the vulnerability during a routine scan.</li>
+      <li><strong>Research</strong> – I cross-referenced the CVE on MITRE and learned that Microsoft hadn't released a patch yet.</li>
+      <li><strong>Mitigation</strong> – I found a PowerShell mitigation script via the community at Vicarius (vsociety.io).</li>
+      <li><strong>Execution</strong> – Deployed the script across the affected systems in my lab.</li>
+      <li><strong>Validation</strong> – Confirmed the hardening both manually and via follow-up Wazuh logs.</li>
+    </ol>
+
+    <h4>✅ Key Takeaways:</h4>
+    <ul>
+      <li>SIEM visibility is crucial even in test environments.</li>
+      <li>Community tools can bridge the gap when official patches aren’t yet available.</li>
+      <li>Your Homelab isn’t just a project—it’s a battlefield to practice incident response and threat hunting.</li>
+    </ul>
+
+    <h3>🛠️ Skills I’ve Built Along the Way</h3>
+    <ul>
+      <li>Virtualization & system administration (Proxmox, Windows Server roles)</li>
+      <li>Network security (pfSense configuration, firewall rules, VLANs)</li>
+      <li>SIEM management & alert triage (Wazuh 4.5)</li>
+      <li>Traffic analysis with Wireshark and tcpdump</li>
+      <li>Ethical hacking tools via Kali Linux (planned)</li>
+      <li>Incident detection and response for CVEs</li>
+    </ul>
+
+    <h3>🎯 Why This Matters</h3>
+    <p>In cybersecurity, theory isn't enough. You need a place to practice detection, response, and mitigation. My Proxmox Homelab has become just that:</p>
+    <ul>
+      <li>A controlled sandbox for experimentation</li>
+      <li>A space to simulate enterprise-level scenarios</li>
+      <li>A launchpad to hone my investigative mindset</li>
+    </ul>
+    <p>And the best part? Every alert, misconfiguration, or CVE is a new learning opportunity.</p>
+
+    <h3>📎 Final Thoughts</h3>
+    <p>Building and maintaining a Homelab isn't just a hobby—it's an investment in becoming a better cybersecurity professional. Whether it's catching live CVEs or refining my approach to segmentation and access control, each piece of the puzzle adds to my understanding and readiness for the real world.</p>
+
+    <p><strong>Got questions about setting up your own lab?</strong> Or want a deeper dive into the tools I’m using? I’m always down to connect and share what I’ve learned.</p>
+  </main>   
+  </div>
+</body>
+</html>

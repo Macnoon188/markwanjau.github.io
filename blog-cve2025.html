@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog: CVE-2025-29824 Remediation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+  <nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <!-- Dropdown Menu for Career -->
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="#education">Education & Certifications</a></li>
+  </ul>
+</nav>
+<main class="container">
+    <a href="index.html" style="color:#58a6ff;">← Back to Home</a>
+    <h1>How I Detected and Fixed CVE-2025-29824</h1>
+    <p><em>Published: May 2025</em></p>
+    <p>
+      As part of my homelab exercises, I simulated the lifecycle of detecting and resolving a real-world CVE—specifically CVE-2025-29824. This is a Windows CLFS driver flaw capable of escalating privileges.
+    </p>
+    <h3>1. Detection</h3>
+    <p>
+      I used Wazuh v4.5's SIEM alerting features to flag suspicious activity on a Windows Server node. Real-time monitoring made it possible to isolate the issue.
+    </p>
+    <h3>2. CVE Analysis</h3>
+    <p>
+      Using MITRE's CVE database, I verified the exploit type and assessed the risk. Since no official patch existed at the time, quick remediation was crucial.
+    </p>
+    <h3>3. Mitigation</h3>
+    <p>
+      I deployed a PowerShell mitigation script recommended by Vicarius. This neutralized the vulnerability temporarily.
+    </p>
+    <h3>4. Validation</h3>
+    <p>
+      Through Wazuh and log correlation, I confirmed the issue was resolved and no further alerts were triggered.
+    </p>
+  </main>
+</body>
+</html>
