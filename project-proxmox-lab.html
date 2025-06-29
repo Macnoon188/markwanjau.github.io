@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Career at Deckfirm Technologies</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+  <nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <!-- Dropdown Menu for Career -->
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <!--<li><a href="career-deckfirm.html">Deckfirm Technologies</a></li> -->
+      </ul>
+    </li>
+
+    <li><a href="index.html#education">Education & Certifications</a></li>
+  </ul>
+</nav>
+<body>
+  <main class="container">
+
+    <section class="hero">
+      <img src="images/proxmox-dash.PNG" alt="Proxmox Lab Hero" />
+      <div class="hero-text">
+        <h1>Inside My Proxmox Homelab</h1>
+        <p class="tagline">A Cybersecurity Playground for Real-World Threat Response</p>
+      </div>
+    </section>
+
+    <section class="content-block">
+      <div class="text">
+        <h2>What My Homelab Looks Like</h2>
+        <p>Powered by Proxmox, my virtualized lab mimics a real enterprise environment with Windows Server, pfSense firewall, and Wazuh SIEM monitoring.</p>
+        <ul>
+          <li>🪟 Windows Server 2022: AD, DNS, DHCP</li>
+          <li>🖥️ Windows 10 Workstation (domain joined)</li>
+          <li>🛡️ pfSense Firewall: NAT, segmentation</li>
+          <li>🧠 Wazuh 4.5 SIEM: real-time monitoring</li>
+        </ul>
+      </div>
+      <div class="image">
+        <img src="images/setup-workspace.jpg" alt="Architecture" />
+      </div>
+    </section>
+
+    <blockquote class="highlight">
+      "SIEM visibility is crucial—even in test environments."
+    </blockquote>
+
+    <section class="content-block">
+      <div class="text">
+        <h2>CVE-2025-29824 Detection</h2>
+        <p>My Wazuh instance flagged this live Windows CLFS privilege escalation vulnerability. I researched the CVE, implemented a community patch, and validated the mitigation across my lab.</p>
+        <p>Mitigation via PowerShell, confirmed by SIEM logs.</p>
+      </div>
+      <div class="image">
+        <img src="images/wazuh-dashboard.jpg" alt="Wazuh Logs" />
+      </div>
+    </section>
+
+    <aside class="sidebar-tip">
+      💡 Tip: Monitor unpatched vulnerabilities using CVE feeds integrated with Wazuh or OSSEC.
+    </aside>
+
+    <section class="content-block">
+      <div class="image">
+        <img src="images/pFSense_Firewall_LAN_.jpg" alt="Firewall" />
+      </div>
+      <div class="text">
+        <h2>Firewall & Threat Visibility</h2>
+        <p>pfSense gives me full control over NAT rules and traffic shaping. Logs are fed into Wazuh to alert on suspicious outbound connections.</p>
+      </div>
+    </section>
+
+    <section class="skills-section">
+      <h2>Skills Gained</h2>
+      <div class="skills-grid">
+        <div class="skill-card">🧩 Virtualization (Proxmox)</div>
+        <div class="skill-card">🔐 SIEM Triage (Wazuh)</div>
+        <div class="skill-card">🌐 pfSense Firewalling</div>
+        <div class="skill-card">🧠 CVE Mitigation</div>
+      </div>
+    </section>
+
+    <footer class="project-footer">
+      <p>Want to replicate this lab?</p>
+      <a href="images/proxmox-assets.zip" class="button">Contact Me</a>
+    </footer>
+  </main>
+</body>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mark Wanjau Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <!-- Dropdown Menu for Career -->
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="#education">Education & Certifications</a></li>
+  </ul>
+</nav>
+
+
+  <header id="home">
+    <div class="container">
+      <h1>Mark Andrew Wanjau</h1>
+      <p>Cybersecurity Specialist | Systems Engineer | Tech Enthusiast</p>
+      <div class="links">
+        <a href="https://github.com/Macnoon188" target="_blank">GitHub</a>
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+  </header>
+  <!--About Me-->
+<section id="about">
+  <div class="container about-section">
+    <h2>About Me</h2>
+    <p>
+      I’m <strong>Mark Andrew Wanjau</strong>, a cybersecurity specialist and systems engineer passionate about building resilient digital infrastructures. This site is my portfolio — a space where I document projects, security research, and lessons from my career and homelab adventures.
+    </p>
+    <p>
+      From hands-on server configuration to real-world CVE mitigation, I’m constantly learning, breaking, and rebuilding. My goal? Stay ahead of threats, and help others do the same.
+    </p>
+    <a href="about.html" class="button">Read Full Bio →</a>
+  </div>
+</section>
+
+  <!-- ✅ Properly wrapped main content -->
+  <main id="main-content">
+    <section id="projects">
+      <h2>Projects – Homelab</h2>
+      <div class="card-container">
+        <div class="card">
+          <h3>Proxmox Virtual Lab</h3>
+          <p>Simulated enterprise environment using pfSense, Nessus, Windows Server, and Kali Linux.</p>
+          <a href="project-proxmox-lab.html">Read More →</a>
+        </div>
+        <div class="card">
+          <h3>Wazuh CVE-2025-29824 Detection</h3>
+          <p>How I detected and mitigated a Windows CLFS privilege escalation using Wazuh SIEM.</p>
+          <a href="project-cve2025.html">Read More →</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="blogs">
+      <h2>Blogs</h2>
+      <div class="card-container"> 
+        <div class="card">
+          <h3>CVE-2025-29824: Remediation</h3>
+          <p>Technical steps to detect, triage, and mitigate a live security threat in a homelab.</p>
+          <a href="blog-cve2025.html">Read More →</a>
+        </div>
+        <div class="card">
+          <h3>Smart People Need Smart Managers</h3>
+          <p>Why highly skilled employees often struggle under poor leadership – and what to do.</p>
+          <a href="blog-smart-employees.html">Read More →</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="career">
+      <h2>Career</h2>
+      <div class="card-container">
+         <div class="card">
+  <h3>Deckfirm Technologies</h3>
+  <img src="images/deckfirmtech2.png" alt="dfirm tech" class="card-img" />
+  <a href="career-deckfirm.html">Read More →</a>
+</div> 
+
+<div class="card">
+  <h3>Kenyatta University</h3>
+  <img src="images/ku.png" alt="Kenyatta University Campus" class="card-img" />
+  <h3>ICT Technician – Nairobi Campus.</h3>
+      <p></p>
+  <a href="career-ku.html">Read More →</a>
+</div>
+
+        
+      </div>
+    </section>
+
+    <section id="education">
+      <h2>Education, Skills and Certifications</h2>
+      <p><strong>Middlesex University, Nairobi</strong> — BSc. Business Information Technology (2017)</p>
+      <p>This course combined business fundamentals with hands-on IT skills like database design, networking, software development, and systems management.</p>
+
+      <h3>Skills</h3>
+      <ul>
+        <li>PC Repair | Network Troubleshooting | Hypervisors</li>
+        <li>SIEM/XDR | Firewall Management | Ethical Hacking</li>
+      </ul>
+
+      <h3>Certifications</h3>
+      <ul>
+        <li>CompTIA A+, N+, Security+</li>
+        <li>Linux Essentials, CCNA, DEVNET, CyberOps Associate</li>
+      </ul>
+    </section>
+  </main>
+
+  
+<footer>
+    <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

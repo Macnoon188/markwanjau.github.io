@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CVE-2025-29824 Detection</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+
+  <nav>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="blogs.html">Blogs</a></li>
+      <li class="dropdown">
+        <a href="#">Career ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="career-ku.html">Kenyatta University</a></li>
+          <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#education">Education & Certifications</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1>CVE-2025-29824 Detection and Mitigation</h1>
+
+    <section class="hero">
+      <img src="images/cve-banner.jpg" alt="CVE Banner" />
+    </section>
+
+    <section class="content-block">
+      <p>In April 2025, a critical vulnerability identified as CVE-2025-29824 was discovered in the Windows Common Log File System (CLFS) driver. This use-after-free flaw allows authorized attackers to locally elevate their privileges, posing significant security risks to affected systems (National Vulnerability Database, 2025).</p>
+      <p>The Windows CLFS driver is integral to log management. CVE-2025-29824 exploits a use-after-free condition, enabling attackers to execute arbitrary code with elevated privileges. Such vulnerabilities serve as entry points for more severe exploits, including ransomware deployments (Microsoft Security Response Center, 2025).</p>
+    </section>
+
+    <section class="content-block">
+      <div class="text">
+        <h2>Detection Using Wazuh</h2>
+        <p>A virtual lab was created using Proxmox with a vulnerable Windows Server instance. Wazuh, an open-source SIEM, was deployed and configured with custom rules for CVE-2025-29824 detection.</p>
+        <ul>
+          <li>Wazuh alerting identified anomaly on Windows Server node</li>
+          <li>Confirmed vulnerability presence through MITRE CVE database</li>
+          <li>Applied PowerShell-based mitigation from Vicarius</li>
+          <li>Validated success by clearing related SIEM alerts</li>
+        </ul>
+      </div>
+      <div class="image">
+        <img src="images/wazuh-dashboard.jpg" alt="Wazuh Dashboard">
+      </div>
+    </section>
+
+    <section class="content-block">
+      <h2>Mitigation Strategies</h2>
+      <img src="images/Patch Screenshot.jpg" alt="Patch Screenshot" class="single-img">
+      <p>Following detection:</p>
+      <ol>
+        <li>Applied Microsoft patch released in April 2025.</li>
+		<p>Patch Application: The latest security updates from Microsoft were applied to address CVE-2025-29824. Microsoft had released patches on April 
+		8, 2025, to rectify this issue .(Microsoft, CVE Details)</p>
+        <li>Hardened the system with access control and segmentation.</li>
+		<p>System Hardening: Additional security measures, including the implementation of strict access controls and regular system audits, were 
+		enforced to reduce the attack surface.</p>
+        <li>Continued live monitoring using Wazuh post-patch.</li>
+		<p>Continuous Monitoring: Wazuh's monitoring capabilities were leveraged to ensure ongoing surveillance for any anomalous activities 
+		post-mitigation.</p>
+      </ol>
+    </section>
+
+    <section class="content-block">
+      <h2>Impact on Corporations</h2>
+      <p>The exploitation of CVE-2025-29824 shows how ransomware groups rapidly weaponize zero-days. Timely patching and SIEM visibility are vital to protect enterprise environments from privilege escalation threats (The Hacker News, 2025).</p>
+    </section>
+
+    <section class="references">
+      <h2>References</h2>
+      <ul>
+        <li>Microsoft Security Response Center, 'CVE-2025-29824', Microsoft, 2025. Available at: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-29824 (Accessed: 28 May 2025).</li>
+        <li>National Vulnerability Database, 'CVE-2025-29824 Detail', NVD, 2025. Available at: https://nvd.nist.gov/vuln/detail/CVE-2025-29824 (Accessed: 28 May 2025).</li>
+        <li>Wazuh Documentation, 'Vulnerability Detection', 2025. Available at: https://documentation.wazuh.com/current/user-manual/capabilities/vulnerability-detection/how-it-works.html (Accessed: 28 May 2025).</li>
+        <li>The Hacker News, 'Play Ransomware Exploited Windows CVE-2025-29824 as Zero-Day', 2025. Available at: https://thehackernews.com/2025/05/play-ransomware-exploited-windows-cve.html (Accessed: 28 May 2025).</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CVE-2025-29824 – Real-Time Vulnerability Response</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="blogs.html">Blogs</a></li>
+      <li class="dropdown">
+        <a href="#">Career ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="career-ku.html">Kenyatta University</a></li>
+          <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#education">Education & Certifications</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <article class="blog-post">
+      <header class="blog-hero">
+        <img src="images/cyber-desk.jpg" alt="Matrix Code Alert">
+        <h1>CVE-2025-29824 – Real-Time Vulnerability Response</h1>
+        <p class="meta">Published on May 28, 2025 by Mark Wanjau</p>
+      </header>
+
+      <section class="blog-body">
+        <p>On a quiet afternoon in my homelab, an alert flashed across my Wazuh dashboard. It flagged a potential exploitation attempt tied to CVE-2025-29824 — a privilege escalation vulnerability in the Windows CLFS driver. This flaw allows local users to execute code with elevated privileges through a use-after-free condition in the logging system (<a href="https://nvd.nist.gov/vuln/detail/CVE-2025-29824" target="_blank">NVD, 2025</a>).</p>
+
+        <blockquote>
+          “This vulnerability was being exploited in the wild before a patch was issued by Microsoft.”<br/>
+          — The Hacker News, May 2025
+        </blockquote>
+
+        <p>Without hesitation, I followed my incident response playbook. My homelab — a simulated enterprise setup using Proxmox, pfSense, and Wazuh — allowed me to mirror real-world conditions.</p>
+
+        <h2>Steps Taken</h2>
+        <ul>
+          <li><strong>Detection:</strong> Wazuh identified the issue during an automated agent scan.</li>
+          <li><strong>Verification:</strong> Cross-referenced CVE via MITRE and NVD databases.</li>
+          <li><strong>Mitigation:</strong> Deployed a PowerShell workaround script from the Vicarius community.</li>
+          <li><strong>Validation:</strong> Confirmed fix via follow-up SIEM logs.</li>
+        </ul>
+
+        <div class="highlight-box">
+          <h3>🛠️ Tools Used</h3>
+          <ul>
+            <li>Wazuh SIEM 4.5</li>
+            <li>Windows Server 2022 VM</li>
+            <li>PowerShell Scripts</li>
+            <li>pfSense Firewall</li>
+          </ul>
+        </div>
+
+        <h2>Why This Matters</h2>
+        <p>CVE-2025-29824 became a test of readiness for me. In an enterprise setting, exploitation of this vulnerability could result in privilege escalation, lateral movement, or ransomware deployment. A strong detection-response workflow makes the difference between exposure and resilience (<a href="https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-29824" target="_blank">Microsoft, 2025</a>).</p>
+
+        <div class="highlight-box secondary">
+          <h3>📌 Lessons Learned</h3>
+          <ul>
+            <li>Don’t ignore local privilege escalation — they’re a foothold for bigger attacks.</li>
+            <li>SIEM visibility is just as critical in homelabs as in production.</li>
+            <li>Community scripts can bridge the patch gap when vendors lag behind.</li>
+          </ul>
+        </div>
+
+        <h2>References</h2>
+        <ul class="references">
+          <li>Microsoft (2025) <em>CVE-2025-29824 advisory</em>. Available at: <a href="https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-29824" target="_blank">msrc.microsoft.com</a></li>
+          <li>NVD (2025) <em>CVE-2025-29824 detail</em>. Available at: <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-29824" target="_blank">nvd.nist.gov</a></li>
+          <li>The Hacker News (2025) <em>Play ransomware exploited CVE-2025-29824</em>. Available at: <a href="https://thehackernews.com/" target="_blank">thehackernews.com</a></li>
+        </ul>
+      </section>
+
+      <footer class="blog-footer">
+        <a href="blogs.html" class="button">← Back to Blog Home</a>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

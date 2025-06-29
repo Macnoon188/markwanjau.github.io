@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Projects | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+<body>
+  <canvas id="matrix-canvas"></canvas>
+
+  <nav>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blogs.html">Blogs</a></li>
+      <li class="dropdown">
+        <a href="#">Career ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="career-ku.html">Kenyatta University</a></li>
+          <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#education">Education & Certifications</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1>My GitHub Projects</h1>
+    <div id="github-projects" class="card-container">
+      <!-- This section can be dynamically populated via GitHub API in the future -->
+      <div class="card">
+        <h3><a href="https://github.com/Macnoon188" target="_blank">Macnoon188</a></h3>
+        <p>View my public repositories, configurations, and open-source utilities on GitHub.</p>
+        <a href="https://github.com/Macnoon188" target="_blank">View on GitHub →</a>
+      </div>
+    </div>
+
+    <h1>Featured Projects</h1>
+    <div class="card-container">
+      <div class="card">
+        <h3>Proxmox Virtual Lab</h3>
+        <p>Enterprise-grade homelab with Active Directory, pfSense firewall, SIEM, and centralized logging using Wazuh 4.5.</p>
+        <a href="project-proxmox-lab.html">Read More →</a>
+      </div>
+      <div class="card">
+        <h3>CVE-2025-29824 Detection</h3>
+        <p>Real-world CVE alert triage and response with PowerShell mitigation in a self-hosted homelab environment.</p>
+        <a href="project-cve2025.html">Read More →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+  </footer>
+  
+
+</body>
+</html>
