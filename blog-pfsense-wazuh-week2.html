@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring pfSense with Wazuh – Homelab Guide</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 2 – Cybersecurity Homelab Series</p>
+
+      <h1 class="mag-title">
+        Monitoring pfSense with Wazuh: A Step-by-Step Guide for My Homelab
+      </h1>
+
+      <p class="mag-subtitle">
+        How I integrated my firewall with Wazuh SIEM to gain real-time network visibility
+      </p>
+
+      <div class="mag-meta">
+        Published: Week 2, Tuesday • Author: Jonathan Kirui • Tags: Wazuh • pfSense • SIEM • Cybersecurity • Monitoring
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When I first integrated pfSense into my homelab, I realized that while it’s a powerful firewall, it needed centralized monitoring to
+        fully understand what was happening at the network perimeter. Since I already run Wazuh 4.5 for endpoint monitoring,
+        connecting pfSense logs to my SIEM was the logical next step. This guide explains how I did it and the benefits I gained.
+      </p>
+    </section>
+
+    <!-- WHY -->
+    <section class="mag-section">
+      <h2>🔒 Why Monitor pfSense with Wazuh?</h2>
+      <p>
+        pfSense is the gatekeeper of your homelab. Feeding its logs into Wazuh gives:
+        <br>• Real-time firewall event visibility
+        <br>• Insight into blocked connections, scans & VPN events
+        <br>• Correlation between firewall + endpoint alerts
+        <br>• A single SIEM dashboard for your entire lab
+        <br><br>
+        This turns a basic homelab into a lightweight SOC training environment — perfect for blue-team learning.
+      </p>
+    </section>
+
+    <!-- SETUP -->
+    <section class="mag-section">
+      <h2>🏗️ My Homelab Setup</h2>
+      <p>
+        • Firewall: pfSense CE (dedicated hardware)<br>
+        • SIEM: Wazuh 4.5 on Ubuntu (Proxmox LXC)<br>
+        • Log Transport: Syslog (UDP/TCP)<br>
+        • Wazuh Module: Logcollector<br><br>
+        Before starting, ensure Wazuh Manager can reach pfSense over LAN.
+      </p>
+    </section>
+
+    <!-- STEPS -->
+    <section class="mag-section">
+      <h2>🔧 Step-by-Step Integration</h2>
+
+      <h3>Step 1 — Enable Remote Logging</h3>
+      <p>
+        pfSense → Status → System Logs → Settings → Remote Logging Options<br>
+        Enable & add your Wazuh Manager:
+        <br>192.168.x.x:514
+        <br>Select logs:
+        <br>• System • Firewall • DHCP • VPN • DNS Resolver
+      </p>
+
+      <h3>Step 2 — Configure Wazuh</h3>
+      <p class="callout">
+        File: /var/ossec/etc/ossec.conf<br><br>
+        &lt;remote&gt;<br>
+        &nbsp;&nbsp;&lt;connection&gt;syslog&lt;/connection&gt;<br>
+        &nbsp;&nbsp;&lt;port&gt;514&lt;/port&gt;<br>
+        &nbsp;&nbsp;&lt;protocol&gt;udp&lt;/protocol&gt;<br>
+        &nbsp;&nbsp;&lt;allowed-ips&gt;192.168.0.0/24&lt;/allowed-ips&gt;<br>
+        &lt;/remote&gt;
+      </p>
+      <p>Restart Wazuh:</p>
+      <p class="callout">sudo systemctl restart wazuh-manager</p>
+
+      <h3>Step 3 — Optional: Apply Parsing Rules</h3>
+      <p class="callout">
+        File: /var/ossec/etc/rules/pfsense_rules.xml<br><br>
+        &lt;group name="pfsense,"&gt;<br>
+        &nbsp;&nbsp;&lt;rule id="700001" level="5"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;decoded_as&gt;syslog&lt;/decoded_as&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;match&gt;filterlog:&lt;/match&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;pfSense Firewall Event&lt;/description&gt;<br>
+        &nbsp;&nbsp;&lt;/rule&gt;<br>
+        &lt;/group&gt;
+      </p>
+
+      <p>Restart again:</p>
+      <p class="callout">sudo systemctl restart wazuh-manager</p>
+    </section>
+
+    <!-- VERIFY -->
+    <section class="mag-section">
+      <h2>📊 Verifying Logs</h2>
+      <p>
+        In Wazuh Dashboard → Security Events, filter by:
+        <br>• pfSense Source IP
+        <br>• Rule group “pfsense”
+        <br><br>
+        You should see:
+        <br>• Blocked inbound traffic
+        <br>• DHCP leases
+        <br>• VPN events
+        <br>• DNS resolver logs
+        <br>• Port scan detections
+      </p>
+    </section>
+
+    <!-- WHAT I MONITOR -->
+    <section class="mag-section">
+      <h2>🔍 What I Monitor</h2>
+      <p>
+        • Firewall events → intrusion attempts<br>
+        • DHCP → new / rogue devices<br>
+        • VPN logs → access monitoring<br>
+        • DNS → suspicious domains<br>
+        • System logs → reboots & interface issues
+      </p>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="mag-section">
+      <h2>🎯 Key Benefits Gained</h2>
+      <p>
+        • Better correlation between network & host threats<br>
+        • Full visibility into WAN attacks<br>
+        • Real-world SIEM + firewall experience<br>
+        • Stronger lab security posture
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>Want more homelab security guides? Keep following this series!</p>
+    </footer>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Wazuh to Detect CVE-2025-29824 – Homelab Security</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 2 – Cybersecurity Homelab Series</p>
+
+      <h1 class="mag-title">
+        Using Wazuh to Detect CVE-2025-29824 in My Homelab
+      </h1>
+
+      <p class="mag-subtitle">
+        Testing real-world vulnerability detection inside my Proxmox-based cybersecurity lab
+      </p>
+
+      <div class="mag-meta">
+        Published: Week 2, Thursday October 2, 2025 • Author: Mark Wanjau • Tags: Wazuh • CVE-2025-29824 • Cybersecurity • Homelab • Blue Team
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When CVE-2025-29824 was published, it became an excellent real-world example for testing how well my homelab’s monitoring stack works.
+        Since I use Wazuh 4.5 as my SIEM, I wanted to see how quickly it could detect this vulnerability on my machines —
+        and how actionable the alerts would be. This article explains how Wazuh detects the CVE, how I tuned my rules,
+        and what the real alert looked like in my dashboard.
+      </p>
+    </section>
+
+    <!-- CVE EXPLANATION -->
+    <section class="mag-section">
+      <h2>🧠 Understanding CVE-2025-29824 (In Simple Terms)</h2>
+      <p>
+        CVE-2025-29824 is a high-severity remote code execution (RCE) vulnerability affecting certain Linux environments.
+        A vulnerable package can allow an attacker to:
+        <br>• Execute arbitrary commands
+        <br>• Escalate privileges
+        <br>• Pivot deeper into the network
+        <br><br>
+        That makes it perfect for testing real defensive blue-team workflows.
+      </p>
+    </section>
+
+    <!-- WHY WAZUH -->
+    <section class="mag-section">
+      <h2>🧩 Why Use Wazuh to Detect CVEs?</h2>
+      <p>
+        Wazuh includes a built-in vulnerability detector that:
+        <br>• Scans installed packages
+        <br>• Compares versions against public CVE feeds
+        <br>• Generates alerts automatically
+        <br>• Links vulnerabilities to exact hosts
+        <br><br>
+        Ideal for hands-on enterprise-style learning in a homelab.
+      </p>
+    </section>
+
+    <!-- STEPS -->
+    <section class="mag-section">
+      <h2>🛠️ Detecting CVE-2025-29824 with Wazuh</h2>
+
+      <h3>Step 1 — Enable Vulnerability Detector</h3>
+      <p class="callout">
+        File: /var/ossec/etc/ossec.conf
+        <br><br>
+        &lt;vulnerability-detector&gt;<br>
+        &nbsp;&nbsp;&lt;enabled&gt;yes&lt;/enabled&gt;<br>
+        &nbsp;&nbsp;&lt;interval&gt;12h&lt;/interval&gt;<br>
+        &nbsp;&nbsp;&lt;provider name="canonical"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;yes&lt;/enabled&gt;<br>
+        &nbsp;&nbsp;&lt;/provider&gt;<br>
+        &nbsp;&nbsp;&lt;provider name="nvd"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;yes&lt;/enabled&gt;<br>
+        &nbsp;&nbsp;&lt;/provider&gt;<br>
+        &lt;/vulnerability-detector&gt;
+      </p>
+
+      <p>Restart:</p>
+      <p class="callout">sudo systemctl restart wazuh-manager</p>
+
+      <h3>Step 2 — Run Manual Scan</h3>
+      <p class="callout">
+        sudo /var/ossec/bin/wazuh-control print vde<br>
+        sudo systemctl restart wazuh-agent
+      </p>
+
+      <h3>Step 3 — View the Alert</h3>
+      <p>
+        In Wazuh Dashboard search:
+        <br><b>rule.cve: "CVE-2025-29824"</b>
+        <br><br>
+        My alert showed:
+        <br>• Severity: High
+        <br>• Host: Ubuntu Docker server
+        <br>• Status: Vulnerable package detected
+        <br>• Threat Level: 9 / 10
+      </p>
+
+      <h3>Step 4 — Optional Custom Rule</h3>
+      <p class="callout">
+        File: /var/ossec/etc/rules/custom_cve_rules.xml
+        <br><br>
+        &lt;group name="cve,"&gt;<br>
+        &nbsp;&nbsp;&lt;rule id="900100" level="10"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&lt;match&gt;CVE-2025-29824&lt;/match&gt;<br>
+        &nbsp;&nbsp;&nbsp;&lt;description&gt;Critical vulnerability detected: CVE-2025-29824&lt;/description&gt;<br>
+        &nbsp;&nbsp;&nbsp;&lt;group&gt;critical,&lt;/group&gt;<br>
+        &nbsp;&nbsp;&lt;/rule&gt;<br>
+        &lt;/group&gt;
+      </p>
+
+      <p class="callout">sudo systemctl restart wazuh-manager</p>
+    </section>
+
+    <!-- LEARNING -->
+    <section class="mag-section">
+      <h2>📊 What I Learned</h2>
+      <p>
+        • How to interpret SIEM vulnerability alerts<br>
+        • How to tune high-severity rule visibility<br>
+        • How detection fits into response + patching<br>
+        • How to build a realistic homelab SOC workflow
+      </p>
+    </section>
+
+    <!-- TAKEAWAYS -->
+    <section class="mag-section">
+      <h2>🎯 Key Takeaways</h2>
+      <p>
+        • Wazuh detects new CVEs within minutes<br>
+        • Homelabs are perfect for blue-team practice<br>
+        • Custom rules help highlight critical threats<br>
+        • This builds real, job-ready SOC skills
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>More real homelab cybersecurity articles are coming — stay tuned!</p>
+    </footer>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

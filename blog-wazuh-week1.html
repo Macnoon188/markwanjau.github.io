@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wazuh Monitoring Setup in My Homelab</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 1 – Cybersecurity Homelab Series</p>
+
+      <h1 class="mag-title">
+        Wazuh Monitoring Setup in My Homelab: Real-Time Threat Detection Made Simple
+      </h1>
+
+      <p class="mag-subtitle">
+        How I built an enterprise-grade SIEM environment inside my Proxmox homelab
+      </p>
+
+      <div class="mag-meta">
+        Published: Week 1, Thursday • Author: Jonathan Kirui • Tags: Wazuh • SIEM • Threat Detection • Homelab • Monitoring
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When I first started building my homelab, I knew I needed more than just virtualization — I needed visibility. 
+        That’s where Wazuh, a free and open-source SIEM platform, came in. In this post, I’ll walk through how I deployed Wazuh 
+        in my homelab and how it’s helped me simulate blue team operations like real-time log monitoring, file integrity checks, 
+        and CVE detection.
+      </p>
+    </section>
+
+    <!-- WHY WAZUH -->
+    <section class="mag-section">
+      <h2>🔍 Why Wazuh?</h2>
+      <p>
+        Wazuh is the perfect choice for homelab security monitoring because it:
+        <br>• Supports log collection, file integrity monitoring, and vulnerability detection
+        <br>• Offers a powerful dashboard via Kibana or its native UI
+        <br>• Integrates with Linux, Windows, firewalls & cloud services
+        <br>• Runs efficiently even in single-node setups
+      </p>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="mag-section">
+      <h2>🏗️ My Deployment Architecture</h2>
+      <p>
+        • Host: Ubuntu Server LXC container in Proxmox<br>
+        • Wazuh Version: 4.5<br>
+        • Stack: Wazuh Manager + Wazuh Dashboard + Elasticsearch<br>
+        • Agents Installed On:<br>
+        – Kali Linux<br>
+        – Windows 10 VM<br>
+        – Ubuntu Docker Host<br>
+        – TurnKey File Server<br>
+        – pfSense Firewall (via syslog forwarding)<br><br>
+        I kept it modular using Docker where possible to simplify upgrades and backups.
+      </p>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="mag-pullquote">
+      <blockquote>
+        “A properly configured SIEM gives life to your homelab — it turns noise into intelligence.”
+      </blockquote>
+    </section>
+
+    <!-- MONITORING TABLE (styled narrative) -->
+    <section class="mag-section">
+      <h2>🔐 What It Monitors</h2>
+      <p>
+        In my homelab, Wazuh helps me monitor:
+        <br>• File Integrity Monitoring – Detect unauthorized changes
+        <br>• Log Collection – Aggregate system & security logs
+        <br>• CVE Detection – Identify unpatched vulnerabilities
+        <br>• Rootkit Detection – Scan for hidden malware tools
+        <br>• Real-Time Alerts – Email / Slack notifications
+        <br>• Sysmon Integration – Deep Windows monitoring
+      </p>
+      <p>
+        One standout success: Wazuh helped me detect CVE-2025-29824 in real time and respond before it became a threat.
+      </p>
+    </section>
+
+    <!-- CODE BLOCK -->
+    <section class="mag-section">
+      <h2>⚙️ Agent Deployment Example (Ubuntu)</h2>
+      <p class="callout">
+        curl -s https://packages.wazuh.com/4.5/wazuh-install.sh | sudo bash<br>
+        sudo /var/ossec/bin/agent-auth -m [manager-ip]<br>
+        sudo systemctl enable wazuh-agent && sudo systemctl start wazuh-agent
+      </p>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="mag-section">
+      <h2>📈 Wazuh Dashboard Insights</h2>
+      <p>
+        From the dashboard I can view:
+        <br>• Threat levels by host
+        <br>• Attack surface exposure
+        <br>• Detected CVEs by severity
+        <br>• Agent health status
+        <br><br>
+        This transforms my homelab into a mini SOC (Security Operations Center).
+      </p>
+    </section>
+
+    <!-- LEARNING -->
+    <section class="mag-section">
+      <h2>💡 What I’ve Learned</h2>
+      <p>
+        • SIEMs aren’t just for enterprise environments<br>
+        • Real-time alerting improves detection and response mindset<br>
+        • Monitoring forces you to improve your own security posture
+      </p>
+    </section>
+
+    <!-- BONUS -->
+    <section class="mag-section">
+      <h2>🔗 Bonus: Getting Started</h2>
+      <p>
+        Check out <a href="https://wazuh.com/documentation" target="_blank">Wazuh Documentation</a> for setup guides.
+        Or feel free to reach out — I’m always happy to share insights and lessons learned from my lab.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>Want more? Explore my lab projects or connect with me on LinkedIn.</p>
+    </footer>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Starting My Cybersecurity Journey | Homelab</title>
+
+  <!-- Use your existing stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+  <canvas id="matrix-canvas"></canvas>
+
+  <nav>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="blogs.html">Blogs</a></li>
+
+      <li class="dropdown">
+        <a href="#">Career ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="career-ku.html">Kenyatta University</a></li>
+          <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+        </ul>
+      </li>
+
+      <li><a href="index.html#education">Education & Certifications</a></li>
+    </ul>
+  </nav>
+
+
+  <main id="main-content" class="content-glow">
+
+    <article>
+
+      <header>
+        <h1>Starting My Cybersecurity Journey, Building and Rebuilding a SOC-Style Homelab</h1>
+        <div class="meta">January 2025 • Cybersecurity • Homelab</div>
+      </header>
+
+      <section>
+        <p>At the beginning of this year, I hit a wall.</p>
+        <p>I was learning cybersecurity mostly through theory. Reading, watching videos, taking notes. It all made sense on paper, but it didn’t feel real. I wasn’t seeing how any of it actually worked once things started breaking.</p>
+        <p>So I decided to build something.</p>
+      </section>
+
+      <section>
+        <p>That decision led me to my first SOC-style homelab using Proxmox. Not as an expert. Just as someone who wanted to understand what really happens behind the scenes.</p>
+        <p>I chose Proxmox because it gave me room to experiment. Virtual machines, containers, clustering, it let me break things without fear. That flexibility mattered more to me than polished tooling at this stage.</p>
+      </section>
+
+      <section>
+        <h2>The First Lab and the First Reality Check</h2>
+        <p>My initial goal was simple.</p>
+        <p>I wanted to see how attacks turn into logs, how a SIEM processes those logs, and how defenders detect suspicious activity while it’s happening.</p>
+        <p>I spun up three virtual machines. An Ubuntu Server running Wazuh as the SIEM, an Ubuntu victim machine with a Wazuh agent, and a Kali Linux attacker.</p>
+        <p>On the surface, it worked. Alerts fired. Logs flowed. Dashboards filled up.</p>
+        <p>But something didn’t sit right.</p>
+      </section>
+
+      <section>
+        <h2>Why I Scrapped It and Started Again</h2>
+        <p>Not long after, I made a decision that felt uncomfortable at first.</p>
+        <p>I deleted those first three virtual machines.</p>
+        <p>They weren’t useless, but they showed me what was missing. I wasn’t really controlling traffic flow, segmentation, or visibility at the network level.</p>
+        <p>So I started again, this time with pfSense at the center of the lab.</p>
+      </section>
+
+      <section>
+        <h2>What That First Attempt Taught Me</h2>
+        <p>Even though I scrapped the original setup, it wasn’t a waste.</p>
+        <p>It taught me that security monitoring isn’t magic. It’s logs, context, correlation, and visibility. And all of that depends on how your environment is designed.</p>
+        <p>More importantly, it showed me exactly where my gaps are. Seeing those gaps early matters.</p>
+      </section>
+
+      <section>
+        <h2>How This Journey Continues</h2>
+        <p>I’m rebuilding the lab slowly and intentionally. Understanding each component before moving on.</p>
+        <p>This homelab isn’t a one-off project. It’s an ongoing journey. I’ll be sharing what I build, what breaks, and what I learn along the way.</p>
+
+        <ul>
+          <li>Deepening my pfSense and network segmentation skills</li>
+          <li>Simulating more advanced attack techniques</li>
+          <li>Writing proper SOC-style incident reports</li>
+          <li>Strengthening my cybersecurity fundamentals</li>
+        </ul>
+      </section>
+
+      <footer>
+        <p>If you’ve built homelabs before or see something I could approach differently, I’m open to learning.</p>
+        <p>What’s one lesson you learned the hard way when you first started building labs?</p>
+      </footer>
+
+    </article>
+
+  </main>
+
+
+  <footer>
+    <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+  </footer>
+
+</body>
+</html>
