@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside My Proxmox Homelab – Week 1 Article</title>
+
+  <!-- Use your existing stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip { display:flex; justify-content:space-between; align-items:center; margin:2.5rem 0 1.5rem; padding:1rem 1.5rem; background:#0d1117; border:1px solid #21262d; border-radius:10px; flex-wrap:wrap; gap:0.75rem; }
+    .article-nav-strip a { font-size:0.82rem; font-weight:600; text-decoration:none; }
+    .nav-prev { color:#58a6ff !important; }
+    .nav-center { color:#8b949e !important; font-size:0.78rem !important; }
+    .nav-next { color:#81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration:underline; }
+  </style>
+  <style>
+    /* ── Article Navigation Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home button (used on last article) ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 3rem auto 1.5rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- Hero Section -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 1 – Cybersecurity Homelab Series</p>
+      <h1 class="mag-title">Inside My Proxmox Homelab: Architecture, Purpose, and Practical Use Cases</h1>
+      <p class="mag-subtitle">A real-world cybersecurity lab powering threat detection, learning, and hands-on engineering</p>
+      <div class="mag-meta">
+        Published: Week 1, Monday • Author: Jonathan Kirui • Tags: Homelab • Proxmox • Cybersecurity • Virtualization
+      </div>
+    </header>
+
+    <!-- Lead Paragraph -->
+    <section class="mag-lead">
+      <p>
+        Over the past year, I've been building a Proxmox-based homelab designed not just for experimentation, 
+        but as a functional foundation for cybersecurity, virtualization, and scalable personal projects. 
+        In this post, I’ll break down my homelab’s architecture, the problems it solves, and how I’ve used it 
+        to grow hands-on experience that aligns with real-world enterprise needs.
+      </p>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="mag-section">
+      <h2>🛠️ My Homelab Stack at a Glance</h2>
+      <p>
+        • Hypervisor: Proxmox VE (Debian-based)<br>
+        • Compute: Refurb Dell rackmount servers (64GB RAM, 2x Xeon)<br>
+        • Storage: ZFS pools using HDD/SSD hybrid<br>
+        • Networking: pfSense firewall with VLAN segmentation<br>
+        • Containers / VMs:<br>
+        – Wazuh SIEM node<br>
+        – Kali Linux for pen-testing<br>
+        – TurnKey file server (Debian)<br>
+        – Ubuntu + Docker environment for dev/testing<br>
+        – Windows VM for domain testing
+      </p>
+    </section>
+
+    <!-- Pull Quote -->
+    <section class="mag-pullquote">
+      <blockquote>
+        “A homelab isn’t just a playground — it’s a proving ground for real-world cybersecurity readiness.”
+      </blockquote>
+    </section>
+
+    <!-- Why Proxmox -->
+    <section class="mag-section">
+      <h2>🎯 Why I Chose Proxmox</h2>
+      <p>
+        Proxmox gives me a clean web interface, built-in clustering, automated backups, low resource overhead with LXC containers,
+        and native support for ZFS and GPU passthrough. Most importantly —
+        it’s free, open-source, stable, and trusted across enterprise environments.
+      </p>
+    </section>
+
+    <!-- Two Column Security Section -->
+    <section class="mag-section mag-two-col">
+      <div>
+        <h3>🔒 My Security Layers</h3>
+        <p>
+          • Wazuh 4.5 for endpoint monitoring & CVE detection<br>
+          • pfSense gateway with segmentation & OpenVPN<br>
+          • Syslog forwarding from all nodes<br>
+          • Scheduled vulnerability scans
+        </p>
+      </div>
+
+      <div>
+        <h3>Practical Wins</h3>
+        <p>
+          This stack helped me detect and mitigate threats like CVE-2025-29824 in real time
+          using community rules, layered defense, and proactive monitoring.
+        </p>
+      </div>
+    </section>
+
+    <!-- Learning Outcomes -->
+    <section class="mag-section">
+      <h2>📚 Practical Learning Outcomes</h2>
+      <p>
+        This lab setup helped me:<br>
+        • Build hands-on cybersecurity engineering skills<br>
+        • Simulate enterprise-grade incident response<br>
+        • Practice CVE mitigation methodologies<br>
+        • Prepare for certifications like CYSA+ and CISA
+      </p>
+    </section>
+
+    <!-- Closing -->
+    <section class="mag-section">
+      <h2>👨‍💻 Final Thoughts</h2>
+      <p>
+        A homelab doesn’t need to be expensive or perfect — it needs purpose.
+        Mine has become a live training environment, a cybersecurity research platform,
+        and a place where I sharpen skills that translate directly to the real world.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        🔗 Read more about my projects on <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank" style="color:#0a66c2;font-weight:600;">LinkedIn</a> or explore my code on <a href="https://github.com/Macnoon188" target="_blank" style="color:#58a6ff;">GitHub</a>.
+      </p>
+    </footer>
+
+
+    <div class="article-nav-strip">
+      <span></span>
+      <a href="blogs.html#homelab" class="nav-center">🔬 Homelab Series</a>
+      <a href="blog_wazuh_setup_week1_2.html" class="nav-next">Week 02 — Wazuh SIEM Setup 📡 →</a>
+    </div>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

@@ -223,7 +223,7 @@ article {
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
 }
 
 .card h3 {
@@ -905,4 +905,61 @@ nav {
 .mag-two-col {
   max-width: 850px;
   margin: 0 auto;
+}
+/* ============================
+   DevSnippet v1.0
+============================ */
+
+.dev-snippet {
+  background: #111827;
+  border-radius: 8px;
+  margin: 20px 0;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+  font-family: monospace;
+}
+
+.dev-header {
+  background: #1f2937;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dev-title {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.dev-actions button {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: 0.2s ease;
+}
+
+.dev-actions button:hover {
+  background: #1d4ed8;
+}
+
+.dev-code {
+  padding: 14px;
+  font-size: 0.85rem;
+  color: #e5e7eb;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.dev-warning {
+  background: #7c2d12;
+  color: #fcd34d;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  border-top: 1px solid #92400e;
 }

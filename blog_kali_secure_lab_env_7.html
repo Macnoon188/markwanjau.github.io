@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running Kali Linux in a Secure Lab Environment</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip { display:flex; justify-content:space-between; align-items:center; margin:2.5rem 0 1.5rem; padding:1rem 1.5rem; background:#0d1117; border:1px solid #21262d; border-radius:10px; flex-wrap:wrap; gap:0.75rem; }
+    .article-nav-strip a { font-size:0.82rem; font-weight:600; text-decoration:none; }
+    .nav-prev { color:#58a6ff !important; }
+    .nav-center { color:#8b949e !important; font-size:0.78rem !important; }
+    .nav-next { color:#81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration:underline; }
+  </style>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 7 • Homelab Series Finale</p>
+
+      <h1 class="mag-title">
+        Running Kali Linux in a Secure Lab Environment: My Workflow
+      </h1>
+
+      <div class="mag-meta">
+        Published: Monday, 2 March 2026 • Author: Mark Andrew Wanjau
+      </div>
+    </header>
+
+    <!-- INTRO -->
+    <section class="mag-lead">
+      <p>
+        Kali Linux is one of the most powerful penetration testing distributions available.
+        It comes loaded with tools that security professionals use daily.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <p>
+        From vulnerability scanning and exploitation testing to wireless security,
+        web application testing, and digital forensics — Kali offers immense capability.
+      </p>
+
+      <p>
+        But with that power comes responsibility.
+      </p>
+
+      <p>
+        Running Kali casually, especially on a main network, introduces unnecessary risk.
+        In my homelab, I wanted Kali Linux to be:
+      </p>
+
+      <p>
+        • Isolated<br>
+        • Controlled<br>
+        • Secure<br>
+        • Purpose-driven<br>
+        • Useful for real learning — not reckless experimenting
+      </p>
+
+      <p>
+        So I designed a workflow that treats Kali Linux as a professional red-team tool,
+        operating inside a blue-team monitored environment.
+      </p>
+    </section>
+
+    <!-- STEP 1 -->
+    <section class="mag-section">
+      <h2>Step 1: Designing a Secure Lab Architecture</h2>
+
+      <p>
+        Before installing Kali, I defined exactly how it should exist inside my homelab.
+      </p>
+
+      <h3>Isolation First</h3>
+
+      <p>
+        My Kali Linux machine never runs on my everyday network.
+      </p>
+
+      <p>
+        • It lives inside a dedicated lab VLAN or virtual network<br>
+        • Only approved test machines exist inside that space<br>
+        • It never touches random devices<br>
+        • Traffic can be monitored and restricted
+      </p>
+
+      <p>
+        This ensures:
+      </p>
+
+      <p>
+        • No accidental scanning of personal devices<br>
+        • No unintended attacks against production systems<br>
+        • Realistic enterprise-style segmentation
+      </p>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="mag-section">
+      <h2>Step 2: Purpose-Driven Kali Setup</h2>
+
+      <p>
+        I do not treat Kali like a general Linux desktop.
+        It is a toolbox — and I structure it accordingly.
+      </p>
+
+      <h3>Core Use Cases in My Lab</h3>
+
+      <p>
+        I primarily use Kali for:
+      </p>
+
+      <p>
+        • Testing Wazuh detection capabilities<br>
+        • Practicing ethical hacking workflows<br>
+        • Learning attacker methodology<br>
+        • Validating blue-team defenses<br>
+        • Building muscle-memory for tools
+      </p>
+
+      <p>
+        I deliberately set objectives such as:
+      </p>
+
+      <blockquote>
+        “Today I want to simulate credential attacks.”<br>
+        “This week I’ll focus on web exploitation.”<br>
+        “Let me test how Wazuh alerts on scans and brute-force attempts.”
+      </blockquote>
+
+      <p>
+        This keeps learning structured and intentional.
+      </p>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="mag-section">
+      <h2>Step 3: Kali and Wazuh — Red Meets Blue</h2>
+
+      <p>
+        This is where the lab truly comes alive.
+      </p>
+
+      <p>
+        Kali plays the attacker role.
+        Wazuh represents the defender.
+      </p>
+
+      <p>
+        I execute controlled actions from Kali and observe how the defensive stack responds:
+      </p>
+
+      <p>
+        • Network scans → detection alerts<br>
+        • Exploitation attempts → log responses<br>
+        • Brute-force tests → security events<br>
+        • Suspicious traffic → alert quality validation
+      </p>
+
+      <p>
+        This turns hacking practice into blue-team improvement training,
+        not just red-team experimentation.
+      </p>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="mag-section">
+      <h2>Step 4: Safe Usage Practices</h2>
+
+      <p>
+        Even in a lab, discipline matters.
+      </p>
+
+      <h3>My Golden Rules</h3>
+
+      <p>
+        ✔️ Kali never touches systems I don’t own<br>
+        ✔️ I only test machines built for security exercises<br>
+        ✔️ Tools are updated responsibly<br>
+        ✔️ I don’t run unknown scripts blindly<br>
+        ✔️ I document what I test and why
+      </p>
+
+      <p>
+        Ethics are just as important as technical skill.
+      </p>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="mag-section">
+      <h2>Step 5: Resource Management and Stability</h2>
+
+      <p>
+        Kali does not need massive resources, but it benefits from:
+      </p>
+
+      <p>
+        • Responsive CPU<br>
+        • Sufficient RAM for scanners<br>
+        • Stable networking<br>
+        • Snapshots for testing phases
+      </p>
+
+      <p>
+        Running Kali on Proxmox allows me to:
+      </p>
+
+      <p>
+        • Break things safely<br>
+        • Roll back instantly<br>
+        • Create testing checkpoints
+      </p>
+
+      <p>
+        Experimentation without fear leads to better learning.
+      </p>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section class="mag-section">
+      <h2>Why This Workflow Matters</h2>
+
+      <p>
+        Running Kali irresponsibly can turn a lab into chaos.
+      </p>
+
+      <p>
+        Running it properly transforms a homelab into:
+      </p>
+
+      <p>
+        • A professional cybersecurity training environment<br>
+        • A safe experimentation platform<br>
+        • A red vs blue learning battlefield<br>
+        • A preparation ground for real-world roles
+      </p>
+
+      <p>
+        This approach focuses on impact, detection, and response —
+        not just running tools.
+      </p>
+    </section>
+
+    <!-- FINAL -->
+    <section class="mag-section">
+      <h2>Final Thoughts</h2>
+
+      <p>
+        Kali Linux is not “just a hacking OS.”
+      </p>
+
+      <p>
+        In a well-designed homelab, it becomes a structured learning engine
+        for cybersecurity maturity.
+      </p>
+
+      <p>
+        This workflow allows me to:
+      </p>
+
+      <p>
+        • Learn attacker techniques safely<br>
+        • Train defensive capabilities with Wazuh<br>
+        • Build confidence handling real-world scenarios<br>
+        • Grow as a blue-team engineer with red-team awareness
+      </p>
+
+      <p>
+        That balance is exactly what excites me about cybersecurity.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        Homelabs are not toys — they are training grounds.
+      </p>
+    </footer>
+
+    <div class="article-nav-strip">
+      <a href="blog_wazuhmitigat_cve2025_week2_6.html" class="nav-prev">← 🛡️ Week 06 — CVE Detection</a>
+      <a href="blogs.html#homelab" class="nav-center">🔬 Homelab Series — Final Week</a>
+      <a href="blog_personal_web_tailwindcss_8.html" class="nav-next">Week 08 — TailwindCSS Build 🎨 →</a>
+    </div>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

@@ -3,100 +3,466 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Career at Deckfirm Technologies</title>
+  <title>Homelab — Proxmox Virtual Lab | Mark Andrew Wanjau</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    /* ===== HERO ===== */
+    .lab-hero {
+      position: relative;
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .lab-hero .kicker {
+      font-size: 0.78rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #81ff7f;
+      margin-bottom: 0.75rem;
+    }
+    .lab-hero h1 {
+      font-size: 2.4rem;
+      color: #f0f6fc;
+      line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+    .lab-hero .subtitle {
+      color: #8b949e;
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+    .lab-hero img {
+      width: 100%;
+      max-height: 340px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      margin-top: 1.5rem;
+    }
+
+    /* ===== CONTENT BLOCKS ===== */
+    .lab-section {
+      margin: 2.5rem 0;
+    }
+    .lab-section h2 {
+      font-size: 1.2rem;
+      color: #79c0ff;
+      margin-bottom: 1rem;
+      border-left: 3px solid #58a6ff;
+      padding-left: 0.75rem;
+    }
+    .lab-section p {
+      color: #c9d1d9;
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Architecture stack cards */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .stack-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: border-color 0.2s;
+    }
+    .stack-item:hover { border-color: #81ff7f; }
+    .stack-item .s-icon { font-size: 1.5rem; }
+    .stack-item .s-name { font-size: 0.9rem; color: #e6edf3; font-weight: 600; }
+    .stack-item .s-desc { font-size: 0.78rem; color: #8b949e; }
+
+    /* Quote */
+    .lab-quote {
+      border-left: 4px solid #58a6ff;
+      background: #0d1117;
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 8px 8px 0;
+      margin: 2rem 0;
+      font-style: italic;
+      color: #b0c4de;
+      font-size: 1.05rem;
+    }
+
+    /* Skills */
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+    .skill-tag {
+      background: #1f2937;
+      color: #79c0ff;
+      border: 1px solid #30363d;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* ============================
+       ENTER THE LAB SECTION
+       (Terminal + Timeline mix)
+    ============================ */
+    .enter-lab {
+      margin: 4rem 0 2rem;
+      padding: 2.5rem 2rem;
+      background: #050d09;
+      border: 1px solid #1a3a2a;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .enter-lab::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(129,255,127,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Terminal header bar */
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+    .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .t-dot.red   { background: #ff5f57; }
+    .t-dot.yellow{ background: #ffbd2e; }
+    .t-dot.green { background: #28c840; }
+    .t-label {
+      margin-left: 0.5rem;
+      font-size: 0.75rem;
+      color: #4b5563;
+      font-family: monospace;
+    }
+
+    /* Typing text */
+    .terminal-output {
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #81ff7f;
+      line-height: 1.9;
+      margin-bottom: 2rem;
+    }
+    .terminal-output .t-dim  { color: #4b5563; }
+    .terminal-output .t-blue { color: #58a6ff; }
+    .terminal-output .t-white{ color: #e6edf3; }
+    .terminal-output .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1em;
+      background: #81ff7f;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Week timeline strip */
+    .week-strip {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .week-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      background: #0a1a0e;
+      border: 1px solid #1a3a2a;
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      min-width: 80px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .week-node:hover {
+      border-color: #81ff7f;
+      transform: translateY(-3px);
+      text-decoration: none;
+    }
+    .week-node .wn-num {
+      font-size: 0.65rem;
+      color: #4b5563;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    .week-node .wn-icon { font-size: 1.2rem; }
+    .week-node .wn-title {
+      font-size: 0.68rem;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .week-node.week-start {
+      border-color: #81ff7f;
+      background: #0d2010;
+    }
+    .week-node.week-start .wn-title { color: #81ff7f; }
+
+    /* CTA button */
+    .enter-btn-wrap {
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    .enter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      color: #81ff7f;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: monospace;
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .enter-btn:hover {
+      background: linear-gradient(135deg, #1a4a28, #2d6b3c);
+      box-shadow: 0 0 24px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+    .enter-btn .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #81ff7f;
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(129,255,127,0.5); }
+      50% { box-shadow: 0 0 0 6px rgba(129,255,127,0); }
+    }
+    .enter-sub {
+      font-size: 0.78rem;
+      color: #4b5563;
+      margin-top: 0.6rem;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
   <canvas id="matrix-canvas"></canvas>
+
   <nav>
-  <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="projects.html">Projects</a></li>
-    <li><a href="blogs.html">Blogs</a></li>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li class="dropdown">
+        <a href="projects.html">Projects ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+          <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+          <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+          <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="blogs.html">Blogs ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+          <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+          <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+          <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="#">Career ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="career-ku.html">Kenyatta University</a></li>
+          <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+        </ul>
+      </li>
+      <li><a href="education.html">Education & Certs</a></li>
+    </ul>
+  </nav>
 
-    <!-- Dropdown Menu for Career -->
-    <li class="dropdown">
-      <a href="#">Career ▾</a>
-      <ul class="dropdown-menu">
-        <li><a href="career-ku.html">Kenyatta University</a></li>
-        <!--<li><a href="career-deckfirm.html">Deckfirm Technologies</a></li> -->
-      </ul>
-    </li>
-
-    <li><a href="index.html#education">Education & Certifications</a></li>
-  </ul>
-</nav>
-<body>
   <main class="container">
 
-    <section class="hero">
-      <img src="images/proxmox-dash.PNG" alt="Proxmox Lab Hero" />
-      <div class="hero-text">
-        <h1>Inside My Proxmox Homelab</h1>
-        <p class="tagline">A Cybersecurity Playground for Real-World Threat Response</p>
-      </div>
-    </section>
+    <!-- HERO -->
+    <div class="lab-hero">
+      <p class="kicker">Projects — Homelab</p>
+      <h1>Proxmox Virtual Lab</h1>
+      <p class="subtitle">A cybersecurity playground simulating enterprise infrastructure — built to detect real threats, break things safely, and learn by doing.</p>
+      <img src="images/proxmox-dash.PNG" alt="Proxmox Dashboard" />
+    </div>
 
-    <section class="content-block">
-      <div class="text">
-        <h2>What My Homelab Looks Like</h2>
-        <p>Powered by Proxmox, my virtualized lab mimics a real enterprise environment with Windows Server, pfSense firewall, and Wazuh SIEM monitoring.</p>
-        <ul>
-          <li>🪟 Windows Server 2022: AD, DNS, DHCP</li>
-          <li>🖥️ Windows 10 Workstation (domain joined)</li>
-          <li>🛡️ pfSense Firewall: NAT, segmentation</li>
-          <li>🧠 Wazuh 4.5 SIEM: real-time monitoring</li>
-        </ul>
-      </div>
-      <div class="image">
-        <img src="images/setup-workspace.jpg" alt="Architecture" />
-      </div>
-    </section>
+    <!-- WHAT IT IS -->
+    <div class="lab-section">
+      <h2>What This Lab Is</h2>
+      <p>This is a fully virtualized, enterprise-pattern homelab running on Proxmox VE. It's not a toy environment — it mirrors the kind of segmented, monitored infrastructure you'd find in a production data center, scaled down to bare metal running in my room.</p>
+      <p>Everything you see in the blog series below — the SIEM alerts, the CVE detections, the firewall configs — happened in this lab. It's the backbone of my cybersecurity practice.</p>
+    </div>
 
-    <blockquote class="highlight">
-      "SIEM visibility is crucial—even in test environments."
-    </blockquote>
-
-    <section class="content-block">
-      <div class="text">
-        <h2>CVE-2025-29824 Detection</h2>
-        <p>My Wazuh instance flagged this live Windows CLFS privilege escalation vulnerability. I researched the CVE, implemented a community patch, and validated the mitigation across my lab.</p>
-        <p>Mitigation via PowerShell, confirmed by SIEM logs.</p>
+    <!-- ARCHITECTURE STACK -->
+    <div class="lab-section">
+      <h2>Architecture Stack</h2>
+      <div class="stack-grid">
+        <div class="stack-item">
+          <span class="s-icon">🏗️</span>
+          <span class="s-name">Proxmox VE</span>
+          <span class="s-desc">Hypervisor layer — KVM + LXC virtualization</span>
+        </div>
+        <div class="stack-item">
+          <span class="s-icon">🛡️</span>
+          <span class="s-name">pfSense</span>
+          <span class="s-desc">Firewall, NAT, VLANs, traffic segmentation</span>
+        </div>
+        <div class="stack-item">
+          <span class="s-icon">🧠</span>
+          <span class="s-name">Wazuh 4.5</span>
+          <span class="s-desc">SIEM/XDR — real-time threat detection & alerting</span>
+        </div>
+        <div class="stack-item">
+          <span class="s-icon">🪟</span>
+          <span class="s-name">Windows Server 2022</span>
+          <span class="s-desc">Active Directory, DNS, DHCP</span>
+        </div>
+        <div class="stack-item">
+          <span class="s-icon">🐧</span>
+          <span class="s-name">Kali Linux</span>
+          <span class="s-desc">Red-team VM for controlled attack simulation</span>
+        </div>
+        <div class="stack-item">
+          <span class="s-icon">🐳</span>
+          <span class="s-name">Docker + NGINX</span>
+          <span class="s-desc">Containerized services with reverse proxy isolation</span>
+        </div>
       </div>
-      <div class="image">
-        <img src="images/wazuh-dashboard.jpg" alt="Wazuh Logs" />
-      </div>
-    </section>
+    </div>
 
-    <aside class="sidebar-tip">
-      💡 Tip: Monitor unpatched vulnerabilities using CVE feeds integrated with Wazuh or OSSEC.
-    </aside>
+    <!-- QUOTE -->
+    <div class="lab-quote">
+      "SIEM visibility is crucial — even in test environments. If you can't see it, you can't defend it."
+    </div>
 
-    <section class="content-block">
-      <div class="image">
-        <img src="images/pFSense_Firewall_LAN_.jpg" alt="Firewall" />
-      </div>
-      <div class="text">
-        <h2>Firewall & Threat Visibility</h2>
-        <p>pfSense gives me full control over NAT rules and traffic shaping. Logs are fed into Wazuh to alert on suspicious outbound connections.</p>
-      </div>
-    </section>
+    <!-- CVE HIGHLIGHT -->
+    <div class="lab-section">
+      <h2>Real Threat Detection — CVE-2025-29824</h2>
+      <p>My Wazuh instance flagged a live Windows CLFS privilege escalation vulnerability before I'd even read about it. I researched the CVE, implemented the community patch, validated mitigation via SIEM logs, and documented the entire kill chain.</p>
+      <p>That's the lab doing exactly what it's supposed to do.</p>
+      <a href="blog_wazuhmitigat_cve2025_week2_6.html" class="proj-link" style="color:#58a6ff; font-weight:600;">→ Read the CVE-2025-29824 case study</a>
+    </div>
 
-    <section class="skills-section">
-      <h2>Skills Gained</h2>
-      <div class="skills-grid">
-        <div class="skill-card">🧩 Virtualization (Proxmox)</div>
-        <div class="skill-card">🔐 SIEM Triage (Wazuh)</div>
-        <div class="skill-card">🌐 pfSense Firewalling</div>
-        <div class="skill-card">🧠 CVE Mitigation</div>
+    <!-- SKILLS -->
+    <div class="lab-section">
+      <h2>Skills Demonstrated</h2>
+      <div class="skills-row">
+        <span class="skill-tag">Proxmox VE</span>
+        <span class="skill-tag">pfSense</span>
+        <span class="skill-tag">Wazuh SIEM</span>
+        <span class="skill-tag">Active Directory</span>
+        <span class="skill-tag">CVE Mitigation</span>
+        <span class="skill-tag">Docker</span>
+        <span class="skill-tag">NGINX</span>
+        <span class="skill-tag">Kali Linux</span>
+        <span class="skill-tag">Incident Response</span>
+        <span class="skill-tag">Network Segmentation</span>
+        <span class="skill-tag">Log Analysis</span>
+        <span class="skill-tag">LXC Containers</span>
       </div>
-    </section>
+    </div>
 
-    <footer class="project-footer">
-      <p>Want to replicate this lab?</p>
-      <a href="images/proxmox-assets.zip" class="button">Contact Me</a>
-    </footer>
+    <!-- ===== ENTER THE LAB ===== -->
+    <div class="enter-lab">
+
+      <!-- Terminal bar decoration -->
+      <div class="terminal-bar">
+        <div class="t-dot red"></div>
+        <div class="t-dot yellow"></div>
+        <div class="t-dot green"></div>
+        <span class="t-label">macnoon188@proxmox-lab:~$</span>
+      </div>
+
+      <!-- Terminal text -->
+      <div class="terminal-output">
+        <span class="t-dim">$</span> <span class="t-white">ls homelab-series/</span><br>
+        <span class="t-blue">week-01</span>  inside-proxmox-architecture<br>
+        <span class="t-blue">week-02</span>  wazuh-siem-setup<br>
+        <span class="t-blue">week-03</span>  pfsense-monitoring<br>
+        <span class="t-blue">week-04</span>  turnkey-file-server<br>
+        <span class="t-blue">week-05</span>  proxmox-containers<br>
+        <span class="t-blue">week-06</span>  cve-2025-29824-detection<br>
+        <span class="t-blue">week-07</span>  kali-secure-lab-env<br>
+        <span class="t-dim">$</span> <span class="t-white">cat week-01/README.md</span><br>
+        <span class="t-dim">// Loading...</span> <span class="cursor"></span>
+      </div>
+
+      <!-- Week timeline -->
+      <div class="week-strip">
+        <a href="blog_inside_proxmox_week1_1.html" class="week-node week-start">
+          <span class="wn-num">WEEK 01</span>
+          <span class="wn-icon">🏗️</span>
+          <span class="wn-title">Proxmox Architecture</span>
+        </a>
+        <a href="blog_wazuh_setup_week1_2.html" class="week-node">
+          <span class="wn-num">WEEK 02</span>
+          <span class="wn-icon">📡</span>
+          <span class="wn-title">Wazuh SIEM Setup</span>
+        </a>
+        <a href="blog_pfsense_monitoring_wazuh_3.html" class="week-node">
+          <span class="wn-num">WEEK 03</span>
+          <span class="wn-icon">🌐</span>
+          <span class="wn-title">pfSense + Wazuh</span>
+        </a>
+        <a href="blog_turnkey_file_server_4.html" class="week-node">
+          <span class="wn-num">WEEK 04</span>
+          <span class="wn-icon">📦</span>
+          <span class="wn-title">File Server</span>
+        </a>
+        <a href="blog_proxmox_containers_5.html" class="week-node">
+          <span class="wn-num">WEEK 05</span>
+          <span class="wn-icon">🐳</span>
+          <span class="wn-title">LXC Containers</span>
+        </a>
+        <a href="blog_wazuhmitigat_cve2025_week2_6.html" class="week-node">
+          <span class="wn-num">WEEK 06</span>
+          <span class="wn-icon">🛡️</span>
+          <span class="wn-title">CVE Detection</span>
+        </a>
+        <a href="blog_kali_secure_lab_env_7.html" class="week-node">
+          <span class="wn-num">WEEK 07</span>
+          <span class="wn-icon">🐉</span>
+          <span class="wn-title">Kali Lab Env</span>
+        </a>
+      </div>
+
+      <!-- CTA -->
+      <div class="enter-btn-wrap">
+        <a href="blog_inside_proxmox_week1_1.html" class="enter-btn">
+          <span class="pulse-dot"></span>
+          [ ENTER THE LAB — START WEEK 01 ]
+        </a>
+        <p class="enter-sub">// 7 documented weeks · real infrastructure · real threats</p>
+      </div>
+
+    </div><!-- /enter-lab -->
+
   </main>
-</body>
+
+  <footer>
+    <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+  </footer>
+
 </body>
 </html>

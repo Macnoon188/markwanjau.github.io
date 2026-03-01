@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How I Use Proxmox Containers for Lightweight Virtualization</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip { display:flex; justify-content:space-between; align-items:center; margin:2.5rem 0 1.5rem; padding:1rem 1.5rem; background:#0d1117; border:1px solid #21262d; border-radius:10px; flex-wrap:wrap; gap:0.75rem; }
+    .article-nav-strip a { font-size:0.82rem; font-weight:600; text-decoration:none; }
+    .nav-prev { color:#58a6ff !important; }
+    .nav-center { color:#8b949e !important; font-size:0.78rem !important; }
+    .nav-next { color:#81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration:underline; }
+  </style>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Proxmox & Virtualization Series</p>
+
+      <h1 class="mag-title">
+        How I Use Proxmox Containers for Lightweight Virtualization
+      </h1>
+
+      <div class="mag-meta">
+        Published: Monday, 16 February 2026 • Author: Mark Andrew Wanjau
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When I first started building my homelab, I assumed everything needed to be a full virtual
+        machine. Bigger felt better. More “real”. More powerful.
+      </p>
+    </section>
+
+    <!-- INTRO -->
+    <section class="mag-section">
+      <p>
+        Then I discovered how much Proxmox containers could actually do.
+      </p>
+
+      <p>
+        And honestly, it changed the way I think about running services at home.
+      </p>
+
+      <p>
+        Containers feel lighter. Faster. More efficient. They help you focus on what you want to run,
+        not the overhead of maintaining a full operating system just to host a single service.
+      </p>
+
+      <p>
+        Instead of building heavy systems for simple tasks, I started using lightweight Proxmox LXC
+        containers where it made sense. My lab immediately felt cleaner, smarter, and easier to manage.
+      </p>
+    </section>
+
+    <!-- WHY CONTAINERS -->
+    <section class="mag-section">
+      <h2>Why Containers Started Making Sense To Me</h2>
+
+      <p>
+        I did not rush into containers. I wanted to understand what I was doing, not just follow trends.
+        But the more time I spent in my lab, the clearer a pattern became.
+      </p>
+
+      <p>
+        Some services do not need a full virtual machine.
+        They just need:
+      </p>
+
+      <p>
+        • Networking<br>
+        • Storage<br>
+        • A bit of CPU and RAM<br>
+        • A reliable place to run
+      </p>
+
+      <p>
+        Proxmox containers give you exactly that, without paying the resource cost of a full OS each time.
+        In a homelab where resources actually matter, this makes a real difference.
+      </p>
+    </section>
+
+    <!-- HOW I USE THEM -->
+    <section class="mag-section">
+      <h2>How I Actually Use Containers in My Lab</h2>
+
+      <p>
+        I use containers for services that do not need an entire machine behind them.
+      </p>
+
+      <p>
+        Examples include:
+      </p>
+
+      <p>
+        • Lightweight tools<br>
+        • Utility services<br>
+        • Quick experimental environments<br>
+        • Services I may rebuild or reset often
+      </p>
+
+      <p>
+        Instead of waiting for a VM to install, update, reboot, and configure endlessly,
+        a container is ready almost immediately.
+      </p>
+
+      <blockquote>
+        It feels like saying, “I need this service now,” and Proxmox replying, “Okay, here you go.”
+      </blockquote>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="mag-section">
+      <h2>The Benefits I’ve Really Felt</h2>
+
+      <p>
+        Using containers in my lab delivered very practical wins:
+      </p>
+
+      <p>
+        • Lower resource usage and smoother performance<br>
+        • Faster rebuilds when something breaks<br>
+        • Easier experimentation without long-term commitment<br>
+        • Cleaner separation of services
+      </p>
+
+      <p>
+        Most importantly, containers pushed me toward better design.
+        Instead of throwing everything onto large machines,
+        I started thinking in terms of purpose, efficiency, and simplicity.
+      </p>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>What This Has Taught Me</h2>
+
+      <p>
+        This experience reminded me that learning cybersecurity is not always about flashy tools.
+        Sometimes, it is about understanding infrastructure in a smarter, more thoughtful way.
+      </p>
+
+      <p>
+        Containers taught me:
+      </p>
+
+      <p>
+        • Not everything needs to be complex<br>
+        • Efficiency matters<br>
+        • Simple solutions can be powerful<br>
+        • Design choices affect everything else in your lab
+      </p>
+
+      <p>
+        It feels good building with intention instead of installing things just because they sound impressive.
+      </p>
+    </section>
+
+    <!-- FUTURE -->
+    <section class="mag-section">
+      <h2>How I Want To Use Containers Moving Forward</h2>
+
+      <p>
+        I am still learning, but my next goals are clear:
+      </p>
+
+      <p>
+        • Run more services in containers where appropriate<br>
+        • Explore stronger isolation and security practices<br>
+        • Automate deployments instead of manual setups<br>
+        • Build a structure closer to real production environments
+      </p>
+
+      <p>
+        The goal is not to rush. The goal is to understand.
+        Growth takes time — and that is part of the journey.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>If You’re Learning Like Me</h2>
+
+      <p>
+        If you are building your own homelab, do not ignore containers.
+        They sit perfectly between “too simple” and “overkill”.
+      </p>
+
+      <p>
+        Start small. Experiment. Break things safely. Learn by doing.
+      </p>
+
+      <p>
+        And if you already use Proxmox containers, I would genuinely love to hear how you structure yours.
+        What do you run in containers, and what do you still prefer running in full VMs?
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        Infrastructure choices shape everything that comes after.
+      </p>
+    </footer>
+
+    <div class="article-nav-strip">
+      <a href="blog_turnkey_file_server_4.html" class="nav-prev">← 📦 Week 04 — TurnKey File Server</a>
+      <a href="blogs.html#homelab" class="nav-center">🔬 Homelab Series</a>
+      <a href="blog_wazuhmitigat_cve2025_week2_6.html" class="nav-next">Week 06 — CVE Detection 🛡️ →</a>
+    </div>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

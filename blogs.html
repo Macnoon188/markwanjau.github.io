@@ -3,17 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cybersecurity Blogs | Mark Wanjau</title>
+  <title>Blogs | Mark Andrew Wanjau</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="matrix.js" defer></script>
+  <style>
+    .blogs-hero {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+    }
+    .blogs-hero h1 {
+      font-size: 2.4rem;
+      color: #81ff7f;
+      letter-spacing: 1px;
+    }
+    .blogs-hero p {
+      color: #8b949e;
+      font-style: italic;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* Category sections */
+    .blog-category {
+      margin-bottom: 3.5rem;
+    }
+    .blog-cat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.6rem;
+    }
+    .blog-cat-header h2 {
+      font-size: 1.15rem;
+      color: #79c0ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .blog-cat-count {
+      font-size: 0.68rem;
+      background: #161b22;
+      color: #8b949e;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid #30363d;
+    }
+
+    /* Blog cards grid */
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+    .blog-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .blog-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-4px);
+    }
+    .blog-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      border: none;
+      border-bottom: 1px solid #21262d;
+    }
+    .blog-card-body {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .blog-week-badge {
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #81ff7f;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      font-family: monospace;
+    }
+    .blog-card h3 {
+      font-size: 0.95rem;
+      color: #e6edf3;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+    .blog-card p {
+      font-size: 0.82rem;
+      color: #8b949e;
+      line-height: 1.5;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .blog-card a.read-link {
+      font-size: 0.8rem;
+      color: #58a6ff;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s;
+    }
+    .blog-card a.read-link:hover {
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    /* Homelab series — special styling */
+    #homelab .blog-card {
+      border-color: #1a3a2a;
+    }
+    #homelab .blog-card:hover {
+      border-color: #81ff7f;
+    }
+    #homelab .blog-card a.read-link {
+      color: #81ff7f;
+    }
+  </style>
 </head>
 <body>
   <canvas id="matrix-canvas"></canvas>
+
   <nav>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="blogs.html">Blogs</a></li>
+      <li class="dropdown">
+        <a href="projects.html">Projects ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+          <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+          <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+          <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="blogs.html">Blogs ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+          <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+          <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+          <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+          <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        </ul>
+      </li>
       <li class="dropdown">
         <a href="#">Career ▾</a>
         <ul class="dropdown-menu">
@@ -21,65 +165,200 @@
           <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
         </ul>
       </li>
-      <li><a href="index.html#education">Education & Certifications</a></li>
+      <li><a href="education.html">Education & Certs</a></li>
     </ul>
   </nav>
 
   <main class="container">
-    <h1>Cybersecurity Blog</h1>
-    <p class="intro">Insights, experiences, and critical reflections from my cyber world.</p>
 
-<section class="card-container">
-  <div class="card">
-    <img src="images/blog-cve2025.jpg" alt="CVE-2025-29824" />
-    <h3>CVE-2025-29824: A Real-Time Response</h3>
-    <p>Learn how I detected and mitigated a real Windows privilege escalation threat using my Wazuh SIEM.</p>
-    <a href="blog-cve2025.html">Read More →</a>
-  </div>
+    <div class="blogs-hero">
+      <h1>Blog</h1>
+      <p>Real hands-on lab experiments, cybersecurity engineering, and developer workflow reflections.</p>
+    </div>
 
-  <div class="card">
-    <img src="images/blog-smart.jpg" alt="Smart Employees and Leadership" />
-    <h3>Smart Employees Need Smart Managers</h3>
-    <p>Why brilliant minds struggle under poor leadership — and how management can enable tech excellence.</p>
-    <a href="blog-smart-employees.html">Read More →</a>
-  </div>
+    <!-- ===== HOMELAB SERIES ===== -->
+    <section class="blog-category" id="homelab">
+      <div class="blog-cat-header">
+        <h2>🔬 Homelab Series</h2>
+        <span class="blog-cat-count">7 posts</span>
+      </div>
+      <div class="blog-grid">
 
-  <div class="card">
-    <img src="images/blog-proxmox.jpg" alt="Inside My Proxmox Homelab" />
-    <h3>Inside My Proxmox Homelab</h3>
-    <p>Week 1 Blog – Architecture, Purpose & Practical Use Cases.</p>
-    <a href="blog-proxmox-week1.html">Read More →</a>
-  </div>
-  
-  <div class="card">
-  <img src="images/blog-wazuh.jpg" alt="Wazuh Monitoring Setup" />
-  <h3>Wazuh Monitoring Setup in My Homelab</h3>
-  <p>How I built a real-time SIEM using Wazuh to monitor threats across my Proxmox lab.</p>
-  <a href="blog-wazuh-week1.html">Read More →</a>
-</div>
+        <div class="blog-card">
+          <img src="images/beitragsbild_proxmox.jpg" alt="Proxmox" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 01</div>
+            <h3>Inside My Proxmox Homelab</h3>
+            <p>Architecture, purpose, and how I designed my cybersecurity lab from the ground up.</p>
+            <a href="blog_inside_proxmox_week1_1.html" class="read-link">Read →</a>
+          </div>
+        </div>
 
-<div class="card">
-  <img src="images/blog-placeholder.jpg" alt="pfSense + Wazuh Monitoring" />
-  <h3>Monitoring pfSense with Wazuh</h3>
-  <p>How I integrated pfSense firewall logs into Wazuh SIEM for real-time threat monitoring.</p>
-  <a href="blog-pfsense-wazuh-week2.html">Read More →</a>
-</div>
+        <div class="blog-card">
+          <img src="images/wazuh.jpg" alt="Wazuh" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 02</div>
+            <h3>Wazuh SIEM Setup in My Homelab</h3>
+            <p>Building a real-time SIEM inside my Proxmox lab using Wazuh 4.5.</p>
+            <a href="blog_wazuh_setup_week1_2.html" class="read-link">Read →</a>
+          </div>
+        </div>
 
-<div class="card">
-  <img src="images/blog-placeholder.jpg" alt="Detecting CVE-2025-29824 with Wazuh" />
-  <h3>Using Wazuh to Detect CVE-2025-29824</h3>
-  <p>How I detected a real high-severity CVE inside my homelab using Wazuh SIEM.</p>
-  <a href="blog-wazuh-cve2025-week2.html">Read More →</a>
-</div>
+        <div class="blog-card">
+          <img src="images/pfsensewazuh.jpg" alt="pfSense Wazuh" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 03</div>
+            <h3>Monitoring pfSense with Wazuh</h3>
+            <p>Integrating firewall logs into Wazuh for real-time network visibility.</p>
+            <a href="blog_pfsense_monitoring_wazuh_3.html" class="read-link">Read →</a>
+          </div>
+        </div>
 
+        <div class="blog-card">
+          <img src="images/tfileserver.jpg" alt="TurnKey File Server" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 04</div>
+            <h3>Building a TurnKey File Server in Proxmox</h3>
+            <p>Deploying a lightweight file server container inside my homelab.</p>
+            <a href="blog_turnkey_file_server_4.html" class="read-link">Read →</a>
+          </div>
+        </div>
 
-</section>
+        <div class="blog-card">
+          <img src="images/proxmox-lxc.jpg" alt="Proxmox Containers" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 05</div>
+            <h3>Understanding Proxmox Containers</h3>
+            <p>How LXC containers improved efficiency and isolation in my lab.</p>
+            <a href="blog_proxmox_containers_5.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <img src="images/cve-banner.jpg" alt="CVE Detection" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 06</div>
+            <h3>Using Wazuh to Detect CVE-2025-29824</h3>
+            <p>How I detected and mitigated a real high-severity CVE in my homelab.</p>
+            <a href="blog_wazuhmitigat_cve2025_week2_6.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <img src="images/kali.jpg" alt="Kali Linux" />
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 07</div>
+            <h3>Running Kali Linux in a Secure Lab Environment</h3>
+            <p>Designing a controlled red-team workflow inside a monitored blue-team lab.</p>
+            <a href="blog_kali_secure_lab_env_7.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== WEB DEVELOPMENT ===== -->
+    <section class="blog-category" id="webdev">
+      <div class="blog-cat-header">
+        <h2>🌐 Web Development</h2>
+        <span class="blog-cat-count">2 posts</span>
+      </div>
+      <div class="blog-grid">
+
+        <div class="blog-card">
+          <img src="images/tailwindcss.jpg" alt="TailwindCSS" />
+          <div class="blog-card-body">
+            <h3>Creating a Minimal Techy Website with TailwindCSS</h3>
+            <p>How I built my clean, minimal developer portfolio from scratch using Tailwind.</p>
+            <a href="blog_personal_web_tailwindcss_8.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <img src="images/1__M3PH26KMfxZ2hBpC2I3_A.jpg" alt="GitHub Pages" />
+          <div class="blog-card-body">
+            <h3>Hosting My Portfolio on GitHub Pages</h3>
+            <p>Why I chose GitHub Pages and what I learned from deploying my first static site.</p>
+            <a href="blog_github_pages_portfolio_9.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== DEV TOOLS ===== -->
+    <section class="blog-category" id="devtools">
+      <div class="blog-cat-header">
+        <h2>⚙️ Dev Tools</h2>
+        <span class="blog-cat-count">2 posts</span>
+      </div>
+      <div class="blog-grid">
+
+        <div class="blog-card">
+          <img src="images/1_QaROBlilICTXUhWStp-zaQ.jpg" alt="Windsurf to Cursor" />
+          <div class="blog-card-body">
+            <h3>From Windsurf to Cursor</h3>
+            <p>Why I switched AI code editors mid-project for React Native development.</p>
+            <a href="blog_windsurf_to_cursor_10.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <img src="images/dockernginx.jpg" alt="Docker NGINX" />
+          <div class="blog-card-body">
+            <h3>Using Docker & NGINX for Isolated Web Servers</h3>
+            <p>Running multiple services safely inside my homelab with container isolation.</p>
+            <a href="blog_docker_nginx_isolated_webservers_11.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== CLOUD & BACKEND ===== -->
+    <section class="blog-category" id="cloud">
+      <div class="blog-cat-header">
+        <h2>☁️ Cloud & Backend</h2>
+        <span class="blog-cat-count">1 post</span>
+      </div>
+      <div class="blog-grid">
+
+        <div class="blog-card">
+          <img src="images/1_4Dnj3pew5eq9pN8LRfxKrw.jpg" alt="Firebase" />
+          <div class="blog-card-body">
+            <h3>Using Firebase for Real-Time App Development</h3>
+            <p>Pros, lessons, and security gotchas from building real-time features with Firebase.</p>
+            <a href="blog_firebase__pros_gotchas_12.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== SOC ENGINEERING ===== -->
+    <section class="blog-category" id="soc">
+      <div class="blog-cat-header">
+        <h2>🧠 SOC Engineering</h2>
+        <span class="blog-cat-count">1 post</span>
+      </div>
+      <div class="blog-grid">
+
+        <div class="blog-card">
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 13 · 13 April 2026</div>
+            <h3>Why I Stopped Using the Wazuh Agent on pfSense</h3>
+            <p>The architecture lesson that changed how I think about monitoring firewalls — and why more agents isn't always the right answer.</p>
+            <a href="blog_wazuh_pfsense_agent_lesson_13.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
 
   </main>
 
-<footer>
-    <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
-</footer>
-
+  <footer>
+    <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+  </footer>
 </body>
 </html>

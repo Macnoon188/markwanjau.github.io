@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring pfSense with Wazuh – Step-by-Step Guide</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Homelab Security Series</p>
+
+      <h1 class="mag-title">
+        Monitoring pfSense with Wazuh
+      </h1>
+
+      <p class="mag-subtitle">
+        A Step-by-Step Guide
+      </p>
+
+      <div class="mag-meta">
+        Published: Monday, January 26, 2026 • Author: Mark Andrew Wanjau
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When I decided to rebuild my homelab, I knew I wanted to stop treating cybersecurity like a “tools project”
+        and start treating it like a real network. That meant starting with something many learners ignore —
+        the firewall.
+      </p>
+    </section>
+
+    <!-- INTRO -->
+    <section class="mag-section">
+      <p>
+        pfSense quickly became the backbone of everything I was building. It helped me shape traffic, create
+        structure, and understand what was actually moving across my network instead of guessing.
+        But having a firewall is one thing. Seeing what it is doing is another.
+      </p>
+
+      <p>
+        That is where Wazuh came in.
+      </p>
+
+      <p>
+        I wanted more than green check marks and “things look okay.” I wanted visibility. If something strange
+        happened, I wanted to know. So I integrated pfSense logs into Wazuh and treated my lab like a small SOC would.
+      </p>
+
+      <p>
+        This guide walks through how I set it up, what I learned, and why it completely changed how I view homelabs.
+      </p>
+    </section>
+
+    <!-- GOALS -->
+    <section class="mag-section">
+      <h2>What I Wanted To Achieve</h2>
+      <p>
+        My goal was simple. I wanted Wazuh to:
+        <br>• Receive pfSense logs
+        <br>• Turn important events into alerts
+        <br>• Help me understand traffic and security behavior
+        <br>• Show what attackers, scanners, or misconfigurations look like
+      </p>
+
+      <p>
+        Nothing fancy. Just meaningful visibility.
+      </p>
+    </section>
+
+    <!-- STEP 1 -->
+    <section class="mag-section">
+      <h2>Step 1: Make Sure the Basics Are Ready</h2>
+      <p>
+        Before touching anything, I already had:
+        <br>• pfSense installed and working as my firewall
+        <br>• Wazuh Manager running in my lab
+        <br>• Reliable connectivity between pfSense and Wazuh
+      </p>
+
+      <p>
+        If you are doing this yourself, make sure these exist first. It saves frustration.
+      </p>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="mag-section">
+      <h2>Step 2: Configure pfSense To Send Logs</h2>
+      <p>
+        Inside pfSense, I navigated to:
+        <br><strong>Status → System Logs → Settings</strong>
+      </p>
+
+      <p>
+        I enabled remote logging and pointed pfSense to my Wazuh server’s IP address.
+        The idea is simple — pfSense generates logs, but Wazuh helps make sense of them.
+      </p>
+
+      <p>
+        This was the moment pfSense stopped being “just a router” and became a system that told the story
+        of what was happening in my network.
+      </p>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="mag-section">
+      <h2>Step 3: Let Wazuh Listen</h2>
+      <p>
+        On the Wazuh side, I made sure it could receive syslog data and categorize it properly.
+        Once logs started flowing, firewall events, blocked traffic, and connection attempts
+        appeared in my dashboard.
+      </p>
+
+      <p>
+        That moment changed everything.
+      </p>
+
+      <p>
+        It is one thing to secure a system. It is another to actually see how it behaves.
+      </p>
+    </section>
+
+    <!-- VISIBILITY -->
+    <section class="mag-section">
+      <h2>What I Started Seeing</h2>
+      <p>
+        Traffic was no longer invisible. I started seeing:
+        <br>• Blocked connection attempts
+        <br>• Port scans
+        <br>• Failed access attempts
+        <br>• Network noise I never knew existed
+      </p>
+
+      <p>
+        The firewall felt alive. Instead of trusting it blindly, I could verify what it was doing.
+        That clarity builds confidence.
+      </p>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>What This Taught Me</h2>
+      <p>
+        This setup taught me something I would not have learned just by reading.
+      </p>
+
+      <blockquote>
+        Security is not about having tools.
+        <br>It is about understanding what they are telling you.
+      </blockquote>
+
+      <p>
+        Logs are conversations.
+        <br>pfSense speaks.
+        <br>Wazuh listens and explains.
+      </p>
+    </section>
+
+    <!-- FUTURE -->
+    <section class="mag-section">
+      <h2>What I Plan To Improve Next</h2>
+      <p>
+        This is not finished. It is only step one.
+        Next, I want to:
+        <br>• Build better alert rules
+        <br>• Tune noise and focus on meaningful events
+        <br>• Map activity to attacker behavior
+        <br>• Use this setup for real learning, not just dashboards
+      </p>
+
+      <p>
+        I want my homelab to feel like a small SOC where every tool has a purpose.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>If You’re Building Something Similar</h2>
+      <p>
+        If you are learning cybersecurity, don’t skip the firewall stage.
+        Don’t rush to flashy tools. Start with the network. Understand the flow.
+      </p>
+
+      <p>
+        If you have ideas or improvements I should try, I am always open to learning.
+        That is the whole point of this journey.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>What would you improve or add next if this was your homelab?</p>
+    </footer>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

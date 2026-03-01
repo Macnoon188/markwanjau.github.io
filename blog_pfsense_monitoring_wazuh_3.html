@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring pfSense with Wazuh – Homelab Guide</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <script src="js/devsnippet.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <header class="mag-hero">
+      <p class="mag-kicker">Cybersecurity Homelab Series</p>
+      <h1 class="mag-title">Monitoring pfSense with Wazuh</h1>
+      <p class="mag-subtitle">Turning My Firewall Into a Real Visibility Layer</p>
+      <div class="mag-meta">
+        Published: January 2026 • Author: Mark Andrew Wanjau • Tags: Wazuh • pfSense • SIEM • Monitoring
+      </div>
+    </header>
+
+    <section class="mag-lead">
+      <p>
+        When I rebuilt my homelab, I stopped treating cybersecurity like a tools experiment and started treating it like a real network.
+      </p>
+      <p>
+        pfSense became the backbone of my environment. But having a firewall is one thing. Seeing what it is doing is another.
+      </p>
+      <p>
+        That is where Wazuh came in.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <h2>Step 1: Configure pfSense Remote Logging</h2>
+      <p>Navigate to:</p>
+      <p><strong>Status → System Logs → Settings</strong></p>
+      <p>Enable Remote Logging and add your Wazuh Manager IP:</p>
+
+      <div class="dev-snippet">
+        <pre><code>
+192.168.x.x:514
+        </code></pre>
+      </div>
+
+      <p>Select logs such as:</p>
+      <p>• System<br>• Firewall<br>• DHCP<br>• VPN<br>• DNS Resolver</p>
+    </section>
+
+    <section class="mag-section">
+      <h2>Step 2: Configure Wazuh to Receive Logs</h2>
+
+      <div class="dev-snippet">
+        <pre><code>
+File: /var/ossec/etc/ossec.conf
+
+<remote>
+  <connection>syslog</connection>
+  <port>514</port>
+  <protocol>udp</protocol>
+  <allowed-ips>192.168.0.0/24</allowed-ips>
+</remote>
+        </code></pre>
+      </div>
+
+      <p>Restart Wazuh:</p>
+
+      <div class="dev-snippet" data-run="true">
+        <pre><code>
+sudo systemctl restart wazuh-manager
+        </code></pre>
+      </div>
+
+    </section>
+
+    <section class="mag-section">
+      <h2>Optional: Add Custom Parsing Rules</h2>
+
+      <div class="dev-snippet">
+        <pre><code>
+File: /var/ossec/etc/rules/pfsense_rules.xml
+
+<group name="pfsense,">
+  <rule id="700001" level="5">
+    <decoded_as>syslog</decoded_as>
+    <match>filterlog:</match>
+    <description>pfSense Firewall Event</description>
+  </rule>
+</group>
+        </code></pre>
+      </div>
+
+      <p>Restart the manager again after adding rules:</p>
+
+      <div class="dev-snippet warning" data-run="true">
+        <pre><code>
+sudo systemctl restart wazuh-manager
+        </code></pre>
+      </div>
+
+    </section>
+
+    <section class="mag-section">
+      <h2>What I Started Seeing</h2>
+      <p>
+        • Blocked inbound traffic<br>
+        • Port scans<br>
+        • Failed connection attempts<br>
+        • DHCP activity<br>
+        • VPN events
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <h2>What This Taught Me</h2>
+      <blockquote>
+        Security is not about having tools.<br>
+        It is about understanding what they are telling you.
+      </blockquote>
+      <p>
+        pfSense generates the story. Wazuh helps interpret it.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>What would you improve or add next if this was your homelab?</p>
+    </footer>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

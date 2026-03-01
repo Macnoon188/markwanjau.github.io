@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using Wazuh to Detect & Mitigate CVE-2025-29824 | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .content-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .callout {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #81ff7f;
+      line-height: 1.7;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    .step-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .step-block h3 {
+      color: #79c0ff;
+      font-size: 0.95rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-num {
+      background: #1f2937;
+      color: #58a6ff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: monospace;
+    }
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .tool-item {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 0.65rem 1rem;
+      font-size: 0.82rem;
+      color: #c9d1d9;
+    }
+    .tool-item strong { color: #79c0ff; display: block; margin-bottom: 2px; }
+    .lessons-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0;
+    }
+    .lessons-list li {
+      padding: 0.4rem 0;
+      color: #c9d1d9;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #21262d;
+      display: flex;
+      gap: 0.6rem;
+    }
+    .lessons-list li:last-child { border-bottom: none; }
+    .ref-list {
+      list-style: none;
+      padding: 0;
+    }
+    .ref-list li {
+      font-size: 0.85rem;
+      color: #8b949e;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .ref-list li:last-child { border-bottom: none; }
+    .ref-list a { color: #58a6ff; }
+    .nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #21262d;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .nav-strip a {
+      color: #58a6ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  </style>
+  <style>
+    /* ── Article Navigation Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home button (used on last article) ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 3rem auto 1.5rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 6 · Cybersecurity Homelab Series · Blue Team Operations</p>
+      <h1 class="mag-title">Using Wazuh to Detect & Mitigate CVE-2025-29824 in My Homelab</h1>
+      <p class="mag-subtitle">A full incident response walkthrough — from SIEM alert to patch validation — inside a Proxmox-based cybersecurity lab</p>
+      <div class="mag-meta">
+        Published: Monday, 23 February 2026 &nbsp;·&nbsp; Author: Mark Wanjau &nbsp;·&nbsp;
+        Tags: Wazuh · CVE-2025-29824 · Blue Team · SIEM · Homelab · Incident Response
+      </div>
+    </header>
+
+    <!-- STORY HOOK -->
+    <section class="mag-lead">
+      <p>
+        On a quiet afternoon, an alert flashed across my Wazuh dashboard — flagging a potential exploitation
+        attempt tied to <strong>CVE-2025-29824</strong>, a privilege escalation vulnerability in the Windows
+        CLFS driver. A use-after-free condition in the logging system allowing local users to execute code
+        with elevated privileges. Exploited in the wild before Microsoft issued a patch.
+      </p>
+      <p>
+        My first question was simple: <strong>"How exposed am I?"</strong>
+      </p>
+      <p>
+        This article documents exactly how I answered that — detection, triage, mitigation, and post-fix
+        monitoring, entirely within my homelab.
+      </p>
+    </section>
+
+    <!-- SEVERITY -->
+    <section class="mag-section">
+      <h2>🧠 Understanding CVE-2025-29824</h2>
+      <span class="severity-badge">⚠ HIGH SEVERITY · CVSS 9.0</span>
+      <p>
+        CVE-2025-29824 affects the Windows Common Log File System (CLFS) driver. A successful exploit allows a
+        local attacker to escalate privileges to SYSTEM — making it a critical foothold for lateral movement,
+        credential harvesting, and ransomware deployment. It was actively exploited before the patch window closed.
+      </p>
+      <p>
+        Key risk factors that made this worth triaging seriously:
+      </p>
+      <p>
+        • <strong>Attack vector:</strong> Local (authenticated user required, but low barrier)<br>
+        • <strong>Impact:</strong> Full privilege escalation to SYSTEM<br>
+        • <strong>Exploit maturity:</strong> Active exploitation in the wild confirmed<br>
+        • <strong>Affected:</strong> Windows Server 2022, Windows 10/11, multiple builds
+      </p>
+    </section>
+
+    <blockquote>
+      "This vulnerability was being exploited in the wild before a patch was issued by Microsoft." — The Hacker News, 2025
+    </blockquote>
+
+    <!-- TOOLS -->
+    <section class="mag-section">
+      <h2>🛠️ Tools Used</h2>
+      <div class="tools-grid">
+        <div class="tool-item"><strong>Wazuh 4.5</strong>SIEM / vulnerability detector</div>
+        <div class="tool-item"><strong>Proxmox VE</strong>Hypervisor + snapshot rollback</div>
+        <div class="tool-item"><strong>Windows Server 2022</strong>Affected VM target</div>
+        <div class="tool-item"><strong>pfSense</strong>Firewall log correlation</div>
+        <div class="tool-item"><strong>PowerShell</strong>Mitigation script execution</div>
+        <div class="tool-item"><strong>MITRE / NVD</strong>CVE research & validation</div>
+      </div>
+    </section>
+
+    <!-- RESPONSE WORKFLOW -->
+    <section class="mag-section">
+      <h2>📋 My Response Strategy</h2>
+      <p>Rather than panic-patching blindly, I followed the same structured workflow I'd use in an enterprise SOC:</p>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 01</span> Understand the Vulnerability</h3>
+        <p>First stops: vendor advisory, NVD entry, MITRE ATT&CK mapping, and active community discussion threads. I evaluated impact type, attack vector, exploit maturity, and which of my lab systems ran affected builds.</p>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 02</span> Identify Affected Assets</h3>
+        <p>Wazuh's inventory scanning and package tracking helped me quickly map which systems were running vulnerable software versions. Within minutes I confirmed: <strong>one system affected — my Windows Server 2022 VM.</strong></p>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 03</span> Enable Wazuh Vulnerability Detector</h3>
+        <p>First, I confirmed the vulnerability detector was active and pulling NVD feeds. Config in <code>/var/ossec/etc/ossec.conf</code>:</p>
+        <div class="callout">&lt;vulnerability-detector&gt;
+  &lt;enabled&gt;yes&lt;/enabled&gt;
+  &lt;interval&gt;12h&lt;/interval&gt;
+  &lt;provider name="canonical"&gt;
+    &lt;enabled&gt;yes&lt;/enabled&gt;
+  &lt;/provider&gt;
+  &lt;provider name="nvd"&gt;
+    &lt;enabled&gt;yes&lt;/enabled&gt;
+  &lt;/provider&gt;
+&lt;/vulnerability-detector&gt;</div>
+        <p>Then restart the manager:</p>
+        <div class="callout">sudo systemctl restart wazuh-manager</div>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 04</span> Run the Scan & View the Alert</h3>
+        <p>Triggered a manual vulnerability scan and restarted the agent:</p>
+        <div class="callout">sudo /var/ossec/bin/wazuh-control print vde
+sudo systemctl restart wazuh-agent</div>
+        <p>In the Wazuh Dashboard, I searched:</p>
+        <div class="callout">rule.cve: "CVE-2025-29824"</div>
+        <p>The alert returned:</p>
+        <div class="callout">Severity   : HIGH
+Host       : Windows Server 2022 VM
+Status     : Vulnerable package detected
+Threat Level : 9 / 10
+CVE        : CVE-2025-29824</div>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 05</span> Add a Custom Detection Rule</h3>
+        <p>To make future detections scream loud, I added a custom rule in <code>/var/ossec/etc/rules/custom_cve_rules.xml</code>:</p>
+        <div class="callout">&lt;group name="cve,"&gt;
+  &lt;rule id="900100" level="10"&gt;
+    &lt;match&gt;CVE-2025-29824&lt;/match&gt;
+    &lt;description&gt;Critical: CVE-2025-29824 detected on host&lt;/description&gt;
+    &lt;group&gt;critical,&lt;/group&gt;
+  &lt;/rule&gt;
+&lt;/group&gt;</div>
+        <div class="callout">sudo systemctl restart wazuh-manager</div>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 06</span> Patch & Mitigate</h3>
+        <p>
+          With detection confirmed, I followed the priority order: patch first if available, apply vendor-recommended
+          mitigations second, then harden configurations. For this CVE, I deployed a PowerShell workaround from the
+          Vicarius community and validated it through the SIEM logs post-execution.
+        </p>
+        <p>Proxmox snapshots meant I could test safely and roll back instantly if something broke.</p>
+      </div>
+
+      <div class="step-block">
+        <h3><span class="step-num">STEP 07</span> Post-Mitigation Monitoring</h3>
+        <p>
+          Patching is not the finish line. Wazuh continued to alert if vulnerable versions reappeared,
+          detect suspicious CLFS-related behavior, and validate patch stability. This is the loop that
+          makes a homelab feel like a real SOC.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="mag-section">
+      <h2>🤝 Community Collaboration</h2>
+      <p>
+        This CVE generated strong community involvement. Security researchers shared detection rules,
+        temporary mitigation scripts, and hardening recommendations within days of disclosure.
+        Collaboration accelerated the response significantly — especially when waiting on the official
+        Microsoft patch.
+      </p>
+      <blockquote>
+        Collaboration accelerates security — especially during active vulnerability disclosures.
+      </blockquote>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>📊 Lessons Learned</h2>
+      <ul class="lessons-list">
+        <li>✅ Don't underestimate local privilege escalation — it's a foothold for bigger attacks</li>
+        <li>✅ SIEM visibility is just as critical in homelabs as in production environments</li>
+        <li>✅ Community scripts can bridge the patch gap when vendors lag behind disclosures</li>
+        <li>✅ Centralized monitoring turns reactive patching into proactive defense</li>
+        <li>✅ Proxmox snapshots make safe testing in a homelab genuinely enterprise-grade</li>
+        <li>✅ Wazuh detects new CVEs within minutes of feed updates — no manual host checks needed</li>
+      </ul>
+    </section>
+
+    <!-- REFERENCES -->
+    <section class="mag-section">
+      <h2>📚 References</h2>
+      <ul class="ref-list">
+        <li>Microsoft (2025) <em>CVE-2025-29824 Security Advisory</em> — <a href="https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-29824" target="_blank">msrc.microsoft.com</a></li>
+        <li>NVD (2025) <em>CVE-2025-29824 Detail</em> — <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-29824" target="_blank">nvd.nist.gov</a></li>
+        <li>The Hacker News (2025) <em>Play Ransomware Exploited CVE-2025-29824</em> — <a href="https://thehackernews.com/" target="_blank">thehackernews.com</a></li>
+        <li>Wazuh Documentation (2025) <em>Vulnerability Detector Configuration</em> — <a href="https://documentation.wazuh.com/" target="_blank">documentation.wazuh.com</a></li>
+      </ul>
+    </section>
+
+    <!-- NAV STRIP -->
+
+
+    <div class="article-nav-strip">
+      <a href="blog_proxmox_containers_5.html" class="nav-prev">← 🐳 Week 05 — LXC Containers</a>
+      <a href="blogs.html#homelab" class="nav-center">🔬 Homelab Series</a>
+      <a href="blog_kali_secure_lab_env_7.html" class="nav-next">Week 07 — Kali Lab Env 🐉 →</a>
+    </div>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

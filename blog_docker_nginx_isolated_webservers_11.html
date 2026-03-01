@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How I Use Docker and NGINX to Run Isolated Web Servers in My Homelab</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 11 • Infrastructure & Web Services</p>
+
+      <h1 class="mag-title">
+        How I Use Docker and NGINX to Run Isolated Web Servers in My Homelab
+      </h1>
+
+      <div class="mag-meta">
+        Published: Monday, 30 March 2026 • Author: Mark Andrew Wanjau
+      </div>
+    </header>
+
+    <!-- INTRO -->
+    <section class="mag-lead">
+      <p>
+        At some point in my homelab journey, running everything directly on the host
+        stopped making sense.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <p>
+        I wanted cleaner separation, easier testing, and a way to break things
+        without breaking everything.
+      </p>
+
+      <p>
+        That is when Docker and NGINX became part of my everyday workflow.
+      </p>
+
+      <p>
+        Not because they are trendy tools, but because they solve real problems
+        when you are running multiple services in one environment.
+      </p>
+    </section>
+
+    <!-- ISOLATION -->
+    <section class="mag-section">
+      <h2>Why Isolation Matters More Than I Expected</h2>
+
+      <p>
+        Early on, I would install services directly on a server.
+        It worked, until it didn’t.
+      </p>
+
+      <p>
+        Dependencies clashed.
+        Config files overlapped.
+        One small change affected something completely unrelated.
+      </p>
+
+      <p>
+        That experience taught me a simple lesson.
+      </p>
+
+      <p>
+        Isolation is not overengineering.
+        It is survival.
+      </p>
+
+      <p>
+        Docker gave me a clean boundary.
+        Each service lives in its own container, with its own environment,
+        and its own rules.
+      </p>
+
+      <p>
+        If something breaks, it stays broken inside that container.
+        And that peace of mind is huge.
+      </p>
+    </section>
+
+    <!-- NGINX -->
+    <section class="mag-section">
+      <h2>Where NGINX Fits In</h2>
+
+      <p>
+        Docker handles isolation.
+        NGINX handles control.
+      </p>
+
+      <p>
+        I use NGINX as the front door to my web services.
+        It routes traffic, manages access, and keeps things organized.
+      </p>
+
+      <p>
+        Instead of exposing every container directly,
+        NGINX decides who talks to what.
+      </p>
+
+      <p>
+        This setup allows me to:
+      </p>
+
+      <p>
+        • Run multiple web services on the same server<br>
+        • Map clean URLs to different containers<br>
+        • Control access with simple rules<br>
+        • Simulate real production-like traffic flow
+      </p>
+
+      <p>
+        It feels structured, not messy.
+      </p>
+    </section>
+
+    <!-- STRUCTURE -->
+    <section class="mag-section">
+      <h2>How I Structure My Setup</h2>
+
+      <p>
+        My approach is simple and intentional.
+      </p>
+
+      <p>
+        Each web service:
+      </p>
+
+      <p>
+        • Runs in its own Docker container<br>
+        • Has its own configuration<br>
+        • Exposes only what it needs<br>
+        • Can be stopped or rebuilt independently
+      </p>
+
+      <p>
+        NGINX sits in front, forwarding requests to the correct container.
+      </p>
+
+      <p>
+        If I want to test a new service, I spin it up,
+        update NGINX, and I am done.
+      </p>
+
+      <p>
+        No fear of interfering with something else.
+        This makes experimentation easy and learning much safer.
+      </p>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>What I Learned From This Setup</h2>
+
+      <p>
+        Using Docker and NGINX taught me more than just commands and configs.
+      </p>
+
+      <p>
+        I learned:
+      </p>
+
+      <p>
+        • How real systems are layered<br>
+        • Why separation of concerns matters<br>
+        • How small architectural decisions reduce future headaches<br>
+        • That simplicity comes from structure, not shortcuts
+      </p>
+
+      <p>
+        It also made troubleshooting easier.
+        When something fails, I know exactly where to look.
+      </p>
+    </section>
+
+    <!-- SECURITY -->
+    <section class="mag-section">
+      <h2>Why This Matters for My Cybersecurity Journey</h2>
+
+      <p>
+        Isolation is a security concept,
+        not just a development convenience.
+      </p>
+
+      <p>
+        Running services in containers helps reduce blast radius.
+        Using NGINX as a controlled gateway adds visibility and control.
+      </p>
+
+      <p>
+        Combined with monitoring tools like Wazuh,
+        this setup gives me:
+      </p>
+
+      <p>
+        • Better logging<br>
+        • Clearer traffic patterns<br>
+        • Safer testing conditions<br>
+        • Realistic security scenarios
+      </p>
+
+      <p>
+        It turns my homelab into something closer
+        to a real-world environment.
+      </p>
+    </section>
+
+    <!-- FUTURE -->
+    <section class="mag-section">
+      <h2>Looking Ahead</h2>
+
+      <p>
+        I plan to keep improving this setup.
+      </p>
+
+      <p>
+        More automation.
+        Cleaner configs.
+        Better monitoring.
+        Maybe even tighter network segmentation.
+      </p>
+
+      <p>
+        But for now, Docker and NGINX give me a strong foundation.
+      </p>
+
+      <p>
+        They let me build, break, learn, and rebuild without fear.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <footer class="mag-footer">
+      <p>
+        If you are running multiple services in your lab,
+        how do you isolate them?
+      </p>
+
+      <p>
+        Do you prefer containers, virtual machines,
+        or a mix of both?
+      </p>
+    </footer>
+
+  </article>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

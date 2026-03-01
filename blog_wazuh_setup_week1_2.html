@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wazuh Monitoring Setup in My Homelab</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip { display:flex; justify-content:space-between; align-items:center; margin:2.5rem 0 1.5rem; padding:1rem 1.5rem; background:#0d1117; border:1px solid #21262d; border-radius:10px; flex-wrap:wrap; gap:0.75rem; }
+    .article-nav-strip a { font-size:0.82rem; font-weight:600; text-decoration:none; }
+    .nav-prev { color:#58a6ff !important; }
+    .nav-center { color:#8b949e !important; font-size:0.78rem !important; }
+    .nav-next { color:#81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration:underline; }
+  </style>
+  <style>
+    /* ── Article Navigation Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home button (used on last article) ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 3rem auto 1.5rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav class="nav-bar">
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="projects.html">Projects</a></li>
+    <li><a href="blogs.html">Blogs</a></li>
+
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 1 – Cybersecurity Homelab Series</p>
+
+      <h1 class="mag-title">
+        Wazuh Monitoring Setup in My Homelab: Real-Time Threat Detection Made Simple
+      </h1>
+
+      <p class="mag-subtitle">
+        How I built an enterprise-grade SIEM environment inside my Proxmox homelab
+      </p>
+
+      <div class="mag-meta">
+        Published: Week 1, Thursday • Author: Jonathan Kirui • Tags: Wazuh • SIEM • Threat Detection • Homelab • Monitoring
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        When I first started building my homelab, I knew I needed more than just virtualization — I needed visibility. 
+        That’s where Wazuh, a free and open-source SIEM platform, came in. In this post, I’ll walk through how I deployed Wazuh 
+        in my homelab and how it’s helped me simulate blue team operations like real-time log monitoring, file integrity checks, 
+        and CVE detection.
+      </p>
+    </section>
+
+    <!-- WHY WAZUH -->
+    <section class="mag-section">
+      <h2>🔍 Why Wazuh?</h2>
+      <p>
+        Wazuh is the perfect choice for homelab security monitoring because it:
+        <br>• Supports log collection, file integrity monitoring, and vulnerability detection
+        <br>• Offers a powerful dashboard via Kibana or its native UI
+        <br>• Integrates with Linux, Windows, firewalls & cloud services
+        <br>• Runs efficiently even in single-node setups
+      </p>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="mag-section">
+      <h2>🏗️ My Deployment Architecture</h2>
+      <p>
+        • Host: Ubuntu Server LXC container in Proxmox<br>
+        • Wazuh Version: 4.5<br>
+        • Stack: Wazuh Manager + Wazuh Dashboard + Elasticsearch<br>
+        • Agents Installed On:<br>
+        – Kali Linux<br>
+        – Windows 10 VM<br>
+        – Ubuntu Docker Host<br>
+        – TurnKey File Server<br>
+        – pfSense Firewall (via syslog forwarding)<br><br>
+        I kept it modular using Docker where possible to simplify upgrades and backups.
+      </p>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="mag-pullquote">
+      <blockquote>
+        “A properly configured SIEM gives life to your homelab — it turns noise into intelligence.”
+      </blockquote>
+    </section>
+
+    <!-- MONITORING TABLE (styled narrative) -->
+    <section class="mag-section">
+      <h2>🔐 What It Monitors</h2>
+      <p>
+        In my homelab, Wazuh helps me monitor:
+        <br>• File Integrity Monitoring – Detect unauthorized changes
+        <br>• Log Collection – Aggregate system & security logs
+        <br>• CVE Detection – Identify unpatched vulnerabilities
+        <br>• Rootkit Detection – Scan for hidden malware tools
+        <br>• Real-Time Alerts – Email / Slack notifications
+        <br>• Sysmon Integration – Deep Windows monitoring
+      </p>
+      <p>
+        One standout success: Wazuh helped me detect CVE-2025-29824 in real time and respond before it became a threat.
+      </p>
+    </section>
+
+    <!-- CODE BLOCK -->
+    <section class="mag-section">
+      <h2>⚙️ Agent Deployment Example (Ubuntu)</h2>
+      <p class="callout">
+        curl -s https://packages.wazuh.com/4.5/wazuh-install.sh | sudo bash<br>
+        sudo /var/ossec/bin/agent-auth -m [manager-ip]<br>
+        sudo systemctl enable wazuh-agent && sudo systemctl start wazuh-agent
+      </p>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="mag-section">
+      <h2>📈 Wazuh Dashboard Insights</h2>
+      <p>
+        From the dashboard I can view:
+        <br>• Threat levels by host
+        <br>• Attack surface exposure
+        <br>• Detected CVEs by severity
+        <br>• Agent health status
+        <br><br>
+        This transforms my homelab into a mini SOC (Security Operations Center).
+      </p>
+    </section>
+
+    <!-- LEARNING -->
+    <section class="mag-section">
+      <h2>💡 What I’ve Learned</h2>
+      <p>
+        • SIEMs aren’t just for enterprise environments<br>
+        • Real-time alerting improves detection and response mindset<br>
+        • Monitoring forces you to improve your own security posture
+      </p>
+    </section>
+
+    <!-- BONUS -->
+    <section class="mag-section">
+      <h2>🔗 Bonus: Getting Started</h2>
+      <p>
+        Check out <a href="https://wazuh.com/" target="_blank">Wazuh Documentation</a> for setup guides.
+        Or feel free to reach out — I’m always happy to share insights and lessons learned from my lab.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>Want more? Explore my lab projects or connect with me on <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank" style="color:#0a66c2;font-weight:600;">LinkedIn</a>.</p>
+    </footer>
+
+
+    <div class="article-nav-strip">
+      <a href="blog_inside_proxmox_week1_1.html" class="nav-prev">← 🏗️ Week 01 — Proxmox Architecture</a>
+      <a href="blogs.html#homelab" class="nav-center">🔬 Homelab Series</a>
+      <a href="blog_pfsense_monitoring_wazuh_3.html" class="nav-next">Week 03 — pfSense + Wazuh 🌐 →</a>
+    </div>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2025 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

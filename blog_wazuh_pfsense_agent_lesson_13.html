@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why I Stopped Using the Wazuh Agent on pfSense | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2.5rem 0 1.5rem;
+      padding: 1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-prev { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.78rem !important; }
+    .nav-next { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* Inline callout boxes */
+    .lesson-box {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .lesson-box h3 {
+      color: #81ff7f;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+    .lesson-box p {
+      color: #c9d1d9;
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .warning-box {
+      background: rgba(239, 68, 68, 0.07);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-left: 4px solid #f87171;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .warning-box p {
+      color: #fca5a5;
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .shift-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .shift-step:last-child { border-bottom: none; }
+    .shift-num {
+      background: #1f2937;
+      color: #58a6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-family: monospace;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .shift-step p {
+      color: #c9d1d9;
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-col {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .compare-col.bad { border-top: 3px solid #f87171; }
+    .compare-col.good { border-top: 3px solid #81ff7f; }
+    .compare-col h4 {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .compare-col.bad h4 { color: #f87171; }
+    .compare-col.good h4 { color: #81ff7f; }
+    .compare-col p {
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin: 0.3rem 0;
+      line-height: 1.5;
+    }
+  </style>
+  <style>
+    /* ── Article Navigation Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home button (used on last article) ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 3rem auto 1.5rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 13 · Homelab Architecture · SOC Engineering</p>
+      <h1 class="mag-title">Why I Stopped Using the Wazuh Agent on pfSense</h1>
+      <p class="mag-subtitle">And what that mistake taught me about real security architecture</p>
+      <div class="mag-meta">
+        Published: Monday, 13 April 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        Tags: Wazuh · pfSense · SIEM · SOC · Architecture · Homelab
+      </div>
+    </header>
+
+    <!-- OPENING -->
+    <section class="mag-lead">
+      <p>
+        At the beginning of building my homelab SOC, my mindset was simple:
+      </p>
+      <p>
+        <em>"If I want visibility, install an agent."</em>
+      </p>
+      <p>
+        So when I deployed Wazuh 4.5 inside my Proxmox lab and started monitoring my infrastructure,
+        I installed the Wazuh agent on almost everything I could — including pfSense.
+      </p>
+      <p>
+        Technically? It worked.<br />
+        Strategically? It was the wrong move.
+      </p>
+      <p>
+        And that realization changed how I think about security architecture.
+      </p>
+    </section>
+
+    <!-- THE SETUP -->
+    <section class="mag-section">
+      <h2>🏗️ The Setup</h2>
+      <p>My lab at the time of this decision included:</p>
+      <p>
+        • <strong>Proxmox</strong> as the hypervisor<br />
+        • <strong>VLAN segmentation</strong> for network isolation<br />
+        • <strong>Ubuntu Server</strong> running Wazuh Manager<br />
+        • <strong>Multiple monitored endpoints</strong> across the lab<br />
+        • <strong>pfSense</strong> as the firewall and network gateway
+      </p>
+      <p>
+        At first, installing the Wazuh agent on pfSense felt like the
+        "complete visibility" approach. More logs equals more security — right?
+      </p>
+      <p>Not exactly.</p>
+    </section>
+
+    <!-- THE PROBLEM -->
+    <section class="mag-section">
+      <h2>⚠️ The Problem With an Agent on pfSense</h2>
+
+      <p>pfSense is a specific kind of system. It is:</p>
+      <p>
+        • A <strong>firewall appliance</strong> — not a general-purpose server<br />
+        • Built on <strong>FreeBSD</strong> — not a standard Linux environment<br />
+        • Designed to be <strong>lean and hardened</strong><br />
+        • Sitting at the <strong>edge of your network</strong>, handling all traffic
+      </p>
+
+      <div class="warning-box">
+        <p>
+          Adding a full endpoint agent to a system like this introduces additional resource usage,
+          upgrade complications, potential instability, and — critically — an expanded attack surface
+          on the device that is supposed to be your first line of defence.
+        </p>
+      </div>
+
+      <p>
+        But beyond the technical concerns, there was a bigger issue.
+        It simply is not how real-world SOC teams monitor firewalls.
+      </p>
+
+      <p>In production environments, firewalls are monitored through:</p>
+      <p>
+        • <strong>Syslog forwarding</strong><br />
+        • <strong>API integrations</strong><br />
+        • <strong>NetFlow / sFlow</strong><br />
+        • <strong>Vendor-native telemetry</strong>
+      </p>
+      <p>Not endpoint agents. That was my first real architecture lesson.</p>
+    </section>
+
+    <blockquote>
+      "Just because something <em>can</em> run an agent doesn't mean it <em>should</em>."
+    </blockquote>
+
+    <!-- THE SHIFT -->
+    <section class="mag-section">
+      <h2>🔄 The Shift — Moving to Syslog Ingestion</h2>
+      <p>Instead of running the Wazuh agent on pfSense, I made four deliberate changes:</p>
+
+      <div style="margin: 1.25rem 0;">
+        <div class="shift-step">
+          <span class="shift-num">01</span>
+          <p><strong>Removed the agent completely</strong> from pfSense. Clean slate.</p>
+        </div>
+        <div class="shift-step">
+          <span class="shift-num">02</span>
+          <p><strong>Configured pfSense to forward logs via Syslog</strong> to my Wazuh manager's IP on UDP 514.</p>
+        </div>
+        <div class="shift-step">
+          <span class="shift-num">03</span>
+          <p><strong>Tuned Wazuh to properly ingest and parse firewall logs</strong> — filtering noise, highlighting meaningful events.</p>
+        </div>
+        <div class="shift-step">
+          <span class="shift-num">04</span>
+          <p><strong>Shifted focus from log quantity to alert quality</strong>. Fewer, better signals.</p>
+        </div>
+      </div>
+
+      <p>The difference was immediate.</p>
+
+      <div class="compare-grid">
+        <div class="compare-col bad">
+          <h4>❌ Agent on pfSense</h4>
+          <p>Extra resource load on the firewall</p>
+          <p>FreeBSD compatibility friction</p>
+          <p>More attack surface at the edge</p>
+          <p>Not aligned with enterprise practice</p>
+          <p>Noisy, unfiltered log flood</p>
+        </div>
+        <div class="compare-col good">
+          <h4>✅ Syslog Forwarding</h4>
+          <p>Firewall stays lean and hardened</p>
+          <p>Wazuh parses logs centrally</p>
+          <p>Smaller attack surface</p>
+          <p>Mirrors production SOC architecture</p>
+          <p>Cleaner, higher-quality alerts</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>📐 What This Taught Me</h2>
+      <p>This wasn't just a configuration change. It was a mindset shift.</p>
+
+      <div class="lesson-box">
+        <h3>1 — Security Is Not About Installing More Tools</h3>
+        <p>
+          It's about understanding where each tool belongs. Just because something can run an agent
+          doesn't mean it should. Tool placement is an architectural decision, not a default.
+        </p>
+      </div>
+
+      <div class="lesson-box">
+        <h3>2 — Architecture Matters More Than Activity</h3>
+        <p>
+          A clean, intentional architecture is stronger than an over-engineered one.
+          Security maturity is often knowing when to <em>simplify</em> — not when to add more.
+        </p>
+      </div>
+
+      <div class="lesson-box">
+        <h3>3 — Real-World Alignment Is Non-Negotiable</h3>
+        <p>
+          My goal is not to build a flashy homelab. It is to prepare for real SOC and infrastructure
+          environments. In real environments: firewalls send logs, SIEMs ingest them, analysts
+          investigate them, and appliances stay hardened. That separation matters.
+        </p>
+      </div>
+    </section>
+
+    <!-- THE BIGGER LESSON -->
+    <section class="mag-section">
+      <h2>🎯 The Bigger Lesson</h2>
+      <p>
+        This experience forced me to stop thinking like:
+      </p>
+      <blockquote style="border-left:4px solid #f87171;background:#0d1117;padding:1rem 1.5rem;border-radius:0 8px 8px 0;font-style:italic;color:#fca5a5;margin:1.25rem 0;">
+        "How do I make this work?"
+      </blockquote>
+      <p>And start thinking like:</p>
+      <blockquote style="border-left:4px solid #81ff7f;background:#0d1117;padding:1rem 1.5rem;border-radius:0 8px 8px 0;font-style:italic;color:#81ff7f;margin:1.25rem 0;">
+        "Is this the right way to design this?"
+      </blockquote>
+      <p>
+        That shift — from execution to architecture — is something I didn't expect to learn
+        this early in my journey.
+      </p>
+      <p>But I'm glad I did.</p>
+    </section>
+
+    <!-- WHAT'S NEXT -->
+    <section class="mag-section">
+      <h2>🔭 What's Next in the Lab</h2>
+      <p>
+        Now that firewall monitoring is properly structured, I'm focusing on:
+      </p>
+      <p>
+        • <strong>Log tuning and noise reduction</strong><br />
+        • <strong>Writing proper SOC-style incident reports</strong><br />
+        • <strong>Simulating lateral movement scenarios</strong><br />
+        • <strong>Expanding into Windows-based logging</strong><br />
+        • <strong>Strengthening detection engineering fundamentals</strong>
+      </p>
+      <p>
+        The lab is slowly becoming less about experimenting — and more about building intentionally.
+      </p>
+      <p>
+        To what, you may ask?
+      </p>
+      <p>I guess we'll just wait and see 😊</p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        If you're building your own homelab and you've installed an agent everywhere
+        <em>"just because you can"</em> — I get it. I did the same.
+      </p>
+      <p>
+        But sometimes growth in cybersecurity isn't about adding more.
+        It's about removing the unnecessary.
+        And documenting what you learned along the way.
+      </p>
+      <p style="margin-top:1.25rem;">
+        Are you monitoring your firewall with an agent or via Syslog?
+        Connect with me on <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank" style="color:#0a66c2;font-weight:600;">LinkedIn</a> —
+        I'd like to hear how other homelab engineers approach this.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+
+
+    <div class="article-nav-strip">
+      <a href="blog_firebase__pros_gotchas_12.html" class="nav-prev">← 🔥 Week 12 — Firebase</a>
+      <a href="blogs.html#soc" class="nav-center">🧠 SOC Engineering</a>
+      <a href="blogs.html" class="nav-center">📚 All Posts</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>
