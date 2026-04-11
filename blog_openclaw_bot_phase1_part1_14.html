@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Creation Phase 1 — Part 1: Getting OpenClaw Running | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    /* ── Nav Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a { font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home button ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 1.5rem auto 0;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* ── Architecture flow ── */
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 1.5rem 0;
+      padding: 1.25rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+    }
+    .arch-node {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e6edf3;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .arch-node .arch-label {
+      display: block;
+      font-size: 0.68rem;
+      color: #8b949e;
+      font-weight: 400;
+      margin-top: 2px;
+      font-family: monospace;
+    }
+    .arch-arrow {
+      color: #81ff7f;
+      font-size: 1.1rem;
+      padding: 0 0.5rem;
+      font-weight: 700;
+    }
+
+    /* ── Component cards ── */
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .component-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem;
+      transition: border-color 0.2s;
+    }
+    .component-card:hover { border-color: #81ff7f; }
+    .component-card .c-icon { font-size: 1.4rem; display: block; margin-bottom: 0.4rem; }
+    .component-card .c-name { font-size: 0.88rem; color: #79c0ff; font-weight: 700; display: block; }
+    .component-card .c-role { font-size: 0.78rem; color: #8b949e; margin-top: 0.25rem; display: block; line-height: 1.5; }
+
+    /* ── Status checklist ── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 600px) { .status-grid { grid-template-columns: 1fr; } }
+    .status-col {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.1rem;
+    }
+    .status-col.working { border-top: 3px solid #81ff7f; }
+    .status-col.pending { border-top: 3px solid #f59e0b; }
+    .status-col h4 {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .status-col.working h4 { color: #81ff7f; }
+    .status-col.pending h4 { color: #f59e0b; }
+    .status-col p {
+      font-size: 0.83rem;
+      color: #c9d1d9;
+      margin: 0.3rem 0;
+      line-height: 1.5;
+    }
+
+    /* ── Milestone box ── */
+    .milestone-box {
+      background: rgba(129,255,127,0.06);
+      border: 1px solid rgba(129,255,127,0.25);
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .milestone-box p {
+      color: #e6edf3;
+      font-size: 0.95rem;
+      margin: 0;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ── First response terminal ── */
+    .terminal-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      background: #161b22;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .t-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .t-dot.red    { background: #ff5f57; }
+    .t-dot.yellow { background: #febc2e; }
+    .t-dot.green  { background: #28c840; }
+    .t-title { font-size: 0.75rem; color: #8b949e; margin-left: 0.5rem; font-family: monospace; }
+    .terminal-body { padding: 1.25rem 1.5rem; }
+    .t-line { font-family: monospace; font-size: 0.85rem; line-height: 1.9; display: block; }
+    .t-user  { color: #58a6ff; }
+    .t-bot   { color: #81ff7f; }
+    .t-label { color: #8b949e; font-size: 0.72rem; }
+
+    /* ── Series badge ── */
+    .series-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: #58a6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare SIEM</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        <li><a href="blogs.html#ai">🤖 AI & Automation</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 14 · AI & Automation · Bot Development Series</p>
+      <div class="series-badge">📖 Part 1 of Series</div>
+      <h1 class="mag-title">Bot Creation Phase 1 — Part 1</h1>
+      <p class="mag-subtitle">Getting OpenClaw Running and Connecting the Core Components</p>
+      <div class="mag-meta">
+        Published: Monday, 20 April 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        8 min read &nbsp;·&nbsp; Tags: AI · OpenClaw · Telegram · Ollama · Automation
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        IT support can get repetitive. Password resets, printer jams, misconfigured systems — I've done it all.
+        But one question kept nagging me: what if there was a way to have an assistant that handles the
+        repetitive stuff, guides users, and frees up real humans to focus on the tricky problems?
+      </p>
+      <p>
+        That's what led me to start <strong>OpenClaw</strong>. My goal isn't just to build a chatbot.
+        I want to build a real IT support agent that thinks like an engineer, responds like a technician,
+        and grows smarter over time.
+      </p>
+      <p>
+        This article is Part 1 in a series documenting the journey of building this AI agent from
+        the ground up.
+      </p>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="mag-section">
+      <h2>🏗️ The Architecture</h2>
+      <p>Here's the simple flow of what we're building:</p>
+
+      <div class="arch-flow">
+        <div class="arch-node">
+          👤 User
+          <span class="arch-label">sends message</span>
+        </div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-node">
+          ✈️ Telegram
+          <span class="arch-label">interface layer</span>
+        </div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-node">
+          🐾 OpenClaw
+          <span class="arch-label">orchestrator</span>
+        </div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-node">
+          🧠 Ollama
+          <span class="arch-label">local LLM</span>
+        </div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-node">
+          💬 Response
+          <span class="arch-label">back to user</span>
+        </div>
+      </div>
+
+      <div class="component-grid">
+        <div class="component-card">
+          <span class="c-icon">🐾</span>
+          <span class="c-name">OpenClaw Gateway</span>
+          <span class="c-role">The central orchestrator. Connects user requests to AI models and routes everything.</span>
+        </div>
+        <div class="component-card">
+          <span class="c-icon">🧠</span>
+          <span class="c-name">Ollama</span>
+          <span class="c-role">Runs the local LLM model that powers the assistant's responses.</span>
+        </div>
+        <div class="component-card">
+          <span class="c-icon">✈️</span>
+          <span class="c-name">Telegram</span>
+          <span class="c-role">The user-facing interface where interactions happen.</span>
+        </div>
+        <div class="component-card">
+          <span class="c-icon">🐧</span>
+          <span class="c-name">Ubuntu VM</span>
+          <span class="c-role">Hosts everything in a controlled, isolated environment.</span>
+        </div>
+      </div>
+
+      <p>
+        Right now, we're focused on getting the bot running reliably — not making it intelligent yet.
+        Infrastructure first. Intelligence second.
+      </p>
+    </section>
+
+    <!-- PHASE 1 GOAL -->
+    <section class="mag-section">
+      <h2>🎯 Phase 1 Goal</h2>
+      <div class="milestone-box">
+        <p>
+          Deploy a working AI assistant that can respond to Telegram messages. No system prompts.
+          No structured ticketing. Just a bot that works and confirms that the infrastructure is solid.
+        </p>
+      </div>
+      <p>
+        That's the milestone. Simple, measurable, and meaningful. You can't build intelligence
+        on a shaky foundation — so the foundation comes first.
+      </p>
+    </section>
+
+    <!-- WHAT I DEPLOYED -->
+    <section class="mag-section">
+      <h2>⚙️ What I Deployed</h2>
+      <p>Here's the Phase 1 deployment checklist:</p>
+      <p>
+        <strong>1. OpenClaw Gateway</strong> — Up and running, ready to process requests.<br>
+        <strong>2. Ollama LLM Runtime</strong> — Loaded and connected to the gateway.<br>
+        <strong>3. Telegram Bot</strong> — Configured and linked to OpenClaw.<br>
+        <strong>4. IT Support Agent File</strong> — Template ready to define future behaviour.
+      </p>
+      <p>
+        And then came the moment of truth. I sent my first Telegram message.
+      </p>
+    </section>
+
+    <!-- FIRST RESPONSE -->
+    <section class="mag-section">
+      <h2>💬 First Successful Response</h2>
+
+      <div class="terminal-block">
+        <div class="terminal-bar">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">Telegram · OpenClaw · Phase 1 Test</span>
+        </div>
+        <div class="terminal-body">
+          <span class="t-line t-label">— First message sent —</span>
+          <span class="t-line t-user">You:  "Hello Jaspa, can you help me troubleshoot?"</span>
+          <span class="t-line t-label">— Processing through OpenClaw → Ollama —</span>
+          <span class="t-line t-bot">Jaspa:  [response received]</span>
+          <span class="t-line t-label">— Phase 1 milestone confirmed ✓ —</span>
+        </div>
+      </div>
+
+      <p>
+        It wasn't perfect. Not even close. But it was <strong>alive</strong>.
+      </p>
+      <p>
+        It could receive messages, process them through the stack, and respond through Telegram.
+        That's a milestone moment for any developer working on a bot from scratch — the confirmation
+        that your architecture actually works end to end.
+      </p>
+    </section>
+
+    <!-- STATUS -->
+    <section class="mag-section">
+      <h2>📊 Current Status — End of Phase 1</h2>
+      <div class="status-grid">
+        <div class="status-col working">
+          <h4>✅ Working</h4>
+          <p>• Jaspa responding on Telegram</p>
+          <p>• Ollama model running smoothly</p>
+          <p>• OpenClaw gateway live</p>
+          <p>• IT support agent file exists</p>
+        </div>
+        <div class="status-col pending">
+          <h4>⏳ Still Missing</h4>
+          <p>• System prompt to define AI behaviour</p>
+          <p>• Structured ticket format</p>
+          <p>• Real troubleshooting logic and workflow</p>
+        </div>
+      </div>
+      <p>
+        That gap between "working" and "missing" is exactly where Part 2 comes in.
+      </p>
+    </section>
+
+    <!-- WHAT'S NEXT -->
+    <section class="mag-section">
+      <h2>🔭 What's Next — Phase 1 Part 2</h2>
+      <p>
+        In <strong>Bot Creation Phase 1 — Part 2</strong>, the focus shifts from infrastructure
+        to intelligence:
+      </p>
+      <p>
+        • Adding system prompts so Jaspa thinks like an IT engineer<br>
+        • Structuring ticket outputs for real support workflows<br>
+        • Teaching the bot to respond intelligently to real support scenarios
+      </p>
+      <p>
+        Once that's done, Phase 1 will be complete and the bot will move considerably closer
+        to being a functional IT assistant — not just a bot that's alive, but one that's
+        <em>useful</em>.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>💭 Final Thoughts</h2>
+      <p>
+        Building this isn't just about code. It's about seeing the pieces connect.
+        Every step in this phase confirmed that the architecture works and the foundation is solid.
+      </p>
+      <p>
+        That confidence — knowing your stack is real before you try to make it smart — is something
+        you only get by building, not by reading.
+      </p>
+      <p>
+        Next up: making Jaspa smart enough to handle real IT problems, while still learning
+        from every interaction.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        If you've built bots, automated workflows, or tinkered with AI assistants — I'd love to hear:
+        what's the first skill or workflow you'd teach your AI agent?
+      </p>
+      <p style="margin-top:1.25rem;">
+        Connect with me on
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+           style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+        — the conversation around AI in IT support is one I want to keep having.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+    <div class="article-nav-strip">
+      <a href="blog_wazuh_pfsense_agent_lesson_13.html" class="nav-prev">← 🧠 Week 13 — Wazuh Agent Lesson</a>
+      <a href="blogs.html#ai" class="nav-center">🤖 AI & Automation</a>
+      <a href="blogs.html" class="nav-next">📚 All Blog Posts →</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

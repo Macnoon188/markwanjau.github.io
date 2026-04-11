@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptXSnare — SIEM Platform | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .content-wrapper { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Hero */
+    .proj-hero {
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      border-bottom: 1px solid #21262d;
+      margin-bottom: 3rem;
+    }
+    .proj-hero .proj-kicker {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #81ff7f;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .proj-hero h1 {
+      font-size: 2.6rem;
+      color: #e6edf3;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .proj-hero h1 span { color: #81ff7f; }
+    .proj-hero .proj-tagline {
+      font-size: 1.05rem;
+      color: #8b949e;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+    .proj-meta {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .proj-meta-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.78rem;
+      color: #c9d1d9;
+    }
+    .proj-meta-item span { color: #79c0ff; font-weight: 600; }
+    .proj-cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      padding: 0.65rem 1.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 8px;
+      color: #81ff7f;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: monospace;
+      text-decoration: none;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 16px rgba(129,255,127,0.25);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-secondary {
+      display: inline-block;
+      padding: 0.65rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #58a6ff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: #58a6ff;
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+
+    /* Section headings */
+    .proj-section { margin-bottom: 3rem; }
+    .proj-section h2 {
+      font-size: 1.15rem;
+      color: #79c0ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .proj-section p {
+      color: #c9d1d9;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    /* Flow strip */
+    .flow-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 1.5rem 0;
+    }
+    .flow-node {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e6edf3;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: #81ff7f;
+      font-size: 1rem;
+      padding: 0 0.4rem;
+    }
+
+    /* Tech stack grid */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .tech-col {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .tech-col h4 {
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 0.6rem;
+    }
+    .tech-col p {
+      font-size: 0.8rem;
+      color: #8b949e;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .feature-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: #58a6ff; }
+    .feature-card h4 {
+      font-size: 0.88rem;
+      color: #e6edf3;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .feature-card p {
+      font-size: 0.78rem;
+      color: #8b949e;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1.25rem 0;
+      justify-content: center;
+    }
+    .stat-box {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 110px;
+    }
+    .stat-box .stat-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #81ff7f;
+      font-family: monospace;
+      display: block;
+    }
+    .stat-box .stat-label {
+      font-size: 0.72rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    /* Code block */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #81ff7f;
+      line-height: 1.8;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    /* Lesson box */
+    .lesson-box {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 4px solid #58a6ff;
+      border-radius: 0 8px 8px 0;
+      padding: 1.1rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .lesson-box h4 { color: #79c0ff; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .lesson-box p  { font-size: 0.88rem; color: #c9d1d9; margin: 0; line-height: 1.6; }
+
+    /* Scope warning */
+    .scope-box {
+      background: rgba(245,158,11,0.07);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 1.1rem 1.5rem;
+      margin: 1.25rem 0;
+    }
+    .scope-box p { font-size: 0.88rem; color: #fcd34d; margin: 0; line-height: 1.6; }
+
+    /* Bottom nav */
+    .proj-footer-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #21262d;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .proj-footer-nav a { font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+    .proj-footer-nav .back { color: #58a6ff; }
+    .proj-footer-nav .github { color: #81ff7f; }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+
+  <!-- HERO -->
+  <div class="proj-hero">
+    <span class="proj-kicker">⚙️ App Development · SIEM Platform</span>
+    <h1><span>CryptX</span>Snare</h1>
+    <p class="proj-tagline">A full SIEM platform built from scratch — because the best way to understand a tool is to build one.</p>
+    <div class="proj-meta">
+      <div class="proj-meta-item"><span>Stack:</span> React · TypeScript · Supabase · FastAPI</div>
+      <div class="proj-meta-item"><span>Pages:</span> 19 feature pages</div>
+      <div class="proj-meta-item"><span>Status:</span> Live · Demo Mode</div>
+      <div class="proj-meta-item"><span>Built:</span> March 2026</div>
+    </div>
+    <div class="proj-cta-row">
+      <a href="https://github.com/deekim254/cryptXsnare" target="_blank" class="btn-primary">⌥ Clone on GitHub</a>
+      <a href="projects.html#siem" class="btn-secondary">← Back to Projects</a>
+    </div>
+  </div>
+
+  <!-- WHY I BUILT IT -->
+  <section class="proj-section">
+    <h2>Why I Built This</h2>
+    <p>
+      Most people learn cybersecurity by studying tools. I wanted to understand how those tools actually
+      work — so I built one.
+    </p>
+    <p>
+      Not a mock dashboard. Not a UI concept. A full SIEM-style platform that simulates how a Security
+      Operations Centre actually functions.
+    </p>
+    <p>
+      My path into cybersecurity didn't begin in a lab. It started at the helpdesk. Password resets.
+      Printer issues. Outlook errors. The usual IT support cycle. But over time I started noticing
+      patterns that bothered me — systems were misconfigured, users clicked obvious phishing links,
+      and there was almost no visibility into what was actually happening on the network.
+    </p>
+    <p>
+      One question kept sitting in the back of my mind:
+    </p>
+    <blockquote>
+      "Who's actually watching for real threats?"
+    </blockquote>
+    <p>
+      That question pulled me into cybersecurity. And eventually, it led to CryptXSnare.
+    </p>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section class="proj-section">
+    <h2>What CryptXSnare Is</h2>
+    <p>
+      CryptXSnare is a cybersecurity command centre. When you log in, you land in an environment that
+      mirrors what a SOC analyst deals with every day — alerts arrive, cases open, investigations
+      start, analysts work through suspicious activity.
+    </p>
+    <p>
+      The platform runs in <strong>demo mode by default</strong>. No credentials, no setup, no friction.
+      You're immediately logged in as an analyst working through simulated threat data. I wanted people
+      to experience the workflow, not just read about it.
+    </p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-num">19</span>
+        <span class="stat-label">Feature Pages</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">11</span>
+        <span class="stat-label">Edge Functions</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">11</span>
+        <span class="stat-label">DB Migrations</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">1</span>
+        <span class="stat-label">SOC Workflow</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOC WORKFLOW -->
+  <section class="proj-section">
+    <h2>Designed Around the SOC Loop</h2>
+    <p>
+      Every feature in CryptXSnare ties back to one core operational loop.
+      If a component didn't support the analyst workflow, it didn't make it into the system.
+    </p>
+    <div class="flow-strip">
+      <div class="flow-node">📥 Ingest</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">🔍 Triage</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">🔬 Investigate</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">⚡ Respond</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">📄 Report</div>
+    </div>
+    <p>
+      That rule saved me from building a lot of unnecessary features and kept the architecture
+      intentional throughout the project.
+    </p>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="proj-section">
+    <h2>Core Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4>📊 SIEM Dashboard</h4>
+        <p>Real-time KPIs, alert trends, and severity distribution for quick threat landscape visibility.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🔔 Alert Management</h4>
+        <p>Full alert lifecycle — triage, acknowledgement, assignment, and resolution tracking.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📁 Case Management</h4>
+        <p>Group related alerts into investigations with status tracking and analyst ownership.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🌐 URL & IP Analysis</h4>
+        <p>Threat scoring using intelligence sources including VirusTotal and AbuseIPDB.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📧 Email Header Analysis</h4>
+        <p>Parses SPF, DKIM, and DMARC records to help identify phishing attempts.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📡 Network Monitoring</h4>
+        <p>Traffic pattern analysis and suspicious flow detection for anomaly simulation.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🕵️ OSINT Reconnaissance</h4>
+        <p>Passive intelligence — WHOIS, DNS records, subdomains, and technology fingerprinting.</p>
+      </div>
+      <div class="feature-card">
+        <h4>🧠 Threat Intelligence</h4>
+        <p>IOC tracking with confidence scores and source attribution.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📂 File Analysis</h4>
+        <p>Hash reputation checks against known malicious file databases.</p>
+      </div>
+      <div class="feature-card">
+        <h4>⚡ SOAR Automation</h4>
+        <p>Playbooks that simulate automated responses — block TOR nodes, quarantine files, isolate hosts.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📄 Reporting Engine</h4>
+        <p>Generate structured investigation reports. If it isn't documented, it didn't happen.</p>
+      </div>
+      <div class="feature-card">
+        <h4>📈 Analytics</h4>
+        <p>Trend analysis across alerts and cases for communicating findings to stakeholders.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section class="proj-section">
+    <h2>Tech Stack</h2>
+    <p>Every tool was chosen intentionally — not for trend, but for fit.</p>
+    <div class="tech-grid">
+      <div class="tech-col">
+        <h4>Frontend</h4>
+        <p>React 18 + TypeScript<br>Vite (fast builds)<br>Tailwind CSS<br>shadcn/ui<br>Recharts</p>
+      </div>
+      <div class="tech-col">
+        <h4>Backend</h4>
+        <p>Supabase (PostgreSQL + Auth + Edge Functions)<br>FastAPI (backend services)</p>
+      </div>
+      <div class="tech-col">
+        <h4>Deployment</h4>
+        <p>Vercel (frontend hosting)<br>Supabase Edge Functions<br>11 DB migrations</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCOPE CREEP -->
+  <section class="proj-section">
+    <h2>The Moment Scope Nearly Killed It</h2>
+    <p>
+      Halfway through building, I ran into a problem most developers know well: feature creep.
+      Every module sparked a new idea. <em>"It would be cool if this also did…"</em>
+    </p>
+    <div class="scope-box">
+      <p>
+        That thinking almost derailed the project. I had two choices — keep expanding forever,
+        or build something structured and finish it. I chose structure.
+      </p>
+    </div>
+    <p>
+      Instead of cramming features together, I designed a modular architecture with service layers
+      for alerts, cases, recon, and threat intelligence. That decision made the project manageable
+      and future-proof.
+    </p>
+  </section>
+
+  <!-- LESSONS -->
+  <section class="proj-section">
+    <h2>What This Project Demonstrates</h2>
+    <div class="lesson-box">
+      <h4>SIEM Architecture</h4>
+      <p>How alert pipelines, case management, and threat intelligence connect as a coherent system.</p>
+    </div>
+    <div class="lesson-box">
+      <h4>SOC Analyst Workflows</h4>
+      <p>The real operational loop — ingest, triage, investigate, respond, report — built into the product.</p>
+    </div>
+    <div class="lesson-box">
+      <h4>Incident Response Lifecycle</h4>
+      <p>From first alert to documented resolution — the full chain a real analyst follows.</p>
+    </div>
+    <div class="lesson-box">
+      <h4>Automation in Security Operations</h4>
+      <p>SOAR-style playbooks showing how modern SOCs scale without drowning in alerts.</p>
+    </div>
+    <div class="lesson-box">
+      <h4>Systems Thinking</h4>
+      <p>
+        More importantly than any individual feature — understanding how security components
+        connect together. That's what cybersecurity work actually requires.
+      </p>
+    </div>
+  </section>
+
+  <!-- RUN IT -->
+  <section class="proj-section">
+    <h2>Run It Yourself</h2>
+    <div class="code-block">git clone github.com/deekim254/cryptXsnare
+npm install
+npm run dev</div>
+    <p>
+      Then open <code style="color:#81ff7f;font-family:monospace;">http://localhost:5173</code> —
+      you'll be logged in automatically as an analyst in demo mode.
+    </p>
+    <p>
+      To enable full backend functionality, connect Supabase and deploy the included Edge Functions.
+    </p>
+  </section>
+
+  <!-- WHAT'S NEXT -->
+  <section class="proj-section">
+    <h2>What's Next</h2>
+    <p>The foundation is solid. Planned improvements include:</p>
+    <p>
+      • Live API integrations beyond demo mode<br>
+      • Machine learning-based phishing detection<br>
+      • Deeper packet analysis capabilities<br>
+      • Expanded reporting and export features
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="mag-footer">
+    <p>
+      This project started with a simple question — <em>who's actually watching for real threats?</em>
+      Building CryptXSnare answered it, and showed me how complex and fascinating modern security
+      operations really are.
+    </p>
+    <p style="margin-top:1.25rem;">
+      If you work in security or IT, what part of a SOC platform would you build next?
+      Connect with me on
+      <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+         style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+      — I'd genuinely love to hear your perspective.
+    </p>
+  </footer>
+
+  <div class="proj-footer-nav">
+    <a href="projects.html" class="back">← Back to All Projects</a>
+    <a href="https://github.com/deekim254/cryptXsnare" target="_blank" class="github">GitHub Repo →</a>
+  </div>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>
