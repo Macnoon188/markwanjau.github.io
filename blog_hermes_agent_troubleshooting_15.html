@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building My Own AI Assistant With Hermes Agent | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    /* ── Nav Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a { font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 1.5rem auto 0;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* ── Diagnostic thought process ── */
+    .diagnostic-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .diagnostic-block h4 {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+    .diagnostic-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .diagnostic-item:last-child { border-bottom: none; }
+    .d-num {
+      background: #1f2937;
+      color: #58a6ff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-family: monospace;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .diagnostic-item p {
+      color: #c9d1d9;
+      font-size: 0.88rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .diagnostic-item p em { color: #79c0ff; font-style: normal; }
+
+    /* ── Warning callout ── */
+    .insight-box {
+      background: rgba(88,166,255,0.07);
+      border: 1px solid rgba(88,166,255,0.25);
+      border-left: 4px solid #58a6ff;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .insight-box p {
+      color: #c9d1d9;
+      font-size: 0.92rem;
+      margin: 0;
+      line-height: 1.7;
+    }
+    .insight-box p strong { color: #79c0ff; }
+
+    /* ── Config discovery grid ── */
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .config-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #81ff7f;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .config-item::before { content: '▸'; color: #58a6ff; }
+
+    /* ── Milestone moment ── */
+    .milestone-box {
+      background: rgba(129,255,127,0.06);
+      border: 1px solid rgba(129,255,127,0.25);
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .milestone-box p {
+      color: #e6edf3;
+      font-size: 0.95rem;
+      margin: 0.4rem 0;
+      line-height: 1.7;
+    }
+    .milestone-box p:first-child { margin-top: 0; }
+    .milestone-box p:last-child  { margin-bottom: 0; }
+
+    /* ── Lessons grid ── */
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .lesson-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      transition: border-color 0.2s;
+    }
+    .lesson-card:hover { border-color: #81ff7f; }
+    .lesson-card .l-icon { font-size: 1.3rem; display: block; margin-bottom: 0.4rem; }
+    .lesson-card p {
+      font-size: 0.83rem;
+      color: #c9d1d9;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* ── Foundation status ── */
+    .foundation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0;
+    }
+    .foundation-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      color: #c9d1d9;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .foundation-list li:last-child { border-bottom: none; }
+    .foundation-list li::before {
+      content: '✅';
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare SIEM</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        <li><a href="blogs.html#ai">🤖 AI & Automation</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 15 · AI & Automation · Self-Hosted Agents</p>
+      <h1 class="mag-title">Building My Own AI Assistant With Hermes Agent</h1>
+      <p class="mag-subtitle">The troubleshooting journey nobody talks about</p>
+      <div class="mag-meta">
+        Published: Monday, 27 April 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        8 min read &nbsp;·&nbsp; Tags: AI · Hermes · Telegram · Self-Hosted · Homelab
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        One thing I have learned from building homelabs and cybersecurity projects is that
+        the exciting part is rarely the installation.
+      </p>
+      <p>
+        Most documentation makes it look simple: clone a repository, run a few commands,
+        configure a few files, and everything magically works.
+      </p>
+      <p>
+        Reality is usually very different.
+      </p>
+    </section>
+
+    <!-- WHY -->
+    <section class="mag-section">
+      <h2>🤔 Why I Started Exploring Hermes Agent</h2>
+      <p>
+        I wanted to experiment with a self-hosted AI assistant using Hermes Agent — not only to
+        understand how AI agents work but also to learn the infrastructure behind them.
+      </p>
+      <p>
+        How do they communicate with external services? How are configurations managed?
+        How do integrations like Telegram actually connect to the AI backend?
+      </p>
+      <p>
+        What started as a simple deployment quickly became a lesson in troubleshooting.
+      </p>
+    </section>
+
+    <!-- FIRST ATTEMPT -->
+    <section class="mag-section">
+      <h2>⚡ The First Installation Attempt</h2>
+      <p>
+        My initial approach was straightforward. Clone the repository, install the required
+        dependencies, configure the environment, and launch the application.
+      </p>
+      <p>
+        But somewhere along the troubleshooting process, things started to go wrong.
+      </p>
+      <p>
+        In trying different fixes, I ended up modifying parts of the installation that were
+        originally working. Some Git files became incomplete, the repository state became
+        inconsistent, and I reached a point where I had to stop and ask an important question:
+      </p>
+
+      <div class="insight-box">
+        <p>
+          <strong>Am I fixing the problem, or am I creating new ones?</strong>
+        </p>
+        <p>
+          That was probably the most valuable lesson of the entire process. Sometimes the fastest
+          way forward is not another command. It is stepping back, understanding what changed,
+          and returning to a known good state.
+        </p>
+      </div>
+    </section>
+
+    <!-- METHODICAL -->
+    <section class="mag-section">
+      <h2>🔬 Learning to Troubleshoot Methodically</h2>
+      <p>
+        Instead of randomly applying fixes from forums and documentation, I started approaching
+        the problem like a real system failure.
+      </p>
+
+      <div class="diagnostic-block">
+        <h4>// The questions I started asking</h4>
+        <div class="diagnostic-item">
+          <span class="d-num">01</span>
+          <p>What was the <em>last known working state</em>?</p>
+        </div>
+        <div class="diagnostic-item">
+          <span class="d-num">02</span>
+          <p>What <em>changed</em> after that?</p>
+        </div>
+        <div class="diagnostic-item">
+          <span class="d-num">03</span>
+          <p>Is this an <em>application problem</em>, a <em>dependency problem</em>, or a <em>configuration problem</em>?</p>
+        </div>
+        <div class="diagnostic-item">
+          <span class="d-num">04</span>
+          <p>Are the <em>required services</em> actually running?</p>
+        </div>
+      </div>
+
+      <p>This changed the entire troubleshooting process.</p>
+      <p>
+        The goal was no longer just <em>"make it work."</em>
+        The goal was to understand <em>why</em> it was failing.
+      </p>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="mag-pullquote">
+      <blockquote>
+        "The goal was no longer just to make it work. The goal was to understand why it was failing."
+      </blockquote>
+    </section>
+
+    <!-- CONFIG FILES -->
+    <section class="mag-section">
+      <h2>⚙️ The Hidden Importance of Configuration Files</h2>
+      <p>
+        One of the biggest discoveries was the role of the <code style="color:#81ff7f;font-family:monospace;">.env</code> file.
+      </p>
+      <p>
+        Many modern applications separate their code from their configuration. The application may
+        be installed correctly, but without the right environment variables, API keys, and integration
+        settings, it still will not function as expected.
+      </p>
+      <p>
+        While investigating the Hermes installation, I located the environment configuration and
+        verified the Telegram integration section. Finding entries such as:
+      </p>
+      <div class="config-grid">
+        <div class="config-item">Telegram Bot Token</div>
+        <div class="config-item">Integration parameters</div>
+        <div class="config-item">Service settings</div>
+      </div>
+      <p>
+        showed that the application already had the structure required for external communication.
+      </p>
+      <p>
+        The issue was not that Hermes lacked the feature.
+        The issue was making sure the configuration matched the environment.
+      </p>
+    </section>
+
+    <!-- TELEGRAM MILESTONE -->
+    <section class="mag-section">
+      <h2>✈️ Bringing Telegram to Life</h2>
+      <p>
+        The real milestone came when the Telegram integration finally worked.
+      </p>
+      <p>
+        After all the troubleshooting, checking files, and reviewing configurations, I sent
+        a message to the bot and received a response.
+      </p>
+
+      <div class="milestone-box">
+        <p>A message sent.</p>
+        <p>A response received.</p>
+        <p>
+          But that moment represented several hours of understanding the system behind the scenes.
+        </p>
+      </div>
+
+      <p>
+        That is one of the things I enjoy most about building a homelab. Every successful service
+        represents dozens of small lessons that never appear in a quick installation guide.
+      </p>
+    </section>
+
+    <!-- LESSONS -->
+    <section class="mag-section">
+      <h2>📐 What This Project Taught Me</h2>
+      <div class="lessons-grid">
+        <div class="lesson-card">
+          <span class="l-icon">📄</span>
+          <p><strong>Documentation is a starting point, not a guarantee.</strong> Every environment is slightly different. Real deployment always involves adapting.</p>
+        </div>
+        <div class="lesson-card">
+          <span class="l-icon">⚙️</span>
+          <p><strong>Configuration issues are often harder than installation.</strong> The app being installed doesn't mean the app is running.</p>
+        </div>
+        <div class="lesson-card">
+          <span class="l-icon">🔄</span>
+          <p><strong>A broken environment can be faster to rebuild than repair.</strong> Know when to stop patching and start clean.</p>
+        </div>
+        <div class="lesson-card">
+          <span class="l-icon">🧠</span>
+          <p><strong>Understanding the system is more valuable than following commands.</strong> Blind execution only works until it doesn't.</p>
+        </div>
+        <div class="lesson-card">
+          <span class="l-icon">🎯</span>
+          <p><strong>Small successes are more satisfying when you understand how you reached them.</strong> The struggle makes the milestone real.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT'S NEXT -->
+    <section class="mag-section">
+      <h2>🔭 What Comes Next</h2>
+      <p>Now that Hermes is operational, the foundation is there:</p>
+      <ul class="foundation-list">
+        <li>A running AI agent</li>
+        <li>A working Telegram communication channel</li>
+        <li>A better understanding of the application's architecture</li>
+      </ul>
+      <p>
+        The next challenge is customising the agent, expanding its capabilities, and exploring
+        how it can assist with real IT and cybersecurity workflows.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>💭 Final Thoughts</h2>
+      <p>
+        One thing I appreciate about homelabs is that they remove the fear of failure.
+      </p>
+      <p>
+        You can break things. You can rebuild them. You can experiment with technologies
+        you would never touch in a production environment.
+      </p>
+      <p>
+        The goal is not to have a perfect lab.
+        The goal is to become the kind of engineer who knows how to recover when things
+        stop working.
+      </p>
+    </section>
+
+    <footer class="mag-footer">
+      <p>
+        If you have built your own AI agents or self-hosted services — what was the
+        troubleshooting lesson that taught you the most?
+      </p>
+      <p style="margin-top:1.25rem;">
+        Connect with me on
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+           style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+        — I'd genuinely love to hear how other engineers approach debugging self-hosted AI.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+    <div class="article-nav-strip">
+      <a href="blog_openclaw_bot_phase1_part1_14.html" class="nav-prev">← 🤖 Week 14 — OpenClaw Bot</a>
+      <a href="blogs.html#ai" class="nav-center">🤖 AI & Automation</a>
+      <a href="blogs.html" class="nav-next">📚 All Blog Posts →</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>
