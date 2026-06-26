@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Creation Phase 1 — Part 2: Teaching Jaspa to Think Like an IT Engineer | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    /* ── Nav Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a { font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 1.5rem auto 0;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* ── Series badge ── */
+    .series-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: #58a6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Model vs Assistant contrast ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-col {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.1rem;
+    }
+    .compare-col.neutral { border-top: 3px solid #8b949e; }
+    .compare-col.good    { border-top: 3px solid #81ff7f; }
+    .compare-col h4 {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .compare-col.neutral h4 { color: #8b949e; }
+    .compare-col.good h4    { color: #81ff7f; }
+    .compare-col p {
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      margin: 0.3rem 0;
+      line-height: 1.6;
+    }
+
+    /* ── Purpose list ── */
+    .purpose-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .purpose-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: border-color 0.2s;
+    }
+    .purpose-item:hover { border-color: #58a6ff; }
+    .purpose-item::before { content: '⚙️'; font-size: 1rem; }
+
+    /* ── Troubleshooting example ── */
+    .tshoot-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .tshoot-header {
+      background: #161b22;
+      padding: 0.7rem 1.25rem;
+      font-size: 0.75rem;
+      color: #8b949e;
+      font-family: monospace;
+      border-bottom: 1px solid #21262d;
+      letter-spacing: 1px;
+    }
+    .tshoot-body { padding: 1.25rem 1.5rem; }
+    .tshoot-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .tshoot-row:last-child { border-bottom: none; }
+    .tshoot-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-family: monospace;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .label-symptom { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .label-cause   { background: rgba(245,158,11,0.1);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+    .tshoot-row p  { font-size: 0.85rem; color: #c9d1d9; margin: 0; line-height: 1.6; }
+
+    /* ── Insight callout ── */
+    .insight-box {
+      background: rgba(88,166,255,0.07);
+      border: 1px solid rgba(88,166,255,0.25);
+      border-left: 4px solid #58a6ff;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .insight-box p { color: #c9d1d9; font-size: 0.92rem; margin: 0.4rem 0; line-height: 1.7; }
+    .insight-box p:first-child { margin-top: 0; }
+    .insight-box p:last-child  { margin-bottom: 0; }
+    .insight-box strong { color: #79c0ff; }
+
+    /* ── Status end of phase ── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .status-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.83rem;
+      color: #c9d1d9;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-item::before { content: '✅'; }
+
+    /* ── Future plans ── */
+    .future-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0;
+    }
+    .future-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      color: #c9d1d9;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .future-list li:last-child { border-bottom: none; }
+    .future-list li::before { content: '→'; color: #81ff7f; font-weight: 700; }
+
+    /* ── Series nav ── */
+    .series-nav {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0 1rem;
+    }
+    .series-nav h4 {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8b949e;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+    .series-nav a {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #58a6ff;
+      transition: color 0.2s;
+    }
+    .series-nav a:last-child { border-bottom: none; }
+    .series-nav a:hover { color: #81ff7f; }
+    .series-nav a.current { color: #81ff7f; font-weight: 700; }
+    .series-nav a.coming  { color: #8b949e; cursor: default; }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare SIEM</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        <li><a href="blogs.html#ai">🤖 AI & Automation</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 16 · AI & Automation · Bot Development Series</p>
+      <div class="series-badge">📖 Part 2 of Series</div>
+      <h1 class="mag-title">Bot Creation Phase 1 — Part 2</h1>
+      <p class="mag-subtitle">Teaching Jaspa to Think Like an IT Engineer</p>
+      <div class="mag-meta">
+        Published: Monday, 4 May 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        8 min read &nbsp;·&nbsp; Tags: AI · OpenClaw · Jaspa · Telegram · IT Support
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        In Part 1, I focused on getting the foundations in place.
+      </p>
+      <p>
+        The OpenClaw gateway was running. Ollama was connected. Telegram was configured.
+        Most importantly, Jaspa could receive and respond to messages.
+      </p>
+      <p>
+        That might sound like a small milestone, but anyone who has worked with self-hosted
+        AI tools knows that getting multiple services talking to each other is often half the battle.
+      </p>
+      <p>
+        Still, there was a problem. Jaspa could answer questions, but it wasn't really acting
+        like an IT support assistant. It was acting like a generic language model.
+        And that's where the next phase began.
+      </p>
+    </section>
+
+    <!-- MODEL VS ASSISTANT -->
+    <section class="mag-section">
+      <h2>🧠 The Difference Between an AI Model and an AI Assistant</h2>
+      <p>
+        One thing I learned early is that installing an AI model doesn't automatically give you
+        an assistant.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-col neutral">
+          <h4>🤖 A Model</h4>
+          <p>Can generate text</p>
+          <p>Responds to any question</p>
+          <p>No defined role or behaviour</p>
+          <p>Intelligence without direction</p>
+        </div>
+        <div class="compare-col good">
+          <h4>✅ An Assistant</h4>
+          <p>Has a defined purpose</p>
+          <p>Operates within a context</p>
+          <p>Follows structured behaviour</p>
+          <p>Intelligence applied to a workflow</p>
+        </div>
+      </div>
+
+      <p>
+        Without guidance, Jaspa would answer questions the same way any publicly available chatbot
+        might. Sometimes the responses were useful. Sometimes they were too broad. Other times they
+        completely missed the role I wanted the system to perform.
+      </p>
+      <p>
+        That wasn't a failure of the model. It was a reminder that
+        <strong>intelligence without context isn't particularly helpful.</strong>
+      </p>
+    </section>
+
+    <!-- PURPOSE -->
+    <section class="mag-section">
+      <h2>🎯 Defining Jaspa's Purpose</h2>
+      <p>
+        Before making any changes, I had to answer a simple question: what exactly is Jaspa
+        supposed to be?
+      </p>
+      <p>I wasn't trying to build another general-purpose chatbot. I wanted an assistant that could help with:</p>
+      <div class="purpose-grid">
+        <div class="purpose-item">IT support troubleshooting</div>
+        <div class="purpose-item">Infrastructure questions</div>
+        <div class="purpose-item">System administration tasks</div>
+        <div class="purpose-item">Homelab guidance</div>
+        <div class="purpose-item">Basic cybersecurity concepts</div>
+      </div>
+      <p>
+        In other words, I wanted something that reflected the kind of work I already do
+        and the direction I want my career to continue moving toward.
+      </p>
+      <p>
+        Once that became clear, every decision afterwards became much easier.
+      </p>
+    </section>
+
+    <!-- PERSONALITY -->
+    <section class="mag-section">
+      <h2>🎭 Building a Personality</h2>
+      <p>
+        One of the most interesting parts of the process was creating Jaspa's personality —
+        not personality in the sense of jokes or casual conversation, but personality in the
+        sense of <em>behaviour</em>.
+      </p>
+      <p>How should it respond? Should it give direct answers? Should it ask follow-up questions? Should it explain its reasoning? How technical should it be?</p>
+
+      <div class="insight-box">
+        <p>
+          <strong>These decisions have a huge impact on how useful an assistant becomes.</strong>
+        </p>
+        <p>
+          I quickly realized that a good IT support assistant shouldn't immediately jump to
+          conclusions. It should gather information first. The same way a real engineer would.
+        </p>
+      </div>
+    </section>
+
+    <!-- THINKING LIKE A TECHNICIAN -->
+    <section class="mag-section">
+      <h2>🔧 Thinking Like a Technician</h2>
+      <p>
+        When users describe a problem, they're often describing <em>symptoms</em> rather than
+        causes. For example:
+      </p>
+
+      <div class="tshoot-block">
+        <div class="tshoot-header">// Symptom vs Root Cause</div>
+        <div class="tshoot-body">
+          <div class="tshoot-row">
+            <span class="tshoot-label label-symptom">SYMPTOM</span>
+            <p>"My internet isn't working."</p>
+          </div>
+          <div class="tshoot-row">
+            <span class="tshoot-label label-cause">POSSIBLE CAUSE</span>
+            <p>DNS resolution failure</p>
+          </div>
+          <div class="tshoot-row">
+            <span class="tshoot-label label-cause">POSSIBLE CAUSE</span>
+            <p>Firewall rule blocking outbound traffic</p>
+          </div>
+          <div class="tshoot-row">
+            <span class="tshoot-label label-cause">POSSIBLE CAUSE</span>
+            <p>Failed network interface or cable</p>
+          </div>
+          <div class="tshoot-row">
+            <span class="tshoot-label label-cause">POSSIBLE CAUSE</span>
+            <p>Routing table misconfiguration</p>
+          </div>
+          <div class="tshoot-row">
+            <span class="tshoot-label label-cause">POSSIBLE CAUSE</span>
+            <p>ISP or upstream service outage</p>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        A good technician doesn't guess. They investigate.
+      </p>
+      <p>
+        That became one of the principles I wanted Jaspa to follow. Instead of immediately
+        suggesting solutions, the goal was to encourage structured troubleshooting:
+        ask questions, collect evidence, then suggest actions.
+      </p>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="mag-pullquote">
+      <blockquote>
+        "At first, I thought I was teaching an assistant. In reality, I was documenting my own troubleshooting habits."
+      </blockquote>
+    </section>
+
+    <!-- LESSONS FROM PROCESS -->
+    <section class="mag-section">
+      <h2>💡 Lessons From the Process</h2>
+      <p>
+        One thing that surprised me was how much this project mirrored real-world IT work.
+        Every instruction I added forced me to think about how I approach problems.
+      </p>
+      <p>
+        What information do I ask for first? What assumptions should I avoid?
+        How do I explain technical concepts to someone with less experience?
+      </p>
+
+      <div class="insight-box">
+        <p>
+          <strong>Building Jaspa became an exercise in understanding my own workflow.</strong>
+        </p>
+        <p>
+          In trying to make an AI think like an engineer, I had to articulate what that
+          actually meant — and that turned out to be just as valuable as the technical work itself.
+        </p>
+      </div>
+    </section>
+
+    <!-- CURRENT STATUS -->
+    <section class="mag-section">
+      <h2>📊 Current Status — End of Phase 1</h2>
+      <p>At the end of this phase, Jaspa had evolved significantly from where it started:</p>
+      <div class="status-grid">
+        <div class="status-item">Working Telegram interface</div>
+        <div class="status-item">Functioning AI backend</div>
+        <div class="status-item">Defined behavioural guidelines</div>
+        <div class="status-item">Clear purpose and role</div>
+        <div class="status-item">Foundations of an IT support workflow</div>
+      </div>
+      <p>
+        It still wasn't finished. But it was beginning to feel less like a chatbot
+        and more like an assistant.
+      </p>
+    </section>
+
+    <!-- WHAT'S NEXT -->
+    <section class="mag-section">
+      <h2>🔭 What's Next</h2>
+      <p>The next step is expanding Jaspa's capabilities beyond simple conversations:</p>
+      <ul class="future-list">
+        <li>Structured ticket generation</li>
+        <li>Knowledge base integration</li>
+        <li>Troubleshooting workflows</li>
+        <li>Homelab-specific guidance</li>
+        <li>Security-focused responses</li>
+        <li>Context retention and memory</li>
+      </ul>
+      <p>
+        The long-term goal isn't to replace engineers.
+        It's to create a reliable assistant that helps engineers work more efficiently.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>💭 Final Thoughts</h2>
+      <p>
+        One thing I've learned from this project is that building an AI assistant
+        isn't really about AI.
+      </p>
+      <p>
+        It's about understanding people, processes, and problem-solving.
+        The model provides the intelligence. The real challenge is teaching it how to
+        use that intelligence in a useful way.
+      </p>
+      <p>
+        Jaspa is still a work in progress, but every configuration change, every test message,
+        and every improvement brings it one step closer to becoming the kind of assistant
+        I originally imagined.
+      </p>
+      <p>
+        And honestly, that's been one of the most rewarding parts of the journey.
+      </p>
+    </section>
+
+    <!-- SERIES NAV -->
+    <div class="series-nav">
+      <h4>// Building an AI IT Support Assistant — Series</h4>
+      <a href="blog_openclaw_bot_phase1_part1_14.html">
+        📖 Part 1 — Getting OpenClaw Running and Connecting the Core Components
+      </a>
+      <a href="blog_openclaw_bot_phase1_part2_16.html" class="current">
+        📖 Part 2 — Teaching Jaspa to Think Like an IT Engineer ← You are here
+      </a>
+      <a href="#" class="coming">
+        📖 Part 3 — Building Memory, Workflows, and Real-World Integrations (Coming Soon)
+      </a>
+    </div>
+
+    <footer class="mag-footer">
+      <p>
+        Have you ever built or customized an AI assistant? If so, what was the first
+        behaviour or skill you taught it?
+      </p>
+      <p style="margin-top:1.25rem;">
+        Connect with me on
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+           style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+        — I'd love to hear how others are approaching AI assistant development.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+    <div class="article-nav-strip">
+      <a href="blog_hermes_agent_troubleshooting_15.html" class="nav-prev">← 🔧 Week 15 — Hermes Agent</a>
+      <a href="blogs.html#ai" class="nav-center">🤖 AI & Automation</a>
+      <a href="blogs.html" class="nav-next">📚 All Blog Posts →</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>
