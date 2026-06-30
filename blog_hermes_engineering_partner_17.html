@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From AI Assistant to AI Engineering Partner | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    /* ── Nav Strip ── */
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a { font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    /* ── Return Home ── */
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 1.5rem auto 0;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* ── Series badge ── */
+    .series-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: #58a6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Flow diagrams ── */
+    .flow-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      flex: 1;
+      min-width: 200px;
+    }
+    .flow-node-vert {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.55rem 1.1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #e6edf3;
+      white-space: nowrap;
+      text-align: center;
+      width: 100%;
+      max-width: 220px;
+    }
+    .flow-down-arrow {
+      color: #81ff7f;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .flow-compare-wrap {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+    }
+    .flow-col-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .flow-col-label.old { color: #f87171; }
+    .flow-col-label.new { color: #81ff7f; }
+    .flow-node-vert.old { border-color: rgba(248,113,113,0.3); }
+    .flow-node-vert.new { border-color: rgba(129,255,127,0.25); }
+
+    /* ── Engineering loop ── */
+    .eng-loop {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .eng-loop-node {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 320px;
+      transition: background 0.15s;
+    }
+    .eng-loop-node:hover { background: #161b22; }
+    .eng-loop-node .step-icon { font-size: 1rem; width: 1.5rem; text-align: center; flex-shrink: 0; }
+    .eng-loop-node .step-label { font-size: 0.88rem; color: #e6edf3; font-weight: 600; }
+    .eng-loop-node .step-desc  { font-size: 0.75rem; color: #8b949e; margin-left: auto; font-family: monospace; }
+    .eng-arrow-vert { color: #81ff7f; font-size: 0.9rem; font-weight: 700; margin: 1px 0; }
+
+    /* ── Dependency chain ── */
+    .dep-chain {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      font-family: monospace;
+    }
+    .dep-chain-header {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .dep-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.4rem 0;
+    }
+    .dep-name { color: #79c0ff; font-size: 0.85rem; font-weight: 700; }
+    .dep-arrow { color: #8b949e; font-size: 0.8rem; }
+    .dep-note  { color: #8b949e; font-size: 0.78rem; }
+    .dep-bad   { color: #f87171; }
+    .dep-good  { color: #81ff7f; }
+
+    /* ── File tree ── */
+    .file-tree {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #e6edf3;
+      line-height: 1.9;
+      margin: 1.25rem 0;
+    }
+    .file-tree .tree-root  { color: #79c0ff; font-weight: 700; }
+    .file-tree .tree-dir   { color: #79c0ff; }
+    .file-tree .tree-file  { color: #8b949e; }
+    .file-tree .tree-arrow { color: #81ff7f; }
+
+    /* ── Health report terminal ── */
+    .terminal-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      background: #161b22;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .t-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .t-dot.red    { background: #ff5f57; }
+    .t-dot.yellow { background: #febc2e; }
+    .t-dot.green  { background: #28c840; }
+    .t-title { font-size: 0.75rem; color: #8b949e; margin-left: 0.5rem; font-family: monospace; }
+    .terminal-body { padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: 0.82rem; line-height: 1.9; }
+    .t-cmd     { color: #81ff7f; }
+    .t-pass    { color: #81ff7f; }
+    .t-fail    { color: #f87171; }
+    .t-key     { color: #79c0ff; font-weight: 700; }
+    .t-dim     { color: #8b949e; }
+    .t-white   { color: #e6edf3; }
+    .t-warning { color: #fcd34d; }
+
+    /* ── Dashboard mockup ── */
+    .dashboard-mock {
+      background: #050d09;
+      border: 1px solid #1a3a2a;
+      border-radius: 10px;
+      padding: 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    .dash-header {
+      text-align: center;
+      color: #81ff7f;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 2px;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #1a3a2a;
+      margin-bottom: 1rem;
+    }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .dash-col h4 {
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid #1a3a2a;
+    }
+    .dash-col p {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin: 0.2rem 0;
+      line-height: 1.6;
+    }
+    .dash-col p .pass { color: #81ff7f; }
+    .dash-col p .fail { color: #f87171; }
+    .dash-col p .warn { color: #fcd34d; }
+    .dash-col p .val  { color: #e6edf3; }
+
+    /* ── Architecture diagram ── */
+    .arch-diagram {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+    }
+    .arch-diagram-header {
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #58a6ff;
+      margin-bottom: 1.25rem;
+    }
+    .arch-top { text-align: center; margin-bottom: 0.25rem; }
+    .arch-top .arch-node-main {
+      display: inline-block;
+      background: #161b22;
+      border: 1px solid #58a6ff;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      color: #79c0ff;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .arch-branches {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+    .arch-branch-node {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 0.45rem 0.9rem;
+      color: #c9d1d9;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+    .arch-bottom {
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+    .arch-bottom .arch-node-kb {
+      display: inline-block;
+      background: rgba(129,255,127,0.07);
+      border: 1px solid rgba(129,255,127,0.3);
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      color: #81ff7f;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .arch-arrow-down { text-align: center; color: #81ff7f; font-size: 1rem; line-height: 1.6; }
+
+    /* ── Policy callout ── */
+    .policy-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .policy-block h4 {
+      color: #81ff7f;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      font-family: monospace;
+    }
+    .policy-block .policy-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0;
+    }
+    .policy-step .p-arrow { color: #81ff7f; font-size: 0.9rem; flex-shrink: 0; }
+    .policy-step p { color: #c9d1d9; font-size: 0.88rem; margin: 0; }
+
+    /* ── Insight box ── */
+    .insight-box {
+      background: rgba(88,166,255,0.07);
+      border: 1px solid rgba(88,166,255,0.25);
+      border-left: 4px solid #58a6ff;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .insight-box p { color: #c9d1d9; font-size: 0.92rem; margin: 0.4rem 0; line-height: 1.7; }
+    .insight-box p:first-child { margin-top: 0; }
+    .insight-box p:last-child  { margin-bottom: 0; }
+    .insight-box strong { color: #79c0ff; }
+
+    /* ── Milestone box ── */
+    .milestone-box {
+      background: rgba(129,255,127,0.06);
+      border: 1px solid rgba(129,255,127,0.25);
+      border-left: 4px solid #81ff7f;
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .milestone-box p { color: #e6edf3; font-size: 0.95rem; margin: 0.4rem 0; line-height: 1.6; }
+
+    /* ── Series nav ── */
+    .series-nav {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0 1rem;
+    }
+    .series-nav h4 {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8b949e;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+    .series-nav a {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #58a6ff;
+      transition: color 0.2s;
+    }
+    .series-nav a:last-child { border-bottom: none; }
+    .series-nav a:hover { color: #81ff7f; }
+    .series-nav a.current { color: #81ff7f; font-weight: 700; }
+    .series-nav a.coming  { color: #8b949e; cursor: default; }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare SIEM</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        <li><a href="blogs.html#ai">🤖 AI &amp; Automation</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 17 · AI &amp; Automation · Bot Development Series</p>
+      <div class="series-badge">📖 Part 3 of Series · Building Hermes</div>
+      <h1 class="mag-title">From AI Assistant to AI Engineering Partner</h1>
+      <p class="mag-subtitle">How I Stopped Prompting and Started Building a System</p>
+      <div class="mag-meta">
+        Published: Monday, 11 May 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        10 min read &nbsp;·&nbsp; Tags: AI · Hermes · Engineering · CryptXSnare · Automation
+      </div>
+    </header>
+
+    <!-- INTRO -->
+    <section class="mag-lead">
+      <p>
+        When I first started building Hermes, my goal was simple.
+      </p>
+      <p>
+        Can I build an AI assistant that helps manage my homelab?
+      </p>
+      <p>
+        Like many people experimenting with AI, I imagined a chatbot that could answer questions,
+        execute terminal commands, and automate repetitive tasks. It did all of those things.
+      </p>
+      <p>
+        But after several weeks of building, deploying, breaking, rebuilding, and integrating
+        Hermes into my cybersecurity lab, I realized something.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <p>
+        I wasn't looking for another chatbot.
+      </p>
+      <p>
+        I wanted an engineering partner.
+      </p>
+      <p>
+        That realization completely changed the direction of the project.
+      </p>
+    </section>
+
+    <!-- THE TURNING POINT -->
+    <section class="mag-section">
+      <h2>The Turning Point</h2>
+      <p>
+        The change didn't happen because of a breakthrough model or a new API.
+      </p>
+      <p>
+        It happened because of failure.
+      </p>
+      <p>
+        While developing CryptXSnare — my SOC platform — Hermes helped implement a new
+        incident triage workflow. The feature itself wasn't difficult. The aftermath was.
+      </p>
+      <p>
+        Multiple rapid patches eventually corrupted a React component. The project stopped
+        compiling. Instead of continuing to add features, we had to stop everything and ask
+        a different question.
+      </p>
+
+      <div class="insight-box">
+        <p><strong>Why did this happen?</strong></p>
+        <p>
+          The answer wasn't "because AI made a mistake." The answer was much more interesting.
+          Hermes had no engineering process. It knew how to edit files.
+          It didn't know how to engineer software.
+        </p>
+      </div>
+    </section>
+
+    <!-- THE DIFFERENCE -->
+    <section class="mag-section">
+      <h2>The Difference</h2>
+      <p>
+        Most AI coding assistants work like this — and it does work. But it doesn't scale.
+      </p>
+
+      <div class="flow-compare-wrap">
+        <!-- Old flow -->
+        <div class="flow-col">
+          <div class="flow-col-label old">❌ Old Approach</div>
+          <div class="flow-node-vert old">Developer</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert old">Prompt</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert old">AI writes code</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert old">Developer fixes mistakes</div>
+        </div>
+
+        <!-- New flow -->
+        <div class="flow-col">
+          <div class="flow-col-label new">✅ New Approach</div>
+          <div class="flow-node-vert new">Developer</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Goal</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">AI audits project</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">AI creates plan</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Approval</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Implementation</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Verification</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Documentation</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Git Commit</div>
+          <div class="flow-down-arrow">↓</div>
+          <div class="flow-node-vert new">Knowledge Capture</div>
+        </div>
+      </div>
+
+      <p>
+        The difference isn't more intelligence.
+        It's more discipline.
+      </p>
+    </section>
+
+    <!-- ENGINEERING BEFORE CODING -->
+    <section class="mag-section">
+      <h2>Engineering Before Coding</h2>
+      <p>
+        One of the first lessons Hermes learned was that coding should never be the first step.
+        Instead, every repository should go through an Engineering Loop.
+        This became the foundation of Hermes-Core.
+      </p>
+
+      <div class="eng-loop">
+        <div class="eng-loop-node">
+          <span class="step-icon">🔍</span>
+          <span class="step-label">Understand</span>
+          <span class="step-desc">// read context</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">🧪</span>
+          <span class="step-label">Audit</span>
+          <span class="step-desc">// check health</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">📋</span>
+          <span class="step-label">Plan</span>
+          <span class="step-desc">// define approach</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">⚙️</span>
+          <span class="step-label">Execute</span>
+          <span class="step-desc">// implement</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">✅</span>
+          <span class="step-label">Verify</span>
+          <span class="step-desc">// compile &amp; test</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">📄</span>
+          <span class="step-label">Document</span>
+          <span class="step-desc">// record learning</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">💾</span>
+          <span class="step-label">Commit &amp; Push</span>
+          <span class="step-desc">// git</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">🧠</span>
+          <span class="step-label">Update Knowledge</span>
+          <span class="step-desc">// Hermes-Core</span>
+        </div>
+      </div>
+
+      <p>
+        Every project now follows the same workflow. No shortcuts.
+      </p>
+    </section>
+
+    <!-- DEPENDENCY AUDIT LESSON -->
+    <section class="mag-section">
+      <h2>The Dependency Audit Lesson</h2>
+      <p>
+        While working on CryptXSnare, Hermes attempted to start the application.
+        The result was immediate.
+      </p>
+
+      <div class="terminal-block">
+        <div class="terminal-bar">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">cryptXsnare — npm run dev</span>
+        </div>
+        <div class="terminal-body">
+          <span style="display:block;"><span class="t-dim">$</span> <span class="t-white">npm run dev</span></span>
+          <span style="display:block;color:#f87171;">vite: not found</span>
+        </div>
+      </div>
+
+      <p>
+        The problem wasn't Vite. The dependencies had never been installed.
+        Once that was corrected, another issue appeared.
+      </p>
+
+      <div class="dep-chain">
+        <div class="dep-chain-header">// Dependency Conflict Discovered</div>
+        <div class="dep-row">
+          <span class="dep-name">react-day-picker</span>
+          <span class="dep-arrow">→ requires →</span>
+          <span class="dep-note">date-fns <span class="dep-good">2.x or 3.x</span></span>
+        </div>
+        <div class="dep-row">
+          <span class="dep-name">project had</span>
+          <span class="dep-arrow">→ installed →</span>
+          <span class="dep-note">date-fns <span class="dep-bad">4.x</span> ← incompatible</span>
+        </div>
+      </div>
+
+      <p>
+        The environment wasn't healthy. Instead of forcing the installation, we investigated
+        the dependency graph, corrected the versions, rebuilt the project, and only then continued.
+        That experience inspired a new Hermes capability.
+      </p>
+
+      <div class="eng-loop" style="padding: 1.25rem;">
+        <div class="eng-loop-node">
+          <span class="step-icon">📦</span>
+          <span class="step-label">Repository Cloned</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">🔎</span>
+          <span class="step-label">Dependency Audit</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">🧪</span>
+          <span class="step-label">Environment Verification</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">🏗️</span>
+          <span class="step-label">Build</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">✅</span>
+          <span class="step-label">Testing</span>
+        </div>
+        <div class="eng-arrow-vert">↓</div>
+        <div class="eng-loop-node">
+          <span class="step-icon">💻</span>
+          <span class="step-label">Development Begins</span>
+        </div>
+      </div>
+
+      <p>No more coding inside a broken environment.</p>
+    </section>
+
+    <!-- WHEN BUILD FAILED -->
+    <section class="mag-section">
+      <h2>When the Build Finally Failed — and That Was Good News</h2>
+      <p>
+        Once the dependencies were healthy, the compiler finally exposed the real issue.
+      </p>
+
+      <div class="terminal-block">
+        <div class="terminal-bar">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">cryptXsnare — TypeScript Compiler</span>
+        </div>
+        <div class="terminal-body">
+          <span style="display:block;"><span class="t-key">ERROR</span> <span class="t-white">Threats.tsx</span></span>
+          <span style="display:block;color:#f87171;">Adjacent JSX elements must be wrapped in an enclosing tag.</span>
+        </div>
+      </div>
+
+      <p>
+        This wasn't a package issue. It wasn't Node. It wasn't React.
+        It was source code integrity.
+      </p>
+
+      <div class="milestone-box">
+        <p>
+          Ironically, this was good news.
+        </p>
+        <p>
+          The infrastructure was finally healthy enough to tell us
+          where the real problem lived.
+        </p>
+      </div>
+    </section>
+
+    <!-- HERMES-CORE GROWS -->
+    <section class="mag-section">
+      <h2>Hermes-Core Begins to Grow</h2>
+      <p>
+        At this point Hermes had become more than an assistant.
+        It had started accumulating operational knowledge.
+        But another realization followed quickly.
+      </p>
+      <p>
+        Engineering knowledge didn't quite fit into Skills or Playbooks.
+        So the framework began evolving.
+      </p>
+
+      <div class="file-tree">
+        <span style="display:block;"><span class="tree-root">Hermes-Core/</span></span>
+        <span style="display:block;"><span class="tree-arrow">├──</span> <span class="tree-dir">skills/</span></span>
+        <span style="display:block;"><span class="tree-arrow">├──</span> <span class="tree-dir">playbooks/</span></span>
+        <span style="display:block;"><span class="tree-arrow">├──</span> <span class="tree-dir">policies/</span></span>
+        <span style="display:block;"><span class="tree-arrow">├──</span> <span class="tree-dir">memories/</span></span>
+        <span style="display:block;"><span class="tree-arrow">├──</span> <span class="tree-dir">templates/</span></span>
+        <span style="display:block;"><span class="tree-arrow">└──</span> <span class="tree-dir">knowledge/</span></span>
+        <span style="display:block;">&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-arrow">├──</span> <span class="tree-dir">architecture/</span></span>
+        <span style="display:block;">&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-arrow">├──</span> <span class="tree-dir">decisions/</span></span>
+        <span style="display:block;">&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-arrow">├──</span> <span class="tree-dir">lessons/</span></span>
+        <span style="display:block;">&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-arrow">└──</span> <span class="tree-dir">postmortems/</span></span>
+      </div>
+
+      <p>
+        Now Hermes wasn't just remembering procedures.
+        It was remembering engineering decisions.
+        Every solved problem became reusable.
+        Every lesson reduced future mistakes.
+      </p>
+    </section>
+
+    <!-- NEW POLICY -->
+    <section class="mag-section">
+      <h2>A New Engineering Policy</h2>
+      <p>
+        The JSX corruption exposed another weakness. Hermes had been applying multiple patches
+        without verifying each one. That changed immediately. A new policy was born.
+      </p>
+
+      <div class="policy-block">
+        <h4>// One Edit, One Compile — Always</h4>
+        <div class="policy-step"><span class="p-arrow">→</span><p>Read the entire component</p></div>
+        <div class="policy-step"><span class="p-arrow">→</span><p>Understand the full structure</p></div>
+        <div class="policy-step"><span class="p-arrow">→</span><p>Apply ONE logical edit</p></div>
+        <div class="policy-step"><span class="p-arrow">→</span><p>Compile and verify</p></div>
+        <div class="policy-step"><span class="p-arrow">→</span><p>Repeat</p></div>
+      </div>
+
+      <p>
+        Never perform multiple structural edits without a successful compilation between them.
+        This single rule would have prevented the entire issue.
+      </p>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="mag-pullquote">
+      <blockquote>
+        "Artificial intelligence doesn't replace engineering discipline. It amplifies it."
+      </blockquote>
+    </section>
+
+    <!-- PROJECT HEALTH -->
+    <section class="mag-section">
+      <h2>Project Health Instead of Guesswork</h2>
+      <p>
+        Before writing code, I wanted Hermes to answer one simple question:
+        <em>"Is this project healthy?"</em>
+        That led to the design of a new command.
+      </p>
+
+      <div class="terminal-block">
+        <div class="terminal-bar">
+          <span class="t-dot red"></span>
+          <span class="t-dot yellow"></span>
+          <span class="t-dot green"></span>
+          <span class="t-title">hermes — /health</span>
+        </div>
+        <div class="terminal-body">
+          <span style="display:block;"><span class="t-dim">$</span> <span class="t-cmd">/health</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Project Health Report</span></span>
+          <span style="display:block;"><span class="t-dim">─────────────────────────────────</span></span>
+          <span style="display:block;"><span class="t-key">Repository</span></span>
+          <span style="display:block;"><span class="t-pass">  ✓ Git Clean</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Environment</span></span>
+          <span style="display:block;"><span class="t-pass">  ✓ Node</span></span>
+          <span style="display:block;"><span class="t-pass">  ✓ npm</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Dependencies</span></span>
+          <span style="display:block;"><span class="t-pass">  ✓ Installed</span></span>
+          <span style="display:block;"><span class="t-pass">  ✓ Compatible</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Build</span></span>
+          <span style="display:block;"><span class="t-fail">  ✗ Failing</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Current Error</span></span>
+          <span style="display:block;"><span class="t-warning">  Threats.tsx → Line 416</span></span>
+          <span style="display:block;">&nbsp;</span>
+          <span style="display:block;"><span class="t-key">Recommendation</span></span>
+          <span style="display:block;"><span class="t-warning">  Repair JSX before feature development.</span></span>
+        </div>
+      </div>
+
+      <p>
+        Instead of discovering problems halfway through development, Hermes would identify them
+        before writing a single line of code.
+      </p>
+    </section>
+
+    <!-- DASHBOARD VISION -->
+    <section class="mag-section">
+      <h2>The Dashboard Vision</h2>
+      <p>
+        As Hermes matured, I stopped thinking of it as a terminal tool.
+        I started imagining it as an engineering command center — one that exposes the full
+        engineering state of every project at a glance.
+      </p>
+
+      <div class="dashboard-mock">
+        <div class="dash-header">▸ HERMES COMMAND CENTER</div>
+        <div class="dash-grid">
+          <div class="dash-col">
+            <h4>Projects</h4>
+            <p><span class="pass">✓</span> cryptXsnare</p>
+            <p><span class="pass">✓</span> QRG Dashboard</p>
+            <p><span class="pass">✓</span> Hermes-Core</p>
+          </div>
+          <div class="dash-col">
+            <h4>Build Status</h4>
+            <p><span class="pass">✓</span> Passing</p>
+            <p><span class="fail">✗</span> Tests</p>
+            <p><span class="pass">✓</span> TypeScript</p>
+          </div>
+          <div class="dash-col">
+            <h4>Git</h4>
+            <p><span class="val">Branch: main</span></p>
+            <p><span class="warn">Pending: 3 files</span></p>
+          </div>
+          <div class="dash-col">
+            <h4>Knowledge</h4>
+            <p><span class="val">New Skills: 2</span></p>
+            <p><span class="val">Playbooks: 1</span></p>
+            <p><span class="val">Policies: 4</span></p>
+          </div>
+          <div class="dash-col">
+            <h4>Current Task</h4>
+            <p><span class="warn">Repair Threats.tsx</span></p>
+          </div>
+          <div class="dash-col">
+            <h4>Current Goal</h4>
+            <p><span class="val">Finish SOC triage workflow</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BIGGER ARCHITECTURE -->
+    <section class="mag-section">
+      <h2>The Bigger Architecture</h2>
+      <p>
+        By now, Hermes had evolved into something much larger than a chatbot.
+        Every completed task feeds Hermes-Core, Hermes-Core improves the next project,
+        and each iteration makes the system slightly better than it was before.
+      </p>
+
+      <div class="arch-diagram">
+        <div class="arch-diagram-header">// Hermes — Full System Architecture</div>
+
+        <div class="arch-top">
+          <div class="arch-node-main">✈️ Telegram</div>
+        </div>
+        <div class="arch-arrow-down">↓</div>
+        <div class="arch-top">
+          <div class="arch-node-main" style="border-color:#81ff7f;color:#81ff7f;">🐾 Hermes Agent</div>
+        </div>
+        <div class="arch-arrow-down">↓</div>
+        <div class="arch-branches">
+          <div class="arch-branch-node">📊 Hermes Dashboard</div>
+          <div class="arch-branch-node">🖥️ Terminal</div>
+          <div class="arch-branch-node">⚙️ VS Code / Cursor</div>
+        </div>
+        <div class="arch-arrow-down">↓</div>
+        <div class="arch-top">
+          <div class="arch-node-main">💾 Local Workspace</div>
+        </div>
+        <div class="arch-arrow-down">↓</div>
+        <div class="arch-top">
+          <div class="arch-node-main">🌐 Git Repository → GitHub</div>
+        </div>
+        <div class="arch-arrow-down">↓</div>
+        <div class="arch-bottom">
+          <div class="arch-node-kb">🧠 Hermes-Core (Knowledge Base)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOOKING AHEAD -->
+    <section class="mag-section">
+      <h2>Looking Ahead</h2>
+      <p>
+        Today Hermes helps me develop applications, manage infrastructure, document procedures,
+        and automate repetitive engineering tasks.
+      </p>
+      <p>
+        Tomorrow, I want it to become an engineering partner capable of maintaining project health,
+        preserving institutional knowledge, and continuously improving the way I build software.
+      </p>
+
+      <div class="insight-box">
+        <p>
+          <strong>The real goal was never to build an AI assistant.</strong>
+        </p>
+        <p>
+          The goal was to build a system that learns alongside me.
+          And I think we're finally heading in that direction.
+        </p>
+      </div>
+    </section>
+
+    <!-- FINAL THOUGHTS -->
+    <section class="mag-section">
+      <h2>Final Thoughts</h2>
+      <p>
+        One lesson stands out more than any other from this entire journey.
+      </p>
+      <p>
+        Artificial intelligence doesn't replace engineering discipline.
+        It amplifies it.
+      </p>
+      <p>
+        The better the process, the better the outcome.
+        That's why the future of AI-assisted development isn't just about better models.
+        It's about building better systems around them.
+      </p>
+      <p>
+        Hermes is no longer just an assistant.
+        It's becoming an engineering operating system.
+      </p>
+    </section>
+
+    <!-- SERIES NAV -->
+    <div class="series-nav">
+      <h4>// Building an AI IT Support Assistant — Series</h4>
+      <a href="blog_openclaw_bot_phase1_part1_14.html">
+        📖 Part 1 — Getting OpenClaw Running and Connecting the Core Components
+      </a>
+      <a href="blog_openclaw_bot_phase1_part2_16.html">
+        📖 Part 2 — Teaching Jaspa to Think Like an IT Engineer
+      </a>
+      <a href="blog_hermes_engineering_partner_17.html" class="current">
+        📖 Part 3 — From AI Assistant to AI Engineering Partner ← You are here
+      </a>
+      <a href="#" class="coming">
+        📖 Part 4 — Hermes-Core: Building a Knowledge Base That Grows (Coming Soon)
+      </a>
+    </div>
+
+    <footer class="mag-footer">
+      <p>
+        Are you building AI-assisted workflows of your own? What was the moment
+        that changed how you thought about the role of the AI in your process?
+      </p>
+      <p style="margin-top:1.25rem;">
+        Connect with me on
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+           style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+        — I'd genuinely love to hear how other engineers are approaching AI-assisted development.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+    <div class="article-nav-strip">
+      <a href="blog_openclaw_bot_phase1_part2_16.html" class="nav-prev">← 🤖 Week 16 — Jaspa Phase 2</a>
+      <a href="blogs.html#ai" class="nav-center">🤖 AI &amp; Automation</a>
+      <a href="blogs.html" class="nav-next">📚 All Blog Posts →</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>
