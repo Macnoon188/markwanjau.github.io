@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jaspa OS v1.0 — Engineering Journal, Volume I | Front Matter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500;1,8..60,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #f3ecd9;
+    --paper-edge: #e7dcc0;
+    --ink:        #23241f;
+    --ink-soft:   #4a4a3f;
+    --ink-faint:  #8a8672;
+    --rule:       #c9bd9c;
+    --rule-red:   #b0483f;
+    --accent:     #8a3324;
+    --accent-2:   #3f5c4a;
+    --stamp:      #6b6350;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ EXIT STRIP ============ */
+  .exit-strip {
+    background: #14120e;
+    border-bottom: 1px solid #2a271f;
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* ============ PAGE SHELL ============ */
+  .notebook-stage {
+    min-height: calc(100vh - 46px);
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1.25rem 2rem;
+    background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15;
+  }
+
+  .page {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 30px 60px -20px rgba(0,0,0,0.6),
+      0 0 0 1px var(--paper-edge);
+    border-radius: 2px;
+    padding: 3.5rem 3.25rem 2.75rem;
+  }
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px);
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  .page::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 2.25rem;
+    width: 1px;
+    background: rgba(176,72,63,0.28);
+    pointer-events: none;
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  @media (max-width: 640px) {
+    .page { padding: 2.5rem 1.5rem 2rem; }
+    .page::after { left: 1.1rem; }
+  }
+
+  /* ============ TITLE BLOCK ============ */
+  .title-block {
+    text-align: center;
+    padding-bottom: 2.25rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .title-block .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-bottom: 1.5rem;
+  }
+  .title-block h1 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+    margin: 0 0 0.6rem;
+  }
+  .title-block .subtitle {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.15rem;
+    color: var(--accent-2);
+    margin-bottom: 0.35rem;
+  }
+  .title-block .volume {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 1rem;
+  }
+
+  /* ============ SPEC / METADATA TABLE ============ */
+  .spec-sheet {
+    margin: 2rem 0 2.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .spec-row {
+    display: flex;
+    border-bottom: 1px solid var(--rule);
+  }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-row:nth-child(odd) { background: rgba(176,72,63,0.035); }
+  .spec-label {
+    flex: 0 0 190px;
+    padding: 0.65rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+  }
+  .spec-value {
+    flex: 1;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.95rem;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+  }
+  @media (max-width: 640px) {
+    .spec-row { flex-direction: column; }
+    .spec-label { border-right: none; border-bottom: 1px dashed var(--rule); flex: none; }
+  }
+
+  /* ============ EPIGRAPH ============ */
+  .epigraph {
+    text-align: center;
+    padding: 1.75rem 1rem;
+    margin: 2.5rem 0;
+    border-top: 1px dashed var(--rule);
+    border-bottom: 1px dashed var(--rule);
+  }
+  .epigraph p {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  /* ============ SECTION TYPOGRAPHY ============ */
+  .section { margin: 2.75rem 0; }
+  .section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section p {
+    font-size: 1.03rem;
+    line-height: 1.85;
+    color: var(--ink);
+    margin: 0 0 1rem;
+  }
+  .drop-line {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 600;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+  }
+  .signoff {
+    text-align: right;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    margin-top: 2rem;
+  }
+
+  /* ============ TABLE OF CONTENTS ============ */
+  .toc-part {
+    margin-bottom: 1.75rem;
+  }
+  .toc-part-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .toc-entry {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+    font-size: 0.94rem;
+  }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--stamp);
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--rule);
+    transform: translateY(-3px);
+  }
+  .toc-entry a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .toc-entry a:hover { color: var(--accent); }
+  .toc-entry.pending span.title {
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .toc-entry .status-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    flex: 0 0 auto;
+    background: rgba(176,72,63,0.08);
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--rule);
+  }
+  .toc-entry.live .status-tag {
+    color: var(--accent-2);
+    border-color: rgba(63,92,74,0.35);
+    background: rgba(63,92,74,0.08);
+  }
+
+  /* ============ PAGE STAMP ============ */
+  .page-stamp {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .page-stamp .dot { color: var(--rule); }
+
+  /* ============ PAGE TURN CONTROL ============ */
+  .turn-wrap {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin: 1.25rem auto 0;
+    padding: 0 0.25rem;
+  }
+  .turn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #14120e;
+    border: 1px solid #3a3628;
+    color: #e6dfc7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 3px;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .turn-btn:hover {
+    background: #221f18;
+    border-color: var(--accent);
+    transform: translateX(3px);
+  }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+
+  /* ============ BOTTOM CLOSE-NOTEBOOK FOOTER ============ */
+  .bottom-close {
+    max-width: 760px;
+    margin: 1.75rem auto 0;
+    padding: 0 0.25rem;
+    text-align: center;
+  }
+  .bottom-close a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8a290;
+    text-decoration: none;
+    padding: 0.6rem 0;
+    transition: color 0.2s;
+  }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <!-- ══════════ EXIT / CONTEXT STRIP ══════════ -->
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <!-- ══════════ FRONT MATTER PAGE ══════════ -->
+  <div class="notebook-stage">
+    <div class="page">
+
+      <!-- TITLE BLOCK -->
+      <div class="title-block">
+        <div class="kicker">Engineering Documentation · Revision 1.0</div>
+        <h1>Jaspa OS v1.0</h1>
+        <p class="subtitle">Cognitive Platform Complete</p>
+        <p class="volume">Engineering Journal — Volume I</p>
+      </div>
+
+      <!-- SPEC SHEET -->
+      <div class="spec-sheet">
+        <div class="spec-row">
+          <div class="spec-label">Author</div>
+          <div class="spec-value">Mark Andrew Wanjau</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Version</div>
+          <div class="spec-value">1.0</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Status</div>
+          <div class="spec-value">Released</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Document Classification</div>
+          <div class="spec-value">Engineering Documentation</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Revision</div>
+          <div class="spec-value">1.0</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Project</div>
+          <div class="spec-value">Jaspa OS — Built on Hermes-Agent</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">Estimated Length</div>
+          <div class="spec-value">72 Engineering Pages</div>
+        </div>
+      </div>
+
+      <!-- EPIGRAPH -->
+      <div class="epigraph">
+        <p>"No architecture survives by accident. Every layer exists because a problem demanded it."</p>
+      </div>
+
+      <!-- FOREWORD -->
+      <div class="section">
+        <h2>Foreword</h2>
+        <p>When I first started building what would eventually become Jaspa OS, my goal was surprisingly simple.</p>
+        <p>I wanted an assistant.</p>
+        <p>Not a chatbot.<br>Not a collection of prompts.<br>Not another wrapper around a language model.</p>
+        <p>I wanted something that could grow alongside me — an engineering partner capable of understanding projects, reasoning through problems, learning new domains, and assisting with real work.</p>
+        <p>At first, I assumed the challenge would be teaching an AI enough knowledge.</p>
+        <p>I was wrong.</p>
+        <p>The real challenge was designing an architecture capable of handling knowledge without collapsing under its own complexity.</p>
+        <p>That realization completely changed the direction of this project.</p>
+        <p>Instead of asking,</p>
+        <p class="drop-line">"How do I make the AI smarter?"</p>
+        <p>I began asking,</p>
+        <p class="drop-line">"How should intelligence itself be engineered?"</p>
+        <p>That question became the foundation of Jaspa OS.</p>
+        <p>This journal documents that journey.</p>
+        <p>Nothing has been simplified. Nothing has been rewritten to make the story cleaner. The engineering discussions, architectural pivots, milestones, acceptance tests, design records, successes, and course corrections are preserved as they happened.</p>
+        <p>This is not merely documentation of software.</p>
+        <p>It is documentation of engineering thought.</p>
+        <p>If this journal helps another engineer build a better system — or avoid mistakes I made — then it has achieved its purpose.</p>
+        <p class="signoff">— Mark Andrew Wanjau</p>
+      </div>
+
+      <!-- TABLE OF CONTENTS -->
+      <div class="section">
+        <h2>Table of Contents</h2>
+
+        <div class="toc-part">
+          <div class="toc-part-title">Part I — The Beginning</div>
+          <div class="toc-entry live">
+            <span class="toc-num">#001</span>
+            <a href="engineering_log_001.html">Why Jaspa Exists</a>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Read</span>
+          </div>
+          <div class="toc-entry live">
+            <span class="toc-num">#002</span>
+            <a href="engineering_log_002.html">The Problem with Traditional AI Assistants</a>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Read</span>
+          </div>
+          <div class="toc-entry live">
+            <span class="toc-num">#003</span>
+            <a href="engineering_log_003.html">Defining the Vision</a>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Read</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#004</span>
+            <span class="title">Hermes Becomes the Foundation</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#005</span>
+            <span class="title">Naming Jaspa OS</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+        </div>
+
+        <div class="toc-part">
+          <div class="toc-part-title">Part II — Building the Cognitive Platform</div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#006</span>
+            <span class="title">Freezing the Architecture</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#007</span>
+            <span class="title">Capability-Based Planning</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#008</span>
+            <span class="title">The Provider Registry</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#009</span>
+            <span class="title">Canonical Data Model</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#010</span>
+            <span class="title">Reflection Layer</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#011</span>
+            <span class="title">Personality Layer Design</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+        </div>
+
+        <div class="toc-part">
+          <div class="toc-part-title">Part III — Knowledge Providers</div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#012</span>
+            <span class="title">Bible Knowledge Provider</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#013</span>
+            <span class="title">Internet Intelligence Provider</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#014</span>
+            <span class="title">Knowledge Fusion</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">#015</span>
+            <span class="title">Acceptance Testing</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+        </div>
+
+        <div class="toc-part">
+          <div class="toc-part-title">Appendices</div>
+          <div class="toc-entry pending">
+            <span class="toc-num">A</span>
+            <span class="title">Engineering Directives</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">B</span>
+            <span class="title">Architecture Decision Records (ADRs)</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">C</span>
+            <span class="title">Acceptance Tests</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">D</span>
+            <span class="title">Engineering Diagrams</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">E</span>
+            <span class="title">Complete Prompt History</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+          <div class="toc-entry pending">
+            <span class="toc-num">F</span>
+            <span class="title">Future Roadmap</span>
+            <span class="toc-dots"></span>
+            <span class="status-tag">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE STAMP -->
+      <div class="page-stamp">
+        <span>Front Matter</span>
+        <span class="dot">·</span>
+        <span>Preliminary Page</span>
+        <span class="dot">·</span>
+        <span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE TURN CONTROL ══════════ -->
+  <div class="turn-wrap">
+    <a href="engineering_log_001.html" class="turn-btn">
+      Turn Page <span class="flip-icon">→</span>
+    </a>
+  </div>
+
+  <!-- ══════════ BOTTOM CLOSE-NOTEBOOK FOOTER ══════════ -->
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #002 — The Problem with Traditional AI Assistants | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #f3ecd9;
+    --paper-edge: #e7dcc0;
+    --ink:        #23241f;
+    --ink-soft:   #4a4a3f;
+    --ink-faint:  #8a8672;
+    --rule:       #c9bd9c;
+    --rule-red:   #b0483f;
+    --accent:     #8a3324;
+    --accent-2:   #3f5c4a;
+    --stamp:      #6b6350;
+    --bar-fill:   #3f5c4a;
+    --bar-empty:  #d8cead;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ EXIT STRIP ============ */
+  .exit-strip {
+    background: #14120e;
+    border-bottom: 1px solid #2a271f;
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* ============ PAGE SHELL ============ */
+  .notebook-stage {
+    min-height: calc(100vh - 46px);
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1.25rem 2rem;
+    background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15;
+  }
+
+  .page {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 30px 60px -20px rgba(0,0,0,0.6),
+      0 0 0 1px var(--paper-edge);
+    border-radius: 2px;
+    padding: 3.5rem 3.25rem 2.75rem;
+  }
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px);
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  .page::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 2.25rem;
+    width: 1px;
+    background: rgba(176,72,63,0.28);
+    pointer-events: none;
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  @media (max-width: 640px) {
+    .page { padding: 2.5rem 1.5rem 2rem; }
+    .page::after { left: 1.1rem; }
+  }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead .journal-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .masthead .journal-vol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+  }
+
+  /* ============ LOG HEADER BLOCK ============ */
+  .log-header { margin-bottom: 2.5rem; }
+  .log-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .log-title {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    font-size: 1.9rem;
+    line-height: 1.2;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .field-label {
+    flex: 0 0 150px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    padding-top: 0.15rem;
+  }
+  .field-value {
+    flex: 1;
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  @media (max-width: 640px) {
+    .field-row { flex-direction: column; gap: 0.2rem; }
+    .field-label { flex: none; }
+  }
+
+  /* ============ SECTION TYPOGRAPHY ============ */
+  .section { margin: 2.5rem 0; }
+  .section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section h3 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 1.5rem 0 0.75rem;
+  }
+  .section p {
+    font-size: 1.03rem;
+    line-height: 1.85;
+    color: var(--ink);
+    margin: 0 0 1rem;
+  }
+  .drop-line {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 600;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  ul.plain-list {
+    margin: 0 0 1rem;
+    padding-left: 1.3rem;
+  }
+  ul.plain-list li {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  /* ============ CONVERSATION EXTRACT ============ */
+  .conversation-block {
+    margin: 1.5rem 0 2rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .conversation-tag {
+    background: rgba(176,72,63,0.08);
+    padding: 0.5rem 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    border-bottom: 1px solid var(--rule);
+  }
+  .conversation-msg {
+    padding: 1.25rem 1.4rem;
+    background: rgba(255,255,255,0.25);
+  }
+  .conversation-msg .speaker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .conversation-msg p {
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ============ NUMBERED PROBLEMS ============ */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  @media (max-width: 640px) { .problem-grid { grid-template-columns: 1fr; } }
+  .problem-card {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1rem 1.1rem;
+    background: rgba(255,255,255,0.2);
+  }
+  .problem-card .p-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-bottom: 0.3rem;
+  }
+  .problem-card h4 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--accent-2);
+    margin: 0 0 0.35rem;
+  }
+  .problem-card p {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ============ CONCEPT BLOCK ============ */
+  .concept-block {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 2;
+    color: var(--ink-soft);
+    background: rgba(176,72,63,0.05);
+    border: 1px dashed var(--rule);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+    white-space: pre;
+  }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+
+  /* ============ PHILOSOPHY LIST ============ */
+  .principle {
+    display: flex;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px dotted var(--rule);
+  }
+  .principle:last-child { border-bottom: none; }
+  .principle .p-num {
+    flex: 0 0 auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    padding-top: 0.15rem;
+  }
+  .principle .p-body h4 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 1.02rem;
+    margin: 0 0 0.35rem;
+    color: var(--ink);
+  }
+  .principle .p-body p {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .marginal-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--stamp);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0.4rem 0 1.5rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--rule);
+  }
+
+  /* ============ LESSONS LEARNED ============ */
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li {
+    position: relative;
+    padding: 0.55rem 0 0.55rem 1.6rem;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    border-bottom: 1px dotted var(--rule);
+  }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ============ ENGINEERING SNAPSHOT BOX ============ */
+  .snapshot-box {
+    margin: 1.5rem 0;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    padding: 1.4rem 1.6rem;
+    background: rgba(255,255,255,0.3);
+  }
+  .snapshot-box .snap-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .snap-row {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.4rem 0;
+    font-size: 0.92rem;
+  }
+  .snap-row .snap-label {
+    flex: 0 0 150px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    padding-top: 0.1rem;
+  }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li {
+    font-size: 0.92rem;
+    color: var(--ink);
+    padding: 0.25rem 0;
+  }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .snap-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule);
+    flex-wrap: wrap;
+  }
+  .snap-stat { text-align: left; }
+  .snap-stat .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-2);
+    display: block;
+  }
+  .snap-stat .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+
+  /* ============ STATE OF JASPA OS ============ */
+  .state-panel {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--ink);
+  }
+  .state-panel .state-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .state-panel .state-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--stamp);
+    margin-bottom: 1.5rem;
+  }
+  .gauge-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+  }
+  .gauge-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    flex: 0 0 160px;
+  }
+  .gauge-bar {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    text-align: right;
+  }
+  .gauge-bar .fill  { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct {
+    flex: 0 0 42px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--stamp);
+  }
+  @media (max-width: 640px) {
+    .gauge-row { flex-wrap: wrap; }
+    .gauge-label { flex: 1 1 100%; }
+    .gauge-pct { display:none; }
+  }
+
+  /* ============ PAGE STAMP ============ */
+  .page-stamp {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .page-stamp .dot { color: var(--rule); }
+
+  /* ============ PAGE TURN CONTROL ============ */
+  .turn-wrap {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: 1.25rem auto 0;
+    padding: 0 0.25rem;
+  }
+  .turn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #14120e;
+    border: 1px solid #3a3628;
+    color: #e6dfc7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 3px;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .turn-btn:hover {
+    background: #221f18;
+    border-color: var(--accent);
+    transform: translateX(3px);
+  }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+  /* ============ BOTTOM CLOSE-NOTEBOOK FOOTER ============ */
+  .bottom-close {
+    max-width: 760px;
+    margin: 1.75rem auto 0;
+    padding: 0 0.25rem;
+    text-align: center;
+  }
+  .bottom-close a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8a290;
+    text-decoration: none;
+    padding: 0.6rem 0;
+    transition: color 0.2s;
+  }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <!-- ══════════ EXIT / CONTEXT STRIP ══════════ -->
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <!-- ══════════ NOTEBOOK PAGE ══════════ -->
+  <div class="notebook-stage">
+    <div class="page">
+
+      <!-- MASTHEAD -->
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part I — The Beginning</div>
+      </div>
+
+      <!-- LOG HEADER -->
+      <div class="log-header">
+        <div class="log-number">Engineering Log #002</div>
+        <h1 class="log-title">The Problem with Traditional AI Assistants</h1>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Determine why existing AI assistants — even the most capable large language models — were insufficient for long-term engineering work, and establish the architectural principles that would eventually distinguish Jaspa OS from a conventional chatbot.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE QUESTION THAT CHANGED EVERYTHING -->
+      <div class="section">
+        <h2>Problem — The Question That Changed Everything</h2>
+        <p>After months of using AI for software development, cybersecurity, infrastructure planning, and documentation, one question kept resurfacing.</p>
+        <p>Not because the models lacked intelligence.</p>
+        <p class="drop-line">Because they lacked continuity.</p>
+        <p>Every new conversation required rebuilding context. Projects had to be explained again. Architectural decisions had to be repeated. The assistant answered well, but it did not participate in engineering.</p>
+        <p>That distinction became impossible to ignore.</p>
+        <p>At first, this seemed like a limitation of the underlying language model. In reality, it was a limitation of the surrounding architecture.</p>
+        <p>The more I thought about it, the more obvious it became:</p>
+        <p class="drop-line">The problem wasn't the AI. The problem was how we were asking it to work.</p>
+      </div>
+
+      <!-- OBSERVATIONS FROM REAL PROJECTS -->
+      <div class="section">
+        <h2>Observations from Real Projects</h2>
+        <p>This realization didn't happen in isolation. It emerged from dozens of ongoing projects that shared the same underlying frustration. Some of them included:</p>
+        <ul class="plain-list">
+          <li>Building a Proxmox-based homelab for cybersecurity experimentation.</li>
+          <li>Deploying Wazuh and integrating it with pfSense.</li>
+          <li>Developing a React Native church application.</li>
+          <li>Building Hermes as an AI assistant running inside a dedicated Ubuntu Server virtual machine.</li>
+          <li>Designing my engineering portfolio and documenting technical projects.</li>
+          <li>Creating automation workflows that could be triggered remotely through Telegram.</li>
+        </ul>
+        <p>Each project revealed the same pattern.</p>
+        <p>The AI could solve today's problem. Tomorrow, it would need the same explanation all over again.</p>
+        <p>That wasn't a failure of intelligence. It was a failure of engineering continuity.</p>
+      </div>
+
+      <!-- THE ENGINEERING CONVERSATION -->
+      <div class="section">
+        <h2>The Engineering Conversation</h2>
+        <p>One of the earliest architectural discussions captured this perfectly.</p>
+
+        <div class="conversation-block">
+          <div class="conversation-tag">Conversation Extract</div>
+          <div class="conversation-msg">
+            <div class="speaker">Mark</div>
+            <p>"Let's move to phase 2 of improving Jaspa. Here, I want him to have knowledge of all historical facts, a very vast knowledge of the Bible (and have the ability to relate it to current times based on sermons that it can search from the internet), and lastly... I don't know how you did it, but you explain things almost like you have a personality. How can we do the same for Jaspa?"</p>
+          </div>
+        </div>
+
+        <p>That single message contained far more than a feature request.</p>
+        <p>Without realizing it, it defined the roadmap for the entire platform. Hidden inside it were four completely different engineering problems.</p>
+
+        <div class="problem-grid">
+          <div class="problem-card">
+            <div class="p-tag">Problem One</div>
+            <h4>Knowledge</h4>
+            <p>How should biblical information be stored?</p>
+          </div>
+          <div class="problem-card">
+            <div class="p-tag">Problem Two</div>
+            <h4>Reasoning</h4>
+            <p>How should ancient scripture be connected with modern events?</p>
+          </div>
+          <div class="problem-card">
+            <div class="p-tag">Problem Three</div>
+            <h4>Personality</h4>
+            <p>How should responses feel consistent without becoming scripted?</p>
+          </div>
+          <div class="problem-card">
+            <div class="p-tag">Problem Four</div>
+            <h4>Growth</h4>
+            <p>How could new capabilities be added years later without rewriting the platform?</p>
+          </div>
+        </div>
+
+        <h3>Engineering Commentary</h3>
+        <p>Most AI projects begin by adding features. This project deliberately moved in the opposite direction.</p>
+        <p>Rather than immediately implementing Bible knowledge or personality, we paused and asked a more fundamental question:</p>
+        <p class="drop-line">"If Jaspa eventually knows hundreds of different domains, how should those domains be organized?"</p>
+        <p>That single question transformed the project. Instead of designing features, we began designing an operating system.</p>
+      </div>
+
+      <!-- HYPOTHESIS -->
+      <div class="section">
+        <h2>Hypothesis — The First Architectural Shift</h2>
+        <p>Originally, the mental model looked like this.</p>
+
+        <div class="concept-block"><span class="node">User</span>
+   <span class="arrow">↓</span>
+<span class="node">Large Language Model</span>
+   <span class="arrow">↓</span>
+<span class="node">Response</span></div>
+
+        <p>It was simple. It worked. It was also a dead end.</p>
+        <p>Every responsibility lived inside one component. The model had to: reason, search, remember, retrieve, summarize, verify, and respond — all at the same time.</p>
+        <p>As capabilities increased, complexity would increase with them.</p>
+
+        <h3>A Better Question</h3>
+        <p>Instead of asking</p>
+        <p class="drop-line">"Can the AI answer this?"</p>
+        <p>we started asking</p>
+        <p class="drop-line">"Who should answer this?"</p>
+        <p>That subtle change completely altered the architecture. Instead of one intelligent component doing everything, Jaspa would become a coordinator capable of selecting the most appropriate source of intelligence.</p>
+        <p>This idea eventually evolved into the <strong>Capability-Based Planner</strong>, one of the defining characteristics of Jaspa OS.</p>
+      </div>
+
+      <!-- IMPLEMENTATION -->
+      <div class="section">
+        <h2>Implementation — The Birth of an Engineering Philosophy</h2>
+        <p>Around this point, an engineering philosophy quietly emerged. It wasn't written down immediately. It revealed itself through repeated conversations.</p>
+        <p>Those conversations eventually crystallized into five guiding beliefs.</p>
+
+        <div class="principle">
+          <div class="p-num">01</div>
+          <div class="p-body">
+            <h4>Intelligence Is a System</h4>
+            <p>No single model should carry every responsibility. Specialized components should collaborate.</p>
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="p-num">02</div>
+          <div class="p-body">
+            <h4>Architecture Outlives Models</h4>
+            <p>Language models improve every year. Architectures should survive for decades.</p>
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="p-num">03</div>
+          <div class="p-body">
+            <h4>Every Capability Should Be Replaceable</h4>
+            <p>Today's search provider may not exist tomorrow. Today's reasoning model may eventually be obsolete. Replacing either should never require rewriting the planner.</p>
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="p-num">04</div>
+          <div class="p-body">
+            <h4>Every Decision Should Be Observable</h4>
+            <p>Engineering without visibility becomes guesswork. The platform should eventually explain not only what it answered, but how it arrived there.</p>
+          </div>
+        </div>
+
+        <div class="principle">
+          <div class="p-num">05</div>
+          <div class="p-body">
+            <h4>Growth Should Be Predictable</h4>
+            <p>Adding Bible knowledge should follow the same architectural pattern as adding historical knowledge, cybersecurity expertise, or technical documentation. No special cases. No exceptions.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="section">
+        <h2>Result — Looking Ahead</h2>
+        <p>By the end of this discussion, something remarkable had happened.</p>
+        <p>We had not written a single line of production logic. No provider existed. No planner had been implemented. No registry had been designed.</p>
+        <p>And yet, the architecture had already begun taking shape.</p>
+
+        <div class="marginal-note">Engineering Observation</div>
+        <p>This would prove to be one of the most important lessons of the entire project.</p>
+        <p class="drop-line">Good engineering begins long before the first implementation.</p>
+      </div>
+
+      <!-- LESSONS LEARNED -->
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>The quality of an AI system is determined as much by its architecture as by the model it uses.</li>
+          <li>Real engineering requires continuity, not isolated conversations.</li>
+          <li>Asking "Who should solve this problem?" produces better architectures than asking "Can the model solve it?"</li>
+          <li>Feature requests often reveal deeper architectural requirements.</li>
+          <li>A clear philosophy established early prevents countless redesigns later.</li>
+        </ul>
+      </div>
+
+      <!-- ENGINEERING SNAPSHOT -->
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #002 Summary</div>
+          <div class="snap-row">
+            <div class="snap-label">Date</div>
+            <div class="snap-value">June 2026</div>
+          </div>
+          <div class="snap-row">
+            <div class="snap-label">Milestone</div>
+            <div class="snap-value">Vision Expansion</div>
+          </div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Identified continuity as the core engineering problem.</li>
+                <li>Shifted from feature development to architecture-first design.</li>
+                <li>Defined the need for modular knowledge domains.</li>
+                <li>Established the principle of capability-based thinking.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="snap-stats">
+            <div class="snap-stat">
+              <span class="stat-num">0</span>
+              <span class="stat-label">Providers</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">0</span>
+              <span class="stat-label">Acceptance Tests</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">15%</span>
+              <span class="stat-label">Architecture Stability</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE OF JASPA OS -->
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #002</div>
+
+        <div class="gauge-row">
+          <div class="gauge-label">Architecture</div>
+          <div class="gauge-bar"><span class="fill">███</span><span class="empty">░░░░░░░</span></div>
+          <div class="gauge-pct">30%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Planner</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Registry</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Bible Provider</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Internet Provider</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Reflection Layer</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Memory</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Personality</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+      </div>
+
+      <!-- PAGE STAMP -->
+      <div class="page-stamp">
+        <span>Engineering Log</span>
+        <span class="dot">·</span>
+        <span>Page 2 of 72</span>
+        <span class="dot">·</span>
+        <span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE TURN CONTROL ══════════ -->
+  <div class="turn-wrap">
+    <a href="engineering_log_001.html" class="turn-btn">
+      <span class="flip-icon">←</span> Turn Page
+    </a>
+    <a href="engineering_log_003.html" class="turn-btn">
+      Turn Page <span class="flip-icon">→</span>
+    </a>
+  </div>
+
+  <!-- ══════════ BOTTOM CLOSE-NOTEBOOK FOOTER ══════════ -->
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>
