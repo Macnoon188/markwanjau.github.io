@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #006 — The Cognitive Router | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #f3ecd9;
+    --paper-edge: #e7dcc0;
+    --ink:        #23241f;
+    --ink-soft:   #4a4a3f;
+    --ink-faint:  #8a8672;
+    --rule:       #c9bd9c;
+    --rule-red:   #b0483f;
+    --accent:     #8a3324;
+    --accent-2:   #3f5c4a;
+    --accent-blue:#3a5f7d;
+    --stamp:      #6b6350;
+    --bar-fill:   #3f5c4a;
+    --bar-empty:  #d8cead;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .exit-strip {
+    background: #14120e;
+    border-bottom: 1px solid #2a271f;
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+
+  .notebook-stage {
+    min-height: calc(100vh - 46px);
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1.25rem 2rem;
+    background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15;
+  }
+
+  .page {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 30px 60px -20px rgba(0,0,0,0.6),
+      0 0 0 1px var(--paper-edge);
+    border-radius: 2px;
+    padding: 3.5rem 3.25rem 2.75rem;
+  }
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px);
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  .page::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 2.25rem;
+    width: 1px;
+    background: rgba(176,72,63,0.28);
+    pointer-events: none;
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  @media (max-width: 640px) {
+    .page { padding: 2.5rem 1.5rem 2rem; }
+    .page::after { left: 1.1rem; }
+  }
+
+  .masthead {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead .journal-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .masthead .journal-vol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+  }
+
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .log-title {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    font-size: 1.9rem;
+    line-height: 1.2;
+    color: var(--ink);
+    margin: 0 0 0.6rem;
+  }
+  .log-kicker {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--accent-2);
+    margin-bottom: 0;
+  }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .field-label {
+    flex: 0 0 150px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    padding-top: 0.15rem;
+  }
+  .field-value {
+    flex: 1;
+    font-size: 0.98rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  @media (max-width: 640px) {
+    .field-row { flex-direction: column; gap: 0.2rem; }
+    .field-label { flex: none; }
+  }
+
+  .section { margin: 2.5rem 0; }
+  .section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section h3 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 1.5rem 0 0.75rem;
+  }
+  .section p {
+    font-size: 1.03rem;
+    line-height: 1.85;
+    color: var(--ink);
+    margin: 0 0 1rem;
+  }
+  .drop-line {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 600;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+  }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .conversation-block {
+    margin: 1.5rem 0 2rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .conversation-tag {
+    background: rgba(176,72,63,0.08);
+    padding: 0.5rem 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    border-bottom: 1px solid var(--rule);
+  }
+  .conversation-msg { padding: 1.25rem 1.4rem; background: rgba(255,255,255,0.25); }
+  .conversation-msg .speaker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .conversation-msg.jaspa .speaker { color: var(--accent-blue); }
+  .conversation-msg p {
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+  }
+  .conversation-msg p:last-child { margin-bottom: 0; }
+
+  .artifact-list {
+    list-style: none;
+    counter-reset: artifact-step;
+    padding: 0;
+    margin: 1rem 0 1.5rem;
+  }
+  .artifact-list li {
+    counter-increment: artifact-step;
+    position: relative;
+    padding: 0.5rem 0 0.5rem 2.3rem;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    border-bottom: 1px dotted var(--rule);
+  }
+  .artifact-list li:last-child { border-bottom: none; }
+  .artifact-list li::before {
+    content: counter(artifact-step);
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .concept-block {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    background: rgba(176,72,63,0.05);
+    border: 1px dashed var(--rule);
+    padding: 1.4rem 1rem;
+    margin: 1.5rem 0;
+    text-align: center;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .concept-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin: 1.5rem 0 0.4rem;
+    text-align: center;
+  }
+
+  .principle-plaque {
+    margin: 1.5rem 0;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255,255,255,0.3);
+    text-align: center;
+  }
+  .principle-plaque .pl-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-bottom: 0.6rem;
+  }
+  .principle-plaque .pl-title {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin: 0 0 1rem;
+  }
+  .principle-plaque ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: inline-block;
+  }
+  .principle-plaque ul li {
+    font-size: 0.96rem;
+    color: var(--ink);
+    padding: 0.3rem 0;
+  }
+  .principle-plaque ul li::before { content: '• '; color: var(--accent-2); font-weight: 700; }
+
+  .marginal-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--stamp);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0.4rem 0 1.5rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--rule);
+  }
+
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li {
+    position: relative;
+    padding: 0.55rem 0 0.55rem 1.6rem;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink);
+    border-bottom: 1px dotted var(--rule);
+  }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  .snapshot-box {
+    margin: 1.5rem 0;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    padding: 1.4rem 1.6rem;
+    background: rgba(255,255,255,0.3);
+  }
+  .snapshot-box .snap-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .snap-row { display: flex; gap: 1.25rem; padding: 0.4rem 0; font-size: 0.92rem; }
+  .snap-row .snap-label {
+    flex: 0 0 150px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+    padding-top: 0.1rem;
+  }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li { font-size: 0.92rem; color: var(--ink); padding: 0.25rem 0; }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .snap-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule);
+    flex-wrap: wrap;
+  }
+  .snap-stat { text-align: left; }
+  .snap-stat .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-2);
+    display: block;
+  }
+  .snap-stat .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+
+  .state-panel {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--ink);
+  }
+  .state-panel .state-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .state-panel .state-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--stamp);
+    margin-bottom: 1.5rem;
+  }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill  { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) {
+    .gauge-row { flex-wrap: wrap; }
+    .gauge-label { flex: 1 1 100%; }
+    .gauge-pct { display:none; }
+  }
+
+  .next-question {
+    margin: 2.5rem 0 0.5rem;
+    padding: 1.5rem 1.6rem;
+    background: rgba(63,92,74,0.06);
+    border: 1px solid rgba(63,92,74,0.3);
+    border-radius: 3px;
+  }
+  .next-question .nq-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 0.75rem;
+  }
+  .next-question p {
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin: 0 0 0.75rem;
+  }
+  .next-question p:last-child { margin-bottom: 0; }
+
+  .page-stamp {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--stamp);
+  }
+  .page-stamp .dot { color: var(--rule); }
+
+  .turn-wrap {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: 1.25rem auto 0;
+    padding: 0 0.25rem;
+  }
+  .turn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #14120e;
+    border: 1px solid #3a3628;
+    color: #e6dfc7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.7rem 1.3rem;
+    border-radius: 3px;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+  .bottom-close {
+    max-width: 760px;
+    margin: 1.75rem auto 0;
+    padding: 0 0.25rem;
+    text-align: center;
+  }
+  .bottom-close a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a8a290;
+    text-decoration: none;
+    padding: 0.6rem 0;
+    transition: color 0.2s;
+  }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <!-- ══════════ EXIT / CONTEXT STRIP ══════════ -->
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <!-- ══════════ NOTEBOOK PAGE ══════════ -->
+  <div class="notebook-stage">
+    <div class="page">
+
+      <!-- MASTHEAD -->
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part II — Building the Cognitive Platform</div>
+      </div>
+
+      <!-- LOG HEADER -->
+      <div class="log-header">
+        <div class="log-number">Engineering Log #006</div>
+        <h1 class="log-title">The Cognitive Router</h1>
+        <p class="log-kicker">The birth of the Cognitive Router.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">28 June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Design the first production-grade orchestration component of Jaspa OS. The Cognitive Router would become responsible for understanding user intent, determining required capabilities, and coordinating execution without performing any knowledge retrieval itself. This Engineering Log marks the beginning of Jaspa OS's transition from an intelligent assistant into a true cognitive operating system.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE PROBLEM -->
+      <div class="section">
+        <h2>The Problem</h2>
+        <p>The architectural vision was becoming clearer.</p>
+        <p>We had agreed that Jaspa would eventually possess knowledge in multiple independent domains.</p>
+        <ul class="plain-list">
+          <li>Scripture</li>
+          <li>Internet</li>
+          <li>History</li>
+          <li>Cybersecurity</li>
+          <li>Memory</li>
+          <li>Personal Knowledge</li>
+          <li>Technical Documentation</li>
+          <li>Future Providers not yet imagined</li>
+        </ul>
+        <p>The problem was no longer how to build those providers.</p>
+        <p class="drop-line">The problem was deciding which one should answer a given question.</p>
+        <p>Consider a user asking:</p>
+        <p class="drop-line">"Explain how David's kingship foreshadows Christ and relate it to modern Christian leadership."</p>
+        <p>Even without implementation, we could already identify several distinct domains.</p>
+        <ul class="plain-list">
+          <li>Biblical interpretation</li>
+          <li>Historical context</li>
+          <li>Contemporary leadership</li>
+          <li>Live sermon references</li>
+          <li>Response synthesis</li>
+        </ul>
+        <p>One component should never attempt to perform all of these responsibilities.</p>
+        <p>Someone — or something — needed to coordinate them.</p>
+      </div>
+
+      <!-- ARTIFACT 006-A -->
+      <div class="section">
+        <h2>Engineering Artifact 006-A</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">Original Engineering Directive</p>
+        <p>Following the architectural roadmap, Jaspa proposed the first implementation milestone.</p>
+        <ol class="artifact-list">
+          <li>Repository Audit</li>
+          <li>Skill Assessment</li>
+          <li>Router Design</li>
+          <li>Classification Logic</li>
+          <li>Decision-Making Protocol</li>
+        </ol>
+        <p>This was the first time Jaspa described itself as building an orchestration layer rather than implementing a feature.</p>
+      </div>
+
+      <!-- ARTIFACT 006-B -->
+      <div class="section">
+        <h2>Engineering Artifact 006-B</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">Jaspa's Response</p>
+        <div class="conversation-block">
+          <div class="conversation-tag">Response · Jaspa OS</div>
+          <div class="conversation-msg jaspa">
+            <div class="speaker">Jaspa</div>
+            <p>"The Cognitive Router will act as the orchestrator that classifies user intent and selects the appropriate tools or knowledge sources."</p>
+          </div>
+        </div>
+        <p>Looking back, this sentence quietly defined the architecture of the entire platform.</p>
+
+        <h3>Engineering Analysis</h3>
+        <p>Notice the wording.</p>
+        <p>Not: <em>retrieve Scripture</em>. Not: <em>search the internet</em>. Not: <em>answer the question</em>.</p>
+        <p>Instead:</p>
+        <p class="drop-line">select the appropriate tools or knowledge sources</p>
+        <p>This single sentence established one of the strongest architectural boundaries in Jaspa OS.</p>
+        <p>The Router would never become another provider. It would remain permanently independent.</p>
+      </div>
+
+      <!-- FIRST RESPONSIBILITY SPLIT -->
+      <div class="section">
+        <h2>The First Responsibility Split</h2>
+        <p>Prior to this milestone, one component effectively owned every responsibility.</p>
+
+        <div class="concept-label">// Before</div>
+        <div class="concept-block"><span class="node">Understand the user</span>
+        <span class="arrow">↓</span>
+<span class="node">Find information</span>
+        <span class="arrow">↓</span>
+<span class="node">Reason about it</span>
+        <span class="arrow">↓</span>
+<span class="node">Generate a response</span></div>
+
+        <p>Elegant. Simple. Impossible to scale.</p>
+        <p>The Cognitive Router introduced a different philosophy.</p>
+
+        <div class="concept-label">// After</div>
+        <div class="concept-block"><span class="node">Understand the user</span>
+        <span class="arrow">↓</span>
+<span class="node">Classify intent</span>
+        <span class="arrow">↓</span>
+<span class="node">Determine required capabilities</span>
+        <span class="arrow">↓</span>
+<span class="node">Delegate execution</span>
+        <span class="arrow">↓</span>
+<span class="node">Receive results</span>
+        <span class="arrow">↓</span>
+<span class="node">Return for reflection</span></div>
+
+        <p>Instead of accumulating intelligence, the Router accumulated coordination.</p>
+        <p class="drop-line">That distinction made future growth possible.</p>
+      </div>
+
+      <!-- COGNITIVE ROUTER PIPELINE -->
+      <div class="section">
+        <h2>The Cognitive Router Pipeline</h2>
+        <p>For the first time, we documented how a request should travel through Jaspa OS.</p>
+
+        <div class="concept-block"><span class="node">User Request</span>
+        <span class="arrow">↓</span>
+<span class="node">Intent Classification</span>
+        <span class="arrow">↓</span>
+<span class="node">Complexity Analysis</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Requirements</span>
+        <span class="arrow">↓</span>
+<span class="node">Execution Planning</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Registry</span></div>
+
+        <p>Notice what is missing.</p>
+        <p>No Bible provider. No internet provider. No database. No search engine.</p>
+        <p>The Router remained completely unaware of implementation details.</p>
+      </div>
+
+      <!-- ENGINEERING COMMENTARY -->
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>One lesson from distributed systems influenced this design.</p>
+        <p class="drop-line">A coordinator should know what needs to happen. It should never care how it happens.</p>
+        <p>This philosophy appears in operating systems, cloud schedulers, container orchestration platforms, and large-scale distributed services.</p>
+        <p>Without consciously intending it, Jaspa OS began adopting the same engineering principles.</p>
+      </div>
+
+      <!-- HIDDEN ENGINEERING DECISION -->
+      <div class="section">
+        <h2>The Hidden Engineering Decision</h2>
+        <p>During development, there was a temptation to allow the Router to perform "simple" tasks directly.</p>
+        <p>For example:</p>
+        <p class="drop-line">"If the question is obviously biblical, why not let the Router retrieve the verses?"</p>
+        <p>It sounded efficient. It would also have been a mistake.</p>
+        <p>The moment the Router begins performing work, it starts accumulating knowledge of provider implementations. That creates coupling. Coupling eventually creates technical debt.</p>
+        <p>Instead, we recorded a rule that would remain true throughout the lifetime of Jaspa OS.</p>
+
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 002</div>
+          <div class="pl-title">The Router never performs knowledge work.</div>
+          <p style="margin-bottom:0.75rem; font-size:0.94rem; color:var(--ink-soft);">Its responsibilities are limited to:</p>
+          <ul>
+            <li>Understanding intent.</li>
+            <li>Estimating complexity.</li>
+            <li>Selecting capabilities.</li>
+            <li>Building an execution strategy.</li>
+            <li>Handing execution to the platform.</li>
+          </ul>
+          <p style="margin-top:1rem; font-size:0.94rem; color:var(--ink-soft);">Nothing else.</p>
+        </div>
+      </div>
+
+      <!-- LOOKING AHEAD -->
+      <div class="section">
+        <h2>Looking Ahead</h2>
+        <p>By the end of this milestone, something remarkable had happened.</p>
+        <p>The Router could decide what needed to happen. But it still had no idea who could actually perform the work.</p>
+        <p>Suppose it requested:</p>
+        <p class="drop-line">Capability Required — Scriptural Exegesis</p>
+        <p>Where would that capability come from? A Bible provider? A future theology provider? A local database? A cloud service?</p>
+        <p>The Router deliberately did not know.</p>
+        <p class="drop-line">And that ignorance was intentional.</p>
+      </div>
+
+      <!-- LESSONS LEARNED -->
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Coordination is a responsibility independent of intelligence.</li>
+          <li>Components should depend on capabilities, not implementations.</li>
+          <li>The Router became simpler as the platform became more powerful.</li>
+          <li>Delegation is an engineering feature, not merely an optimization.</li>
+          <li>Good orchestration reduces coupling while increasing flexibility.</li>
+        </ul>
+      </div>
+
+      <!-- ENGINEERING SNAPSHOT -->
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #006 Summary</div>
+          <div class="snap-row">
+            <div class="snap-label">Date</div>
+            <div class="snap-value">28 June 2026</div>
+          </div>
+          <div class="snap-row">
+            <div class="snap-label">Milestone</div>
+            <div class="snap-value">Cognitive Router Design</div>
+          </div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Router responsibilities defined.</li>
+                <li>Intent Classification introduced.</li>
+                <li>Capability Planning introduced.</li>
+                <li>Router prohibited from executing provider logic.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="snap-stats">
+            <div class="snap-stat">
+              <span class="stat-num">2</span>
+              <span class="stat-label">Engineering Principles</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">1</span>
+              <span class="stat-label">ADRs (planned)</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">0</span>
+              <span class="stat-label">Providers</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">0</span>
+              <span class="stat-label">Acceptance Tests</span>
+            </div>
+            <div class="snap-stat">
+              <span class="stat-num">50%</span>
+              <span class="stat-label">Architecture Stability</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE OF JASPA OS -->
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #006</div>
+
+        <div class="gauge-row">
+          <div class="gauge-label">Architecture</div>
+          <div class="gauge-bar"><span class="fill">███████</span><span class="empty">░░░</span></div>
+          <div class="gauge-pct">70%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Planner</div>
+          <div class="gauge-bar"><span class="fill">██████</span><span class="empty">░░░░</span></div>
+          <div class="gauge-pct">60%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Registry</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Bible Provider</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Internet Provider</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Reflection Layer</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Memory</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-label">Personality</div>
+          <div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div>
+          <div class="gauge-pct">0%</div>
+        </div>
+      </div>
+
+      <!-- THE NEXT QUESTION -->
+      <div class="next-question">
+        <div class="nq-tag">// The Next Question</div>
+        <p>The Cognitive Router could now determine that a request required capabilities such as Scriptural Exegesis, Historical Contextualization, Internet Search, and Memory Recall.</p>
+        <p>However, a critical architectural problem remained unresolved. The Router knew what capabilities were required, but it had no knowledge of which component could provide them.</p>
+        <p>Hardcoding those relationships would violate the very principles the architecture was trying to protect. If every new provider required modifications to the Router, the platform would never achieve true extensibility.</p>
+        <p>This led directly to the next engineering challenge:</p>
+        <p class="drop-line">How can a planner request a capability without knowing which provider implements it?</p>
+        <p>The answer would become one of the defining innovations of Jaspa OS: the Capability Registry.</p>
+      </div>
+
+      <!-- PAGE STAMP -->
+      <div class="page-stamp">
+        <span>Engineering Log</span>
+        <span class="dot">·</span>
+        <span>Page 6 of 72</span>
+        <span class="dot">·</span>
+        <span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE TURN CONTROL ══════════ -->
+  <div class="turn-wrap">
+    <a href="engineering_log_005.html" class="turn-btn">
+      <span class="flip-icon">←</span> Turn Page
+    </a>
+    <a href="engineering_log_007.html" class="turn-btn">
+      Turn Page <span class="flip-icon">→</span>
+    </a>
+  </div>
+
+  <!-- ══════════ BOTTOM CLOSE-NOTEBOOK FOOTER ══════════ -->
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

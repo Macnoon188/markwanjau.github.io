@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #018 — The Provider SDK | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ecd9; --paper-edge:#e7dcc0; --ink:#23241f; --ink-soft:#4a4a3f; --ink-faint:#8a8672;
+    --rule:#c9bd9c; --accent:#8a3324; --accent-2:#3f5c4a; --accent-blue:#3a5f7d; --stamp:#6b6350;
+    --bar-fill:#3f5c4a; --bar-empty:#d8cead;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body { font-family: 'Source Serif 4', Georgia, serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .exit-strip { background: #14120e; border-bottom: 1px solid #2a271f; padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+  .notebook-stage { min-height: calc(100vh - 46px); display: flex; justify-content: center; padding: 3rem 1.25rem 2rem; background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15; }
+  .page { position: relative; width: 100%; max-width: 760px; background: var(--paper); box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--paper-edge); border-radius: 2px; padding: 3.5rem 3.25rem 2.75rem; }
+  .page::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px); pointer-events: none; border-radius: 2px; }
+  .page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 2.25rem; width: 1px; background: rgba(176,72,63,0.28); pointer-events: none; }
+  .page > * { position: relative; z-index: 1; }
+  @media (max-width: 640px) { .page { padding: 2.5rem 1.5rem 2rem; } .page::after { left: 1.1rem; } }
+  .masthead { text-align: center; padding-bottom: 1.5rem; margin-bottom: 2.25rem; border-bottom: 1px solid var(--rule); }
+  .masthead .journal-name { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--stamp); }
+  .masthead .journal-vol { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; color: var(--ink-faint); margin-top: 0.3rem; }
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .log-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.9rem; line-height: 1.2; color: var(--ink); margin: 0 0 0.6rem; }
+  .log-kicker { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1rem; color: var(--accent-2); margin-bottom: 0; }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row { display: flex; gap: 1.25rem; padding: 0.65rem 0; border-bottom: 1px dashed var(--rule); }
+  .field-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--stamp); padding-top: 0.15rem; }
+  .field-value { flex: 1; font-size: 0.98rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 640px) { .field-row { flex-direction: column; gap: 0.2rem; } .field-label { flex: none; } }
+  .section { margin: 2.5rem 0; }
+  .section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+  .section h3 { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 1.5rem 0 0.75rem; }
+  .section p { font-size: 1.03rem; line-height: 1.85; color: var(--ink); margin: 0 0 1rem; }
+  .drop-line { font-style: italic; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li { font-size: 1rem; line-height: 1.75; color: var(--ink); margin-bottom: 0.4rem; }
+  .concept-block { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.75; color: var(--ink-soft); background: rgba(176,72,63,0.05); border: 1px dashed var(--rule); padding: 1.4rem 1rem; margin: 1.5rem 0; text-align: center; white-space: pre; overflow-x: auto; }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .principle-plaque { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.3); text-align: center; }
+  .principle-plaque .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin-bottom: 0.6rem; }
+  .principle-plaque .pl-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-style: italic; font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .adr-block { margin: 1.5rem 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .adr-header { background: rgba(176,72,63,0.08); padding: 0.6rem 1.1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; }
+  .adr-body { padding: 1.1rem 1.4rem; background: rgba(255,255,255,0.25); }
+  .adr-body h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent-2); margin: 0.9rem 0 0.4rem; }
+  .adr-body h4:first-child { margin-top: 0; }
+  .adr-body p { font-size: 0.95rem; margin: 0 0 0.5rem; }
+  .adr-body ul { margin: 0.3rem 0 0.6rem; padding-left: 1.2rem; }
+  .adr-body ul li { font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 0.25rem; }
+  .marginal-note { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); letter-spacing: 0.5px; text-transform: uppercase; margin: 0.4rem 0 1.5rem; padding-left: 0.9rem; border-left: 2px solid var(--rule); }
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li { position: relative; padding: 0.55rem 0 0.55rem 1.6rem; font-size: 0.98rem; line-height: 1.65; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .snapshot-box { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.3); }
+  .snapshot-box .snap-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--rule); }
+  .snap-row { display: flex; gap: 1.25rem; padding: 0.4rem 0; font-size: 0.92rem; }
+  .snap-row .snap-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); padding-top: 0.1rem; }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li { font-size: 0.92rem; color: var(--ink); padding: 0.25rem 0; }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .state-panel { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--ink); }
+  .state-panel .state-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 0.25rem; }
+  .state-panel .state-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stamp); margin-bottom: 1.5rem; }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) { .gauge-row { flex-wrap: wrap; } .gauge-label { flex: 1 1 100%; } .gauge-pct { display:none; } }
+  .next-question { margin: 2.5rem 0 0.5rem; padding: 1.5rem 1.6rem; background: rgba(63,92,74,0.06); border: 1px solid rgba(63,92,74,0.3); border-radius: 3px; }
+  .next-question .nq-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .next-question p { font-size: 0.98rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.75rem; }
+  .next-question p:last-child { margin-bottom: 0; }
+  .page-stamp { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .page-stamp .dot { color: var(--rule); }
+  .turn-wrap { max-width: 760px; width: 100%; display: flex; justify-content: space-between; margin: 1.25rem auto 0; padding: 0 0.25rem; }
+  .turn-btn { display: inline-flex; align-items: center; gap: 0.55rem; background: #14120e; border: 1px solid #3a3628; color: #e6dfc7; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 0.7rem 1.3rem; border-radius: 3px; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+  .bottom-close { max-width: 760px; margin: 1.75rem auto 0; padding: 0 0.25rem; text-align: center; }
+  .bottom-close a { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a8a290; text-decoration: none; padding: 0.6rem 0; transition: color 0.2s; }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <div class="notebook-stage">
+    <div class="page">
+
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part IV — Platform Governance</div>
+      </div>
+
+      <div class="log-header">
+        <div class="log-number">Engineering Log #018</div>
+        <h1 class="log-title">The Provider SDK</h1>
+        <p class="log-kicker">Standardizing extension across the cognitive platform.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">1 July 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Design a standardized Provider Software Development Kit (SDK) that enables independent engineers to build Knowledge Providers for Jaspa OS without requiring knowledge of the Cognitive Core, while preserving architectural consistency, compatibility, and long-term maintainability.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The Engineering Problem</h2>
+        <p>The previous engineering log established that Jaspa should remain closed for modification while remaining open for extension. The Extensibility Framework solved one important architectural problem — new capabilities no longer required changes to the Cognitive Core.</p>
+        <p>For a moment, that seemed sufficient. Then another question emerged.</p>
+        <p>Suppose two engineers, working on opposite sides of the world, decide to build providers for Jaspa. One creates a Medical Knowledge Provider. The other develops a Scientific Literature Provider. Neither has access to the original design discussions. Neither participated in the architectural decisions recorded throughout this journal.</p>
+        <p>How should they know what "correct" looks like?</p>
+        <p>More importantly, how should Jaspa determine whether either provider deserves to become part of the cognitive platform?</p>
+        <p class="drop-line">Capability should never be granted because code exists. Capability should be earned through compliance with architecture.</p>
+        <p>That realization shifted the engineering discussion away from extensibility itself and toward something equally important: standardization.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>One lesson had quietly repeated itself throughout every previous milestone. Whenever two components interacted successfully, it was because both respected a shared contract.</p>
+        <p>The Planner trusted the Capability Registry because capability contracts were well defined. The Reflection Layer trusted Knowledge Providers because every provider emitted Canonical KnowledgeObjects. The Trust Framework functioned because every provider attached evidence using the same metadata model.</p>
+        <p class="drop-line">Success had never depended on implementation. It had depended on agreement.</p>
+        <p>Ironically, we had already been designing an SDK for several months. We simply had not called it one. Every interface. Every manifest. Every provider lifecycle. Every validation rule. Every Acceptance Test. Each represented a small piece of an unwritten development kit.</p>
+        <p>Without an SDK, every new provider would become an interpretation of the architecture. With an SDK, every provider becomes an implementation of the architecture. Those are profoundly different outcomes — the first produces architectural drift, the second produces architectural stability.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Principles</h2>
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 013</div>
+          <div class="pl-title">Every extension should feel native.</div>
+        </div>
+        <p>A provider that requires special handling is not extending the architecture. It is bypassing it. Every capability admitted into Jaspa should behave as though it had always been part of the operating system. Uniformity is a feature of mature platforms — not a limitation.</p>
+
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 014</div>
+          <div class="pl-title">Architecture should define behavior before implementation defines features.</div>
+        </div>
+        <p>The SDK should not teach engineers how to write code. It should teach them how to participate in the architecture. Implementation details evolve. Architectural contracts should not.</p>
+      </div>
+
+      <div class="section">
+        <h2>Architecture Decision Record</h2>
+        <div class="adr-block">
+          <div class="adr-header"><span>ADR-013</span><span>Accepted</span></div>
+          <div class="adr-body">
+            <h4>Title</h4>
+            <p>Standardize Provider Development Through a Common SDK</p>
+            <h4>Context</h4>
+            <p>Independent provider development had become an architectural requirement following completion of the Extensibility Framework. Allowing providers to evolve without shared engineering standards would eventually introduce incompatible interfaces, inconsistent metadata, fragmented validation strategies, and unpredictable execution behavior. The platform required a common development contract.</p>
+            <h4>Decision</h4>
+            <p>Every provider admitted into Jaspa OS shall be developed using the Provider SDK. The SDK shall define:</p>
+            <ul>
+              <li>Provider interfaces</li>
+              <li>Manifest schema</li>
+              <li>Lifecycle hooks</li>
+              <li>Validation rules</li>
+              <li>Registration requirements</li>
+              <li>Testing methodology</li>
+              <li>Compatibility requirements</li>
+              <li>Documentation standards</li>
+            </ul>
+            <p>Certification shall evaluate compliance with these contracts rather than implementation style.</p>
+            <h4>Consequences</h4>
+            <p>The Cognitive Core no longer evaluates provider implementations directly. Instead, it evaluates architectural compliance. This shifts responsibility away from individual engineering judgement and toward repeatable engineering standards.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifacts</h2>
+        <h3>The Provider Development Lifecycle</h3>
+        <div class="concept-block"><span class="node">Engineer</span>
+        <span class="arrow">↓</span>
+<span class="node">Implements Provider</span>
+        <span class="arrow">↓</span>
+<span class="node">Implements SDK Interfaces</span>
+        <span class="arrow">↓</span>
+<span class="node">Provider Manifest</span>
+        <span class="arrow">↓</span>
+<span class="node">Manifest Validation</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Verification</span>
+        <span class="arrow">↓</span>
+<span class="node">Certification Pipeline</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Registry</span>
+        <span class="arrow">↓</span>
+<span class="node">Planner Discovery</span>
+        <span class="arrow">↓</span>
+<span class="node">Execution DAG</span>
+        <span class="arrow">↓</span>
+<span class="node">Reflection Layer</span>
+        <span class="arrow">↓</span>
+<span class="node">Cognitive Response</span></div>
+        <p>One observation immediately stands out. The Cognitive Core never appears during provider development. Everything before registration occurs outside the runtime.</p>
+        <p class="drop-line">That separation was intentional. The architecture should reject invalid providers before execution ever begins.</p>
+
+        <h3>SDK Responsibility Boundary</h3>
+        <div class="concept-block"><span class="node">Provider SDK</span>
+
+Interfaces · Manifest Schema · Validation Rules
+Lifecycle Hooks · Test Templates
+Certification Rules · Documentation Standards
+
+        <span class="arrow">↓</span>
+
+<span class="node">Every Provider Looks Identical To The Cognitive Core</span></div>
+        <p>The SDK does not eliminate creativity. It standardizes the architectural surface presented to the operating system.</p>
+        <p>Just as device drivers abstract hardware differences behind consistent interfaces, the Provider SDK abstracts domain-specific knowledge behind a uniform architectural contract. The operating system does not need to understand the internal design of a provider. It only needs confidence that the provider satisfies the contracts required to participate safely within the cognitive platform.</p>
+      </div>
+
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Ease of development can accelerate an ecosystem, but only architectural discipline can sustain one.</li>
+          <li>Standards should be discovered from existing agreements, not invented from scratch.</li>
+          <li>Certification should evaluate compliance with contracts, not implementation style.</li>
+          <li>Rejecting invalid providers before runtime protects the stability of the whole platform.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #018 Summary</div>
+          <div class="snap-row"><div class="snap-label">Date</div><div class="snap-value">1 July 2026</div></div>
+          <div class="snap-row"><div class="snap-label">Milestone</div><div class="snap-value">Provider SDK</div></div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Provider SDK formalized.</li>
+                <li>ADR-013 accepted.</li>
+                <li>Certification pipeline defined.</li>
+                <li>Provider development lifecycle documented.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #018</div>
+        <div class="gauge-row"><div class="gauge-label">Architecture</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Registry</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Knowledge Engine</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Trust Framework</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Extensibility Framework</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Provider SDK</div><div class="gauge-bar"><span class="fill">████████</span><span class="empty">░░</span></div><div class="gauge-pct">80%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Provider Ecosystem</div><div class="gauge-bar"><span class="fill">███</span><span class="empty">░░░░░░░</span></div><div class="gauge-pct">30%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Observability</div><div class="gauge-bar"><span class="fill">██</span><span class="empty">░░░░░░░░</span></div><div class="gauge-pct">20%</div></div>
+      </div>
+
+      <div class="next-question">
+        <div class="nq-tag">// The Next Question</div>
+        <p>The SDK made correctness the default outcome of provider development. But defining what "correct" means is not the same as proving that a given provider — or the platform as a whole — actually achieves it.</p>
+        <p class="drop-line">How would we know when Jaspa was actually working?</p>
+        <p>Run the software. If it produces the expected response, does the system work? That approach is sufficient for many software projects. It is insufficient for an operating system whose layers depend on one another's integrity.</p>
+        <p>That question would lead directly to the design of the Acceptance Test Framework — a way to verify architectural behavior, not just isolated software functionality.</p>
+      </div>
+
+      <div class="page-stamp">
+        <span>Engineering Log</span><span class="dot">·</span><span>Page 18 of 72</span><span class="dot">·</span><span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="turn-wrap">
+    <a href="engineering_log_017.html" class="turn-btn"><span class="flip-icon">←</span> Turn Page</a>
+    <a href="engineering_log_019.html" class="turn-btn">Turn Page <span class="flip-icon">→</span></a>
+  </div>
+
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

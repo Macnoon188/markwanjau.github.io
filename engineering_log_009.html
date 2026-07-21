@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #009 — Thinking in Parallel | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #f3ecd9;
+    --paper-edge: #e7dcc0;
+    --ink:        #23241f;
+    --ink-soft:   #4a4a3f;
+    --ink-faint:  #8a8672;
+    --rule:       #c9bd9c;
+    --rule-red:   #b0483f;
+    --accent:     #8a3324;
+    --accent-2:   #3f5c4a;
+    --accent-blue:#3a5f7d;
+    --stamp:      #6b6350;
+    --bar-fill:   #3f5c4a;
+    --bar-empty:  #d8cead;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body { font-family: 'Source Serif 4', Georgia, serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .exit-strip { background: #14120e; border-bottom: 1px solid #2a271f; padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+  .notebook-stage { min-height: calc(100vh - 46px); display: flex; justify-content: center; padding: 3rem 1.25rem 2rem; background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15; }
+  .page { position: relative; width: 100%; max-width: 760px; background: var(--paper); box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--paper-edge); border-radius: 2px; padding: 3.5rem 3.25rem 2.75rem; }
+  .page::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px); pointer-events: none; border-radius: 2px; }
+  .page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 2.25rem; width: 1px; background: rgba(176,72,63,0.28); pointer-events: none; }
+  .page > * { position: relative; z-index: 1; }
+  @media (max-width: 640px) { .page { padding: 2.5rem 1.5rem 2rem; } .page::after { left: 1.1rem; } }
+  .masthead { text-align: center; padding-bottom: 1.5rem; margin-bottom: 2.25rem; border-bottom: 1px solid var(--rule); }
+  .masthead .journal-name { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--stamp); }
+  .masthead .journal-vol { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; color: var(--ink-faint); margin-top: 0.3rem; }
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .log-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.9rem; line-height: 1.2; color: var(--ink); margin: 0 0 0.6rem; }
+  .log-kicker { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1rem; color: var(--accent-2); margin-bottom: 0; }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row { display: flex; gap: 1.25rem; padding: 0.65rem 0; border-bottom: 1px dashed var(--rule); }
+  .field-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--stamp); padding-top: 0.15rem; }
+  .field-value { flex: 1; font-size: 0.98rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 640px) { .field-row { flex-direction: column; gap: 0.2rem; } .field-label { flex: none; } }
+  .section { margin: 2.5rem 0; }
+  .section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+  .section h3 { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 1.5rem 0 0.75rem; }
+  .section p { font-size: 1.03rem; line-height: 1.85; color: var(--ink); margin: 0 0 1rem; }
+  .drop-line { font-style: italic; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li { font-size: 1rem; line-height: 1.75; color: var(--ink); margin-bottom: 0.4rem; }
+  .conversation-block { margin: 1.5rem 0 2rem; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .conversation-tag { background: rgba(176,72,63,0.08); padding: 0.5rem 1.1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); border-bottom: 1px solid var(--rule); }
+  .conversation-msg { padding: 1.25rem 1.4rem; background: rgba(255,255,255,0.25); }
+  .conversation-msg .speaker { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .conversation-msg.jaspa .speaker { color: var(--accent-blue); }
+  .conversation-msg p { font-style: italic; font-size: 1rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.5rem; }
+  .conversation-msg p:last-child { margin-bottom: 0; }
+  .conversation-msg h4 { font-family: 'JetBrains Mono', monospace; font-style: normal; font-size: 0.78rem; letter-spacing: 0.5px; color: var(--accent-blue); margin: 0.9rem 0 0.4rem; }
+  .conversation-msg ul { margin: 0 0 0.6rem; padding-left: 1.2rem; font-style: normal; }
+  .conversation-msg ul li { font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 0.25rem; font-family: 'JetBrains Mono', monospace; }
+  .concept-block { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9; color: var(--ink-soft); background: rgba(176,72,63,0.05); border: 1px dashed var(--rule); padding: 1.4rem 1rem; margin: 1.5rem 0; text-align: center; white-space: pre; overflow-x: auto; }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .concept-label { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin: 1.5rem 0 0.4rem; text-align: center; }
+  .principle-plaque { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.3); text-align: center; }
+  .principle-plaque .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin-bottom: 0.6rem; }
+  .principle-plaque .pl-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-style: italic; font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .marginal-note { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); letter-spacing: 0.5px; text-transform: uppercase; margin: 0.4rem 0 1.5rem; padding-left: 0.9rem; border-left: 2px solid var(--rule); }
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li { position: relative; padding: 0.55rem 0 0.55rem 1.6rem; font-size: 0.98rem; line-height: 1.65; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .snapshot-box { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.3); }
+  .snapshot-box .snap-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--rule); }
+  .snap-row { display: flex; gap: 1.25rem; padding: 0.4rem 0; font-size: 0.92rem; }
+  .snap-row .snap-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); padding-top: 0.1rem; }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li { font-size: 0.92rem; color: var(--ink); padding: 0.25rem 0; }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .snap-stats { display: flex; gap: 2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--rule); flex-wrap: wrap; }
+  .snap-stat { text-align: left; }
+  .snap-stat .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent-2); display: block; }
+  .snap-stat .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .state-panel { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--ink); }
+  .state-panel .state-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 0.25rem; }
+  .state-panel .state-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stamp); margin-bottom: 1.5rem; }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) { .gauge-row { flex-wrap: wrap; } .gauge-label { flex: 1 1 100%; } .gauge-pct { display:none; } }
+  .next-question { margin: 2.5rem 0 0.5rem; padding: 1.5rem 1.6rem; background: rgba(63,92,74,0.06); border: 1px solid rgba(63,92,74,0.3); border-radius: 3px; }
+  .next-question .nq-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .next-question p { font-size: 0.98rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.75rem; }
+  .next-question p:last-child { margin-bottom: 0; }
+  .page-stamp { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .page-stamp .dot { color: var(--rule); }
+  .turn-wrap { max-width: 760px; width: 100%; display: flex; justify-content: space-between; margin: 1.25rem auto 0; padding: 0 0.25rem; }
+  .turn-btn { display: inline-flex; align-items: center; gap: 0.55rem; background: #14120e; border: 1px solid #3a3628; color: #e6dfc7; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 0.7rem 1.3rem; border-radius: 3px; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+  .bottom-close { max-width: 760px; margin: 1.75rem auto 0; padding: 0 0.25rem; text-align: center; }
+  .bottom-close a { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a8a290; text-decoration: none; padding: 0.6rem 0; transition: color 0.2s; }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <div class="notebook-stage">
+    <div class="page">
+
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part II — Building the Cognitive Platform</div>
+      </div>
+
+      <div class="log-header">
+        <div class="log-number">Engineering Log #009</div>
+        <h1 class="log-title">Thinking in Parallel</h1>
+        <p class="log-kicker">Teaching intelligence to think in parallel.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">28 June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Transform Jaspa OS from a sequential orchestration platform into a graph-driven execution engine capable of coordinating independent reasoning tasks through a Directed Acyclic Graph (DAG). This milestone introduced the architectural model that would allow Jaspa OS to scale naturally from simple requests to complex, multi-provider reasoning without sacrificing determinism.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The Engineering Problem</h2>
+        <p>The Execution Engine could now coordinate provider execution. However, every task was still being viewed as part of a linear workflow.</p>
+        <p>That assumption quickly broke down. Consider this request:</p>
+        <p class="drop-line">"Explain how David's kingship foreshadows Christ, relate it to modern Christian leadership, and include examples from current sermons."</p>
+        <p>The Planner identified three independent areas of reasoning:</p>
+        <ul class="plain-list">
+          <li>Biblical Typology</li>
+          <li>Modern Leadership Analysis</li>
+          <li>Live Sermon Research</li>
+        </ul>
+        <p>The first instinct might be to execute them one after another.</p>
+        <div class="concept-block"><span class="node">Biblical Analysis</span>
+        <span class="arrow">↓</span>
+<span class="node">Leadership Analysis</span>
+        <span class="arrow">↓</span>
+<span class="node">Internet Search</span>
+        <span class="arrow">↓</span>
+<span class="node">Merge Results</span></div>
+        <p>This works. But it wastes time. More importantly... it misunderstands the problem.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>Only one task actually depends on the others. The final synthesis.</p>
+        <p>Everything before that can occur simultaneously.</p>
+        <p class="drop-line">That realization changed the architecture completely.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifact 009-A</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">Jaspa's Engineering Response</p>
+        <p>During implementation, Jaspa summarized the architectural transition:</p>
+        <div class="conversation-block">
+          <div class="conversation-tag">Response · Jaspa OS</div>
+          <div class="conversation-msg jaspa">
+            <div class="speaker">Jaspa</div>
+            <p>"I have successfully transitioned to the graph-based orchestration architecture."</p>
+            <h4>Pipeline Stages</h4>
+            <ul>
+              <li>Request</li>
+              <li>Classification</li>
+              <li>DAG Planning</li>
+              <li>Scheduling</li>
+              <li>Execution</li>
+              <li>Result Aggregation</li>
+              <li>Reflection</li>
+              <li>Personality</li>
+            </ul>
+            <h4>Event System</h4>
+            <p style="font-style:normal;">Introduced a centralized EventBus responsible for lifecycle tracking, telemetry, and logging without coupling execution components.</p>
+            <h4>Execution Engine</h4>
+            <p style="font-style:normal;">Scheduler and ExecutionNode lifecycle implemented. Parallel node execution supported.</p>
+            <h4>Planner</h4>
+            <p style="font-style:normal;">Responsible only for DAG construction.</p>
+            <h4>Scheduler</h4>
+            <p style="font-style:normal;">Responsible only for execution.</p>
+          </div>
+        </div>
+
+        <h3>Engineering Analysis</h3>
+        <p>Notice how responsibilities continued becoming smaller instead of larger. Earlier architectures often evolve by adding functionality to existing components.</p>
+        <p class="drop-line">Jaspa OS evolved by removing responsibilities from existing components.</p>
+        <p>The Planner stopped scheduling. The Scheduler stopped planning. The EventBus stopped executing.</p>
+        <p>Each component became easier to reason about. Ironically, the overall system became dramatically more powerful.</p>
+      </div>
+
+      <div class="section">
+        <h2>From Pipelines to Graphs</h2>
+        <p>Instead of thinking in terms of "steps," we began thinking in terms of relationships.</p>
+        <div class="concept-block"><span class="node">User Request</span>
+        <span class="arrow">↓</span>
+<span class="node">Intent Classification</span>
+        <span class="arrow">↓</span>
+<span class="node">DAG Construction</span>
+        <span class="arrow">↓</span>
+   ┌────────────┼────────────┐
+   <span class="arrow">↓</span>            <span class="arrow">↓</span>            <span class="arrow">↓</span>
+<span class="node">Biblical</span>      <span class="node">Leadership</span>    <span class="node">Internet</span>
+<span class="node">Analysis</span>       <span class="node">Analysis</span>       <span class="node">Search</span>
+   <span class="arrow">↓</span>            <span class="arrow">↓</span>            <span class="arrow">↓</span>
+   └────────────┼────────────┘
+        <span class="arrow">↓</span>
+<span class="node">Result Aggregation</span>
+        <span class="arrow">↓</span>
+<span class="node">Reflection Layer</span>
+        <span class="arrow">↓</span>
+<span class="node">Personality Layer</span>
+        <span class="arrow">↓</span>
+<span class="node">Final Response</span></div>
+        <p>This was no longer a pipeline. It was a dependency graph.</p>
+      </div>
+
+      <div class="section">
+        <h2>Why a DAG?</h2>
+        <p>A Directed Acyclic Graph provides two guarantees that are invaluable in cognitive systems.</p>
+        <h3>1. Correct Ordering</h3>
+        <p>Tasks execute only after their prerequisites have completed. No guesswork. No race conditions.</p>
+        <h3>2. Parallel Execution</h3>
+        <p>Independent reasoning tasks execute simultaneously. Biblical analysis does not need to wait for an internet search. Historical analysis does not depend on leadership analysis. Only the synthesis node depends on all of them.</p>
+
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 005</div>
+          <div class="pl-title">Dependencies should determine execution order — not the order in which developers happened to write the code.</div>
+        </div>
+        <p>This principle became foundational to Jaspa OS. Execution order was no longer hardcoded. It emerged naturally from the graph.</p>
+      </div>
+
+      <div class="section">
+        <h2>The Birth of the EventBus</h2>
+        <p>Another subtle but significant innovation appeared during this milestone.</p>
+        <p>If execution nodes were constantly communicating directly with each other, the architecture would become tightly coupled.</p>
+        <p>Instead, Jaspa introduced a centralized EventBus. Rather than asking components to call one another directly, they simply published events.</p>
+        <div class="concept-block"><span class="node">Node Starts</span>
+        <span class="arrow">↓</span>
+<span class="node">Event Published</span>
+        <span class="arrow">↓</span>
+<span class="node">Telemetry Updated</span>
+        <span class="arrow">↓</span>
+<span class="node">Logs Recorded</span>
+        <span class="arrow">↓</span>
+<span class="node">Observers Notified</span></div>
+        <p>The execution engine remained completely unaware of who was listening.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>This pattern appears throughout modern software engineering. Operating systems. Workflow engines. Distributed databases. Cloud orchestration. Message brokers.</p>
+        <p>The producer performs work. Observers respond independently. No component needs to know who else exists.</p>
+        <p class="drop-line">That same philosophy now governed Jaspa OS.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifact 009-B</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">Scheduler Responsibilities</p>
+        <p>The Scheduler now became responsible for:</p>
+        <ul class="plain-list">
+          <li>✓ Dependency resolution</li>
+          <li>✓ Retry management</li>
+          <li>✓ Timeout handling</li>
+          <li>✓ Parallel execution</li>
+          <li>✓ Node lifecycle</li>
+          <li>✓ Completion tracking</li>
+        </ul>
+        <p>Notice what is missing. It still knew nothing about Scripture. Nothing about search. Nothing about theology.</p>
+        <p class="drop-line">It coordinated execution — and nothing more.</p>
+      </div>
+
+      <div class="section">
+        <h2>Why This Matters</h2>
+        <p>Imagine adding five new providers next year. Nothing changes.</p>
+        <p>Imagine replacing Internet Search with another backend. Nothing changes.</p>
+        <p>Imagine introducing Cybersecurity Intelligence. Nothing changes.</p>
+        <p>The graph expands naturally. No architectural redesign is required.</p>
+        <p class="drop-line">That is the hallmark of a scalable platform.</p>
+      </div>
+
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Graphs describe relationships better than pipelines.</li>
+          <li>Independent reasoning should execute independently.</li>
+          <li>Dependencies belong in architecture — not hidden inside implementation code.</li>
+          <li>Event-driven systems reduce coupling while increasing observability.</li>
+          <li>Parallelism is an architectural property, not merely a performance optimization.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #009 Summary</div>
+          <div class="snap-row"><div class="snap-label">Date</div><div class="snap-value">28 June 2026</div></div>
+          <div class="snap-row"><div class="snap-label">Milestone</div><div class="snap-value">Graph-Based Orchestration</div></div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Directed Acyclic Graph adopted.</li>
+                <li>EventBus introduced.</li>
+                <li>Scheduler responsibilities finalized.</li>
+                <li>Parallel execution enabled.</li>
+                <li>Dependency-driven execution established.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="snap-stats">
+            <div class="snap-stat"><span class="stat-num">5</span><span class="stat-label">Engineering Principles</span></div>
+            <div class="snap-stat"><span class="stat-num">ADR-003</span><span class="stat-label">Architecture Decision Records</span></div>
+            <div class="snap-stat"><span class="stat-num">Ready</span><span class="stat-label">Provider Framework</span></div>
+            <div class="snap-stat"><span class="stat-num">Pending</span><span class="stat-label">Graph Validation</span></div>
+            <div class="snap-stat"><span class="stat-num">74%</span><span class="stat-label">Architecture Stability</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #009</div>
+        <div class="gauge-row"><div class="gauge-label">Architecture</div><div class="gauge-bar"><span class="fill">█████████</span><span class="empty">░</span></div><div class="gauge-pct">90%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Planner</div><div class="gauge-bar"><span class="fill">████████</span><span class="empty">░░</span></div><div class="gauge-pct">80%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Registry</div><div class="gauge-bar"><span class="fill">████████</span><span class="empty">░░</span></div><div class="gauge-pct">80%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Execution Engine</div><div class="gauge-bar"><span class="fill">███████</span><span class="empty">░░░</span></div><div class="gauge-pct">70%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Execution DAG</div><div class="gauge-bar"><span class="fill">███████</span><span class="empty">░░░</span></div><div class="gauge-pct">70%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Reflection Layer</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Bible Provider</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Internet Provider</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Memory</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Personality</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+      </div>
+
+      <div class="next-question">
+        <div class="nq-tag">// The Next Question</div>
+        <p>By the end of this milestone, Jaspa OS could execute multiple reasoning tasks in parallel, resolve dependencies through a Directed Acyclic Graph, and coordinate execution without tightly coupling its components.</p>
+        <p>Yet a fundamental challenge remained.</p>
+        <p>The platform could now produce multiple correct answers from independent providers — but it still lacked a mechanism to determine how those answers should be combined into a single, coherent response.</p>
+        <p>Should biblical evidence take precedence over live internet content? How should conflicting sources be reconciled? How could the system preserve context while presenting one unified explanation instead of a collection of disconnected outputs?</p>
+        <p>These questions could not be answered by the Planner, the Registry, or the Execution Engine. They required an entirely new architectural layer.</p>
+        <p class="drop-line">The next milestone would introduce what would become the intellectual heart of Jaspa OS: the Reflection Layer — the component responsible for transforming independent pieces of knowledge into coherent understanding.</p>
+      </div>
+
+      <div class="page-stamp">
+        <span>Engineering Log</span><span class="dot">·</span><span>Page 9 of 72</span><span class="dot">·</span><span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="turn-wrap">
+    <a href="engineering_log_008.html" class="turn-btn"><span class="flip-icon">←</span> Turn Page</a>
+    <a href="engineering_log_010.html" class="turn-btn">Turn Page <span class="flip-icon">→</span></a>
+  </div>
+
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #017 — The Extensibility Framework | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ecd9; --paper-edge:#e7dcc0; --ink:#23241f; --ink-soft:#4a4a3f; --ink-faint:#8a8672;
+    --rule:#c9bd9c; --accent:#8a3324; --accent-2:#3f5c4a; --accent-blue:#3a5f7d; --stamp:#6b6350;
+    --bar-fill:#3f5c4a; --bar-empty:#d8cead;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body { font-family: 'Source Serif 4', Georgia, serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .exit-strip { background: #14120e; border-bottom: 1px solid #2a271f; padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+  .notebook-stage { min-height: calc(100vh - 46px); display: flex; justify-content: center; padding: 3rem 1.25rem 2rem; background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15; }
+  .page { position: relative; width: 100%; max-width: 760px; background: var(--paper); box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--paper-edge); border-radius: 2px; padding: 3.5rem 3.25rem 2.75rem; }
+  .page::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px); pointer-events: none; border-radius: 2px; }
+  .page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 2.25rem; width: 1px; background: rgba(176,72,63,0.28); pointer-events: none; }
+  .page > * { position: relative; z-index: 1; }
+  @media (max-width: 640px) { .page { padding: 2.5rem 1.5rem 2rem; } .page::after { left: 1.1rem; } }
+  .masthead { text-align: center; padding-bottom: 1.5rem; margin-bottom: 2.25rem; border-bottom: 1px solid var(--rule); }
+  .masthead .journal-name { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--stamp); }
+  .masthead .journal-vol { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; color: var(--ink-faint); margin-top: 0.3rem; }
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .log-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.9rem; line-height: 1.2; color: var(--ink); margin: 0 0 0.6rem; }
+  .log-kicker { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1rem; color: var(--accent-2); margin-bottom: 0; }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row { display: flex; gap: 1.25rem; padding: 0.65rem 0; border-bottom: 1px dashed var(--rule); }
+  .field-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--stamp); padding-top: 0.15rem; }
+  .field-value { flex: 1; font-size: 0.98rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 640px) { .field-row { flex-direction: column; gap: 0.2rem; } .field-label { flex: none; } }
+  .section { margin: 2.5rem 0; }
+  .section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+  .section h3 { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 1.5rem 0 0.75rem; }
+  .section p { font-size: 1.03rem; line-height: 1.85; color: var(--ink); margin: 0 0 1rem; }
+  .drop-line { font-style: italic; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li { font-size: 1rem; line-height: 1.75; color: var(--ink); margin-bottom: 0.4rem; }
+  .concept-block { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.75; color: var(--ink-soft); background: rgba(176,72,63,0.05); border: 1px dashed var(--rule); padding: 1.4rem 1rem; margin: 1.5rem 0; text-align: center; white-space: pre; overflow-x: auto; }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .principle-plaque { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.3); text-align: center; }
+  .principle-plaque .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin-bottom: 0.6rem; }
+  .principle-plaque .pl-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-style: italic; font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .marginal-note { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); letter-spacing: 0.5px; text-transform: uppercase; margin: 0.4rem 0 1.5rem; padding-left: 0.9rem; border-left: 2px solid var(--rule); }
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li { position: relative; padding: 0.55rem 0 0.55rem 1.6rem; font-size: 0.98rem; line-height: 1.65; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .snapshot-box { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.3); }
+  .snapshot-box .snap-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--rule); }
+  .state-panel { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--ink); }
+  .state-panel .state-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 0.25rem; }
+  .state-panel .state-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stamp); margin-bottom: 1.5rem; }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) { .gauge-row { flex-wrap: wrap; } .gauge-label { flex: 1 1 100%; } .gauge-pct { display:none; } }
+  .next-question { margin: 2.5rem 0 0.5rem; padding: 1.5rem 1.6rem; background: rgba(63,92,74,0.06); border: 1px solid rgba(63,92,74,0.3); border-radius: 3px; }
+  .next-question .nq-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .next-question p { font-size: 0.98rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.75rem; }
+  .next-question p:last-child { margin-bottom: 0; }
+  .page-stamp { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .page-stamp .dot { color: var(--rule); }
+  .turn-wrap { max-width: 760px; width: 100%; display: flex; justify-content: space-between; margin: 1.25rem auto 0; padding: 0 0.25rem; }
+  .turn-btn { display: inline-flex; align-items: center; gap: 0.55rem; background: #14120e; border: 1px solid #3a3628; color: #e6dfc7; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 0.7rem 1.3rem; border-radius: 3px; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+  .bottom-close { max-width: 760px; margin: 1.75rem auto 0; padding: 0 0.25rem; text-align: center; }
+  .bottom-close a { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a8a290; text-decoration: none; padding: 0.6rem 0; transition: color 0.2s; }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <div class="notebook-stage">
+    <div class="page">
+
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part IV — Platform Governance</div>
+      </div>
+
+      <div class="log-header">
+        <div class="log-number">Engineering Log #017</div>
+        <h1 class="log-title">The Extensibility Framework</h1>
+        <p class="log-kicker">Designing for evolution.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">30 June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Design an extensibility architecture that allows Jaspa OS to gain new capabilities without requiring modifications to the Cognitive Core. The objective was not simply to support plugins — it was to ensure the architecture remained closed for modification while remaining open for extension.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The Engineering Problem</h2>
+        <p>By this stage of development, Jaspa already possessed a capable cognitive pipeline. The Planner could reason about work. The Capability Registry knew what the system could execute. Knowledge Providers could contribute structured evidence. The Reflection Layer could synthesize information across providers. The Trust Framework ensured that conclusions remained traceable.</p>
+        <p>The architecture worked. But another engineering question emerged — not from today's implementation, but from tomorrow's.</p>
+        <p>Suppose six months from now someone wants to add a Weather Provider. Or a Financial Provider. Or a CAD Analysis Provider. Or an internal company documentation provider. Or an entirely new reasoning engine.</p>
+        <p>Should they edit the core?</p>
+        <p>If the answer is yes, then the architecture was never truly modular. Every new capability would slowly contaminate the Cognitive Core. Every release would become riskier. Every integration would require understanding increasingly complex internals.</p>
+        <p>Eventually the platform would become what many software systems eventually become:</p>
+        <p class="drop-line">A growing collection of exceptions.</p>
+        <p>That future had to be prevented before it ever existed.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>One observation kept appearing throughout previous engineering logs. Every major improvement came from introducing another abstraction rather than another exception.</p>
+        <p>The Planner never learned about Bible knowledge. Instead, it learned how to ask providers. The Reflection Layer never learned about translations. Instead, it learned how to merge KnowledgeObjects. The Registry never learned about specific capabilities. Instead, it learned capability contracts.</p>
+        <p>This recurring pattern suggested something important. Jaspa was already evolving by extension. The architecture simply had not yet formalized that principle.</p>
+        <p>Rather than introducing a "plugin system," we instead described a broader architectural contract called the Extensibility Framework. Its purpose was straightforward.</p>
+        <p class="drop-line">Any new capability should appear to the Cognitive Core exactly like every existing capability.</p>
+        <p>No special routing. No feature flags. No conditional execution paths. No architectural exceptions.</p>
+        <p>The framework established a single requirement. If a component could satisfy the required contracts, the platform should be able to discover it, validate it, register it, and orchestrate it without requiring any changes to the Cognitive Core.</p>
+        <p>That became a significant architectural milestone. For the first time, Jaspa was no longer merely a software system.</p>
+        <p class="drop-line">It became a platform.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Principle</h2>
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle</div>
+          <div class="pl-title">The Core should become increasingly stable as the platform becomes increasingly capable.</div>
+        </div>
+        <p>New capabilities should increase the size of the ecosystem. They should not increase the complexity of the architecture.</p>
+        <p class="drop-line">A mature architecture does not become larger because the core grows. It becomes larger because the ecosystem grows around a stable core.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifacts</h2>
+        <h3>Architectural Extension Boundary</h3>
+        <div class="concept-block"><span class="node">Cognitive Planner</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Registry</span>
+        <span class="arrow">↓</span>
+   ┌───────────────┼───────────────┐
+   <span class="arrow">↓</span>               <span class="arrow">↓</span>               <span class="arrow">↓</span>
+<span class="node">Knowledge</span>       <span class="node">Reasoning</span>      <span class="node">Automation</span>
+<span class="node">Provider</span>        <span class="node">Provider</span>       <span class="node">Provider</span>
+   └───────────────┼───────────────┘
+        <span class="arrow">↓</span>
+<span class="node">Common Capability Contract</span></div>
+        <p>The Registry becomes the only architectural dependency. Providers do not communicate directly. They communicate through contracts.</p>
+
+        <h3>Extension Lifecycle</h3>
+        <div class="concept-block"><span class="node">Developer Creates Provider</span>
+        <span class="arrow">↓</span>
+<span class="node">Implements Required Contracts</span>
+        <span class="arrow">↓</span>
+<span class="node">Provider Validation</span>
+        <span class="arrow">↓</span>
+<span class="node">Capability Registration</span>
+        <span class="arrow">↓</span>
+<span class="node">Planner Discovery</span>
+        <span class="arrow">↓</span>
+<span class="node">Execution</span>
+        <span class="arrow">↓</span>
+<span class="node">Reflection</span></div>
+        <p>Notice what is missing. No modification of existing components. The lifecycle adds capabilities without changing the architecture.</p>
+
+        <h3>Dependency Direction</h3>
+        <div class="concept-block">Incorrect
+
+<span class="node">Planner</span>
+   |
+   +-----&gt; <span class="node">Weather Provider</span>
+
+<span class="node">Planner</span>
+   |
+   +-----&gt; <span class="node">Finance Provider</span>
+
+
+Correct
+
+<span class="node">Planner</span>
+    |
+<span class="node">Capability Registry</span>
+    |
+<span class="node">Capability Contract</span>
+    |
+<span class="node">Provider</span></div>
+        <p>Dependencies should always point toward abstractions. Never toward implementations.</p>
+      </div>
+
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Extensibility is not the same thing as modularity — a modular system may still require edits when a module is introduced; an extensible system does not.</li>
+          <li>Extensibility begins with contracts rather than code. Interfaces are architectural promises.</li>
+          <li>Future engineering effort should occur outside the Cognitive Core whenever possible.</li>
+          <li>Extensibility is cumulative — every provider added after this point increases capability without increasing architectural complexity.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #017 Summary</div>
+          <p style="margin: 0 0 1rem; font-size: 0.98rem; line-height: 1.75;">Earlier engineering logs focused on making the architecture intelligent. This engineering log focused on making intelligence <em>sustainable</em>.</p>
+          <p style="margin: 0; font-size: 0.98rem; line-height: 1.75;">The question was no longer "Can this feature be added?" The question became "Can this feature be added without changing the Cognitive Core?" Only one answer was considered architecturally acceptable: Yes.</p>
+        </div>
+      </div>
+
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #017</div>
+        <div class="gauge-row"><div class="gauge-label">Architecture</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Planner</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Registry</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Knowledge Engine</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Internet Provider</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Memory Provider</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Trust Framework</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Extensibility Framework</div><div class="gauge-bar"><span class="fill">███████</span><span class="empty">░░░</span></div><div class="gauge-pct">70%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Provider Ecosystem</div><div class="gauge-bar"><span class="fill">██</span><span class="empty">░░░░░░░░</span></div><div class="gauge-pct">20%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Observability</div><div class="gauge-bar"><span class="fill">█</span><span class="empty">░░░░░░░░░</span></div><div class="gauge-pct">10%</div></div>
+      </div>
+
+      <div class="next-question">
+        <div class="nq-tag">// The Next Question</div>
+        <p>If any engineer can build a provider... how do they know they built it correctly?</p>
+        <p>The architecture now supported unlimited extension. But extension without standards eventually becomes architectural entropy.</p>
+        <p>The next engineering challenge would therefore become one of governance rather than capability.</p>
+        <p class="drop-line">How should a provider be built, validated, tested, documented, and certified before it is allowed to participate inside the cognitive platform?</p>
+        <p>That question would ultimately lead to the design of the Jaspa Provider SDK.</p>
+      </div>
+
+      <div class="page-stamp">
+        <span>Engineering Log</span><span class="dot">·</span><span>Page 17 of 72</span><span class="dot">·</span><span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="turn-wrap">
+    <a href="engineering_log_016.html" class="turn-btn"><span class="flip-icon">←</span> Turn Page</a>
+    <a href="engineering_log_018.html" class="turn-btn">Turn Page <span class="flip-icon">→</span></a>
+  </div>
+
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

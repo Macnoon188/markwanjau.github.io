@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #013 — The Knowledge Engine | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ecd9; --paper-edge:#e7dcc0; --ink:#23241f; --ink-soft:#4a4a3f; --ink-faint:#8a8672;
+    --rule:#c9bd9c; --accent:#8a3324; --accent-2:#3f5c4a; --accent-blue:#3a5f7d; --stamp:#6b6350;
+    --bar-fill:#3f5c4a; --bar-empty:#d8cead;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body { font-family: 'Source Serif 4', Georgia, serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .exit-strip { background: #14120e; border-bottom: 1px solid #2a271f; padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+  .notebook-stage { min-height: calc(100vh - 46px); display: flex; justify-content: center; padding: 3rem 1.25rem 2rem; background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15; }
+  .page { position: relative; width: 100%; max-width: 760px; background: var(--paper); box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--paper-edge); border-radius: 2px; padding: 3.5rem 3.25rem 2.75rem; }
+  .page::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px); pointer-events: none; border-radius: 2px; }
+  .page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 2.25rem; width: 1px; background: rgba(176,72,63,0.28); pointer-events: none; }
+  .page > * { position: relative; z-index: 1; }
+  @media (max-width: 640px) { .page { padding: 2.5rem 1.5rem 2rem; } .page::after { left: 1.1rem; } }
+  .masthead { text-align: center; padding-bottom: 1.5rem; margin-bottom: 2.25rem; border-bottom: 1px solid var(--rule); }
+  .masthead .journal-name { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--stamp); }
+  .masthead .journal-vol { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; color: var(--ink-faint); margin-top: 0.3rem; }
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .log-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.9rem; line-height: 1.2; color: var(--ink); margin: 0 0 0.6rem; }
+  .log-kicker { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1rem; color: var(--accent-2); margin-bottom: 0; }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row { display: flex; gap: 1.25rem; padding: 0.65rem 0; border-bottom: 1px dashed var(--rule); }
+  .field-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--stamp); padding-top: 0.15rem; }
+  .field-value { flex: 1; font-size: 0.98rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 640px) { .field-row { flex-direction: column; gap: 0.2rem; } .field-label { flex: none; } }
+  .section { margin: 2.5rem 0; }
+  .section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+  .section h3 { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 1.5rem 0 0.75rem; }
+  .section p { font-size: 1.03rem; line-height: 1.85; color: var(--ink); margin: 0 0 1rem; }
+  .drop-line { font-style: italic; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li { font-size: 1rem; line-height: 1.75; color: var(--ink); margin-bottom: 0.4rem; }
+  .concept-block { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9; color: var(--ink-soft); background: rgba(176,72,63,0.05); border: 1px dashed var(--rule); padding: 1.4rem 1rem; margin: 1.5rem 0; text-align: center; white-space: pre; overflow-x: auto; }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .principle-plaque { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.3); text-align: center; }
+  .principle-plaque .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin-bottom: 0.6rem; }
+  .principle-plaque .pl-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-style: italic; font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .marginal-note { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); letter-spacing: 0.5px; text-transform: uppercase; margin: 0.4rem 0 1.5rem; padding-left: 0.9rem; border-left: 2px solid var(--rule); }
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li { position: relative; padding: 0.55rem 0 0.55rem 1.6rem; font-size: 0.98rem; line-height: 1.65; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .snapshot-box { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.3); }
+  .snapshot-box .snap-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--rule); }
+  .snap-row { display: flex; gap: 1.25rem; padding: 0.4rem 0; font-size: 0.92rem; }
+  .snap-row .snap-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); padding-top: 0.1rem; }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li { font-size: 0.92rem; color: var(--ink); padding: 0.25rem 0; }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .snap-stats { display: flex; gap: 2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--rule); flex-wrap: wrap; }
+  .snap-stat { text-align: left; }
+  .snap-stat .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent-2); display: block; }
+  .snap-stat .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .state-panel { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--ink); }
+  .state-panel .state-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 0.25rem; }
+  .state-panel .state-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stamp); margin-bottom: 1.5rem; }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) { .gauge-row { flex-wrap: wrap; } .gauge-label { flex: 1 1 100%; } .gauge-pct { display:none; } }
+  .next-question { margin: 2.5rem 0 0.5rem; padding: 1.5rem 1.6rem; background: rgba(63,92,74,0.06); border: 1px solid rgba(63,92,74,0.3); border-radius: 3px; }
+  .next-question .nq-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .next-question p { font-size: 0.98rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.75rem; }
+  .next-question p:last-child { margin-bottom: 0; }
+  .page-stamp { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .page-stamp .dot { color: var(--rule); }
+  .turn-wrap { max-width: 760px; width: 100%; display: flex; justify-content: space-between; margin: 1.25rem auto 0; padding: 0 0.25rem; }
+  .turn-btn { display: inline-flex; align-items: center; gap: 0.55rem; background: #14120e; border: 1px solid #3a3628; color: #e6dfc7; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 0.7rem 1.3rem; border-radius: 3px; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+  .bottom-close { max-width: 760px; margin: 1.75rem auto 0; padding: 0 0.25rem; text-align: center; }
+  .bottom-close a { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a8a290; text-decoration: none; padding: 0.6rem 0; transition: color 0.2s; }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <div class="notebook-stage">
+    <div class="page">
+
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part III — Knowledge Providers</div>
+      </div>
+
+      <div class="log-header">
+        <div class="log-number">Engineering Log #013</div>
+        <h1 class="log-title">The Knowledge Engine</h1>
+        <p class="log-kicker">Designing a platform that knows, not just a provider that answers.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">28 June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Generalize the provider architecture into a unified Knowledge Engine capable of hosting independent domains of expertise while maintaining a single cognitive architecture. Rather than designing Jaspa around one source of knowledge, this milestone established a platform capable of reasoning across any knowledge domain.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The Engineering Problem</h2>
+        <p>Until now, the architecture had been validated using a single reference implementation. The Bible Knowledge Provider.</p>
+        <p>It worked remarkably well. But it raised an uncomfortable question.</p>
+        <p class="drop-line">Had we accidentally built a Bible platform?</p>
+        <p>Or... had we built a knowledge platform that happened to use Scripture as its first implementation?</p>
+        <p>That distinction mattered. Because it would determine the future of Jaspa OS.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Commentary</h2>
+        <p>The easiest mistake to make when building intelligent systems is confusing content with architecture.</p>
+        <p>Content changes. Architecture should not.</p>
+        <p>If the platform required architectural modifications every time a new domain was introduced, it had already failed.</p>
+        <p class="drop-line">The architecture needed to become completely indifferent to what it knew.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifact 013-A</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">The Architectural Pivot</p>
+        <p>A deliberate decision was made. The Bible Provider would no longer be viewed as the primary feature.</p>
+        <p class="drop-line">Instead, it became the Reference Knowledge Provider.</p>
+        <p>Its purpose was no longer to represent theology. Its purpose was to validate the Knowledge Engine itself.</p>
+        <p>This subtle shift changed the entire direction of the platform.</p>
+      </div>
+
+      <div class="section">
+        <h2>The Birth of the Knowledge Engine</h2>
+        <p>The Knowledge Engine became the abstraction sitting above every provider. It no longer cared whether knowledge originated from:</p>
+        <ul class="plain-list">
+          <li>Scripture</li>
+          <li>Internet search</li>
+          <li>Historical archives</li>
+          <li>Documentation</li>
+          <li>Cybersecurity intelligence</li>
+          <li>Medical literature</li>
+          <li>Internal memory</li>
+          <li>Future AI agents</li>
+        </ul>
+        <p>Every provider followed exactly the same contract.</p>
+        <div class="concept-block"><span class="node">Capability</span>
+        <span class="arrow">↓</span>
+<span class="node">Provider Registry</span>
+        <span class="arrow">↓</span>
+<span class="node">Knowledge Provider</span>
+        <span class="arrow">↓</span>
+<span class="node">KnowledgeObject</span>
+        <span class="arrow">↓</span>
+<span class="node">Reflection Layer</span></div>
+        <p>Everything else became implementation details.</p>
+
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 009</div>
+          <div class="pl-title">Knowledge is modular. Reasoning is universal.</div>
+        </div>
+        <p>This became one of the defining principles of Jaspa OS.</p>
+      </div>
+
+      <div class="section">
+        <h2>The Reference Provider</h2>
+        <p>Why begin with Scripture? Not because the platform was intended to be religious. But because Scripture presents one of the richest publicly available knowledge domains.</p>
+        <p>It contains:</p>
+        <ul class="plain-list">
+          <li>Thousands of named entities.</li>
+          <li>Historical events.</li>
+          <li>Geographic locations.</li>
+          <li>Family relationships.</li>
+          <li>Cross references.</li>
+          <li>Prophecy and fulfillment.</li>
+          <li>Poetry.</li>
+          <li>Narrative.</li>
+          <li>Multiple translations.</li>
+          <li>Dense semantic connections.</li>
+        </ul>
+        <p>If the Knowledge Engine could successfully model this domain, it could model almost any structured body of knowledge.</p>
+        <p class="drop-line">The Bible wasn't the destination. It was the proving ground.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Artifact 013-B</h2>
+        <p class="log-kicker" style="margin-bottom:0.5rem;">The Knowledge Engine</p>
+        <div class="concept-block"><span class="node">Knowledge Engine</span>
+        <span class="arrow">↓</span>
+   ┌──────────────────┼──────────────────┐
+   <span class="arrow">↓</span>                  <span class="arrow">↓</span>                  <span class="arrow">↓</span>
+<span class="node">Reference Provider</span>  <span class="node">Internet Provider</span>  <span class="node">Memory Provider</span>
+   <span class="arrow">↓</span>                  <span class="arrow">↓</span>                  <span class="arrow">↓</span>
+   └──────────────────┼──────────────────┘
+        <span class="arrow">↓</span>
+<span class="node">Canonical Data Model</span>
+        <span class="arrow">↓</span>
+<span class="node">Reflection Layer</span>
+        <span class="arrow">↓</span>
+<span class="node">Personality Layer</span></div>
+        <p>This diagram represents one of the most important moments in the evolution of Jaspa OS.</p>
+        <p class="drop-line">The architecture no longer revolves around providers. Providers revolve around the architecture.</p>
+      </div>
+
+      <div class="section">
+        <h2>Why This Matters</h2>
+        <p>Imagine replacing the Reference Provider tomorrow with a legal corpus, a cybersecurity knowledge base, scientific papers, enterprise documentation, or corporate policies.</p>
+        <p>Nothing changes.</p>
+        <p>The Planner remains untouched. The Registry remains untouched. The Scheduler remains untouched. The Reflection Layer remains untouched.</p>
+        <p>Only one new provider is introduced.</p>
+        <p class="drop-line">That is the hallmark of a platform.</p>
+      </div>
+
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Architecture should outlive its first implementation.</li>
+          <li>A good reference provider validates design rather than defining it.</li>
+          <li>Domains evolve; contracts should remain stable.</li>
+          <li>The value of a platform lies in its ability to welcome future capabilities without architectural redesign.</li>
+          <li>The Knowledge Engine became the true center of Jaspa OS.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #013 Summary</div>
+          <div class="snap-row"><div class="snap-label">Date</div><div class="snap-value">28 June 2026</div></div>
+          <div class="snap-row"><div class="snap-label">Milestone</div><div class="snap-value">Knowledge Engine</div></div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Knowledge Engine formalized.</li>
+                <li>Reference Provider concept introduced.</li>
+                <li>Domain-independent reasoning validated.</li>
+                <li>Provider abstraction completed.</li>
+                <li>Platform generalized.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="snap-stats">
+            <div class="snap-stat"><span class="stat-num">9</span><span class="stat-label">Engineering Principles</span></div>
+            <div class="snap-stat"><span class="stat-num">ADR-007</span><span class="stat-label">Architecture Decision Records</span></div>
+            <div class="snap-stat"><span class="stat-num">Extensible</span><span class="stat-label">Knowledge Domains</span></div>
+            <div class="snap-stat"><span class="stat-num">95%</span><span class="stat-label">Architecture Stability</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #013</div>
+        <div class="gauge-row"><div class="gauge-label">Architecture</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Knowledge Engine</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Planner</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Registry</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Execution Engine</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Reflection Layer</div><div class="gauge-bar"><span class="fill">█████████</span><span class="empty">░</span></div><div class="gauge-pct">90%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Personality Layer</div><div class="gauge-bar"><span class="fill">█████████</span><span class="empty">░</span></div><div class="gauge-pct">90%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Reference Provider</div><div class="gauge-bar"><span class="fill">████████</span><span class="empty">░░</span></div><div class="gauge-pct">80%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Internet Provider</div><div class="gauge-bar"><span class="fill">████████</span><span class="empty">░░</span></div><div class="gauge-pct">80%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Memory Provider</div><div class="gauge-bar"><span class="empty">░░░░░░░░░░</span></div><div class="gauge-pct">0%</div></div>
+      </div>
+
+      <div class="next-question">
+        <div class="nq-tag">// The Next Question</div>
+        <p>With the Knowledge Engine established, Jaspa OS had finally become domain-agnostic. It no longer mattered what knowledge was being processed — only that every provider adhered to the same architectural contract.</p>
+        <p>But another question naturally emerged.</p>
+        <p>Knowledge alone was not enough. Users expected continuity. They expected Jaspa to remember earlier decisions, ongoing projects, preferred workflows, and long-term context without confusing those memories with universal facts.</p>
+        <p>This introduced a new architectural challenge:</p>
+        <p class="drop-line">How can a cognitive platform remember experiences without allowing memory to distort objective knowledge?</p>
+        <p>The answer would become the Memory Provider — a provider that treated memory as just another knowledge domain, subject to the same contracts, lifecycle, and reasoning pipeline as every other provider. By doing so, Jaspa OS would gain continuity without sacrificing architectural consistency.</p>
+      </div>
+
+      <div class="page-stamp">
+        <span>Engineering Log</span><span class="dot">·</span><span>Page 13 of 72</span><span class="dot">·</span><span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="turn-wrap">
+    <a href="engineering_log_012.html" class="turn-btn"><span class="flip-icon">←</span> Turn Page</a>
+    <a href="engineering_log_014.html" class="turn-btn">Turn Page <span class="flip-icon">→</span></a>
+  </div>
+
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>

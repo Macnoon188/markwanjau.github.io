@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Log #016 — The Trust and Evidence Framework | Jaspa OS Engineering Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3ecd9; --paper-edge:#e7dcc0; --ink:#23241f; --ink-soft:#4a4a3f; --ink-faint:#8a8672;
+    --rule:#c9bd9c; --accent:#8a3324; --accent-2:#3f5c4a; --accent-blue:#3a5f7d; --stamp:#6b6350;
+    --bar-fill:#3f5c4a; --bar-empty:#d8cead;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1c1a15; }
+  body { font-family: 'Source Serif 4', Georgia, serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .exit-strip { background: #14120e; border-bottom: 1px solid #2a271f; padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; }
+  .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
+  .exit-strip a:hover { color: #f3ecd9; }
+  .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+  .notebook-stage { min-height: calc(100vh - 46px); display: flex; justify-content: center; padding: 3rem 1.25rem 2rem; background: radial-gradient(ellipse at 50% -10%, #2a2620 0%, transparent 60%), #1c1a15; }
+  .page { position: relative; width: 100%; max-width: 760px; background: var(--paper); box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--paper-edge); border-radius: 2px; padding: 3.5rem 3.25rem 2.75rem; }
+  .page::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(140,130,95,0.07) 32px); pointer-events: none; border-radius: 2px; }
+  .page::after { content: ''; position: absolute; top: 0; bottom: 0; left: 2.25rem; width: 1px; background: rgba(176,72,63,0.28); pointer-events: none; }
+  .page > * { position: relative; z-index: 1; }
+  @media (max-width: 640px) { .page { padding: 2.5rem 1.5rem 2rem; } .page::after { left: 1.1rem; } }
+  .masthead { text-align: center; padding-bottom: 1.5rem; margin-bottom: 2.25rem; border-bottom: 1px solid var(--rule); }
+  .masthead .journal-name { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--stamp); }
+  .masthead .journal-vol { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; color: var(--ink-faint); margin-top: 0.3rem; }
+  .log-header { margin-bottom: 1.75rem; }
+  .log-number { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .log-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; font-size: 1.9rem; line-height: 1.2; color: var(--ink); margin: 0 0 0.6rem; }
+  .log-kicker { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 1rem; color: var(--accent-2); margin-bottom: 0; }
+  .field-table { margin-top: 1.75rem; border-top: 1px dashed var(--rule); }
+  .field-row { display: flex; gap: 1.25rem; padding: 0.65rem 0; border-bottom: 1px dashed var(--rule); }
+  .field-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--stamp); padding-top: 0.15rem; }
+  .field-value { flex: 1; font-size: 0.98rem; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 640px) { .field-row { flex-direction: column; gap: 0.2rem; } .field-label { flex: none; } }
+  .section { margin: 2.5rem 0; }
+  .section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+  .section h3 { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 1.5rem 0 0.75rem; }
+  .section p { font-size: 1.03rem; line-height: 1.85; color: var(--ink); margin: 0 0 1rem; }
+  .drop-line { font-style: italic; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
+  ul.plain-list { margin: 0 0 1rem; padding-left: 1.3rem; }
+  ul.plain-list li { font-size: 1rem; line-height: 1.75; color: var(--ink); margin-bottom: 0.4rem; }
+  .manifest-block { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; color: var(--ink); background: rgba(63,92,74,0.05); border: 1px dashed var(--rule); border-left: 3px solid var(--accent-2); padding: 1.1rem 1.4rem; margin: 1.25rem 0; text-align: left; white-space: pre; overflow-x: auto; }
+  .concept-block { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9; color: var(--ink-soft); background: rgba(176,72,63,0.05); border: 1px dashed var(--rule); padding: 1.4rem 1rem; margin: 1.5rem 0; text-align: center; white-space: pre; overflow-x: auto; }
+  .concept-block .arrow { color: var(--accent); font-weight: 700; }
+  .concept-block .node { color: var(--ink); font-weight: 600; }
+  .trust-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.92rem; }
+  .trust-table th, .trust-table td { border: 1px solid var(--rule); padding: 0.6rem 0.9rem; text-align: left; }
+  .trust-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); background: rgba(176,72,63,0.05); }
+  .trust-table td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--accent-2); font-weight: 700; }
+  .principle-plaque { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.3); text-align: center; }
+  .principle-plaque .pl-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--stamp); margin-bottom: 0.6rem; }
+  .principle-plaque .pl-title { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-style: italic; font-size: 1.2rem; color: var(--accent); margin: 0; }
+  .marginal-note { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); letter-spacing: 0.5px; text-transform: uppercase; margin: 0.4rem 0 1.5rem; padding-left: 0.9rem; border-left: 2px solid var(--rule); }
+  .lessons { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  .lessons li { position: relative; padding: 0.55rem 0 0.55rem 1.6rem; font-size: 0.98rem; line-height: 1.65; color: var(--ink); border-bottom: 1px dotted var(--rule); }
+  .lessons li:last-child { border-bottom: none; }
+  .lessons li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .snapshot-box { margin: 1.5rem 0; border: 1px solid var(--ink); border-radius: 3px; padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.3); }
+  .snapshot-box .snap-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--rule); }
+  .snap-row { display: flex; gap: 1.25rem; padding: 0.4rem 0; font-size: 0.92rem; }
+  .snap-row .snap-label { flex: 0 0 150px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); padding-top: 0.1rem; }
+  .snap-row .snap-value { flex: 1; color: var(--ink); }
+  .snap-checks { list-style: none; padding: 0; margin: 0; }
+  .snap-checks li { font-size: 0.92rem; color: var(--ink); padding: 0.25rem 0; }
+  .snap-checks li::before { content: '✓ '; color: var(--accent-2); font-weight: 700; }
+  .snap-stats { display: flex; gap: 2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--rule); flex-wrap: wrap; }
+  .snap-stat { text-align: left; }
+  .snap-stat .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent-2); display: block; }
+  .snap-stat .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .state-panel { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--ink); }
+  .state-panel .state-title { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 0.25rem; }
+  .state-panel .state-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stamp); margin-bottom: 1.5rem; }
+  .gauge-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; }
+  .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); flex: 0 0 160px; }
+  .gauge-bar { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 1px; text-align: right; }
+  .gauge-bar .fill { color: var(--bar-fill); }
+  .gauge-bar .empty { color: var(--bar-empty); }
+  .gauge-pct { flex: 0 0 42px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stamp); }
+  @media (max-width: 640px) { .gauge-row { flex-wrap: wrap; } .gauge-label { flex: 1 1 100%; } .gauge-pct { display:none; } }
+  .next-question { margin: 2.5rem 0 0.5rem; padding: 1.5rem 1.6rem; background: rgba(63,92,74,0.06); border: 1px solid rgba(63,92,74,0.3); border-radius: 3px; }
+  .next-question .nq-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 0.75rem; }
+  .next-question p { font-size: 0.98rem; line-height: 1.75; color: var(--ink); margin: 0 0 0.75rem; }
+  .next-question p:last-child { margin-bottom: 0; }
+  .page-stamp { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--stamp); }
+  .page-stamp .dot { color: var(--rule); }
+  .turn-wrap { max-width: 760px; width: 100%; display: flex; justify-content: space-between; margin: 1.25rem auto 0; padding: 0 0.25rem; }
+  .turn-btn { display: inline-flex; align-items: center; gap: 0.55rem; background: #14120e; border: 1px solid #3a3628; color: #e6dfc7; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 0.7rem 1.3rem; border-radius: 3px; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+  .turn-btn:hover { background: #221f18; border-color: var(--accent); transform: translateX(3px); }
+  .turn-btn .flip-icon { font-size: 1rem; transform: translateY(-1px); }
+  .turn-btn.disabled { opacity: 0.35; pointer-events: none; }
+  .bottom-close { max-width: 760px; margin: 1.75rem auto 0; padding: 0 0.25rem; text-align: center; }
+  .bottom-close a { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a8a290; text-decoration: none; padding: 0.6rem 0; transition: color 0.2s; }
+  .bottom-close a:hover { color: #f3ecd9; }
+  .bottom-close .close-icon { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+  <div class="exit-strip">
+    <a href="blogs.html#ai">← Close Notebook</a>
+    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+  </div>
+
+  <div class="notebook-stage">
+    <div class="page">
+
+      <div class="masthead">
+        <div class="journal-name">Jaspa OS — Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal · Volume I · Part III — Knowledge Providers</div>
+      </div>
+
+      <div class="log-header">
+        <div class="log-number">Engineering Log #016</div>
+        <h1 class="log-title">The Trust and Evidence Framework</h1>
+        <p class="log-kicker">Building trust into Jaspa's reasoning.</p>
+
+        <div class="field-table">
+          <div class="field-row">
+            <div class="field-label">Date</div>
+            <div class="field-value">30 June 2026</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Objective</div>
+            <div class="field-value">Design a formal Trust Framework so that every response Jaspa produces carries measurable confidence and traceable evidence — shifting the platform from simple answer generation to evidence-aware reasoning.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Introduction</h2>
+        <p>As Jaspa's reasoning capabilities continued to mature, a new architectural concern became impossible to ignore.</p>
+        <p>The system was becoming increasingly capable of retrieving information from multiple knowledge providers, synthesizing responses, and presenting coherent answers. While this represented a significant leap in capability, it also introduced an important engineering challenge:</p>
+        <p class="drop-line">How does Jaspa know when it should trust its own conclusions?</p>
+        <p>Most AI assistants present responses with the same level of confidence regardless of how they were produced. Whether an answer comes directly from authoritative documentation, a cached memory, or an inferred conclusion, the presentation often appears identical to the user.</p>
+        <p>For an engineering platform, that behavior is unacceptable. Jaspa must not only generate answers — it must communicate the confidence and evidence behind those answers.</p>
+      </div>
+
+      <div class="section">
+        <h2>The Problem</h2>
+        <p>Consider three scenarios: a response generated directly from official vendor documentation, a response assembled from multiple knowledge providers, and a response inferred through reasoning because no direct evidence exists.</p>
+        <p>All three may sound equally convincing. However, they are not equally trustworthy.</p>
+        <p class="drop-line">Without a mechanism for expressing confidence, Jaspa risks presenting assumptions as facts.</p>
+        <p>The goal therefore became clear: every response should carry information about how trustworthy it is.</p>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Objectives</h2>
+        <p>The Trust Framework was designed around five principles:</p>
+        <ul class="plain-list">
+          <li>Every response should include measurable confidence.</li>
+          <li>Every factual claim should be traceable to its origin.</li>
+          <li>Reasoning steps should remain transparent.</li>
+          <li>Multiple evidence sources should increase confidence.</li>
+          <li>Jaspa should openly acknowledge uncertainty rather than conceal it.</li>
+        </ul>
+
+        <div class="principle-plaque">
+          <div class="pl-tag">Engineering Principle 012</div>
+          <div class="pl-title">Confidence must be measurable, not implied.</div>
+        </div>
+        <p>This shifts the platform from simple answer generation to evidence-aware reasoning.</p>
+      </div>
+
+      <div class="section">
+        <h2>Trust Metadata</h2>
+        <p>Every provider response is accompanied by metadata describing its origin.</p>
+        <div class="manifest-block">provider: Bible Knowledge Provider
+source: Genesis 1:1
+evidence_type: Direct Reference
+confidence: 1.00
+timestamp: 2026-06-30T10:15:00Z</div>
+        <p>Rather than returning plain text alone, Jaspa now treats every response as a structured object containing both content and supporting context.</p>
+      </div>
+
+      <div class="section">
+        <h2>Confidence Levels</h2>
+        <p>To make confidence understandable across all providers, standardized trust tiers were introduced.</p>
+        <table class="trust-table">
+          <tr><th>Confidence</th><th>Interpretation</th></tr>
+          <tr><td>1.00</td><td>Verified from authoritative source</td></tr>
+          <tr><td>0.90</td><td>Multiple providers agree</td></tr>
+          <tr><td>0.75</td><td>Strong inference supported by evidence</td></tr>
+          <tr><td>0.50</td><td>Partial evidence available</td></tr>
+          <tr><td>0.25</td><td>Weak inference</td></tr>
+          <tr><td>0.00</td><td>No supporting evidence</td></tr>
+        </table>
+        <p>These values provide a common language for evaluating results regardless of which provider generated them.</p>
+      </div>
+
+      <div class="section">
+        <h2>Evidence Traceability</h2>
+        <p>Every response should answer an additional question:</p>
+        <p class="drop-line">"Where did this information come from?"</p>
+        <p>Instead of producing isolated text, Jaspa records the supporting evidence used during reasoning.</p>
+        <div class="concept-block"><span class="node">Response</span>
+        <span class="arrow">↓</span>
+   ├── Provider
+   ├── Source
+   ├── Confidence
+   ├── Timestamp
+   └── Supporting References</div>
+        <p>This traceability simplifies debugging while allowing future providers to participate in collaborative reasoning without sacrificing transparency.</p>
+      </div>
+
+      <div class="section">
+        <h2>Handling Uncertainty</h2>
+        <p>A trustworthy system should never fabricate certainty. If evidence is incomplete, Jaspa communicates that limitation explicitly. For example:</p>
+        <p class="drop-line">"Based on the available providers, this conclusion is supported with moderate confidence. Additional authoritative sources were not available."</p>
+        <p>Acknowledging uncertainty is a feature — not a weakness.</p>
+      </div>
+
+      <div class="section">
+        <h2>Preparing for Collaborative Reasoning</h2>
+        <p>Although the immediate implementation focused on single-provider responses, the Trust Framework was intentionally designed with future expansion in mind.</p>
+        <p>As additional providers are introduced, Jaspa will be able to compare independent responses and adjust confidence dynamically.</p>
+        <div class="concept-block"><span class="node">Gemini</span>
+      \
+       \
+<span class="node">Groq</span> ----&gt; <span class="node">Knowledge Fusion</span> ----&gt; <span class="node">Confidence Score</span>
+       /
+<span class="node">OpenRouter</span></div>
+        <p>Agreement between independent providers strengthens confidence. Conflicting evidence lowers confidence and encourages further investigation.</p>
+        <p class="drop-line">This architecture establishes the foundation for collaborative reasoning introduced in later milestones.</p>
+      </div>
+
+      <div class="section">
+        <h2>Architectural Impact</h2>
+        <p>The Trust Framework transforms Jaspa from a traditional AI assistant into an engineering system capable of explaining its own reasoning process.</p>
+        <p>Instead of merely answering questions, Jaspa now distinguishes between:</p>
+        <ul class="plain-list">
+          <li>Verified facts</li>
+          <li>Supported conclusions</li>
+          <li>Reasonable inferences</li>
+          <li>Uncertain assumptions</li>
+        </ul>
+        <p>This distinction becomes increasingly valuable as the platform grows to include multiple providers, autonomous agents, and external knowledge sources.</p>
+      </div>
+
+      <div class="section">
+        <h2>Lessons Learned</h2>
+        <ul class="lessons">
+          <li>Building intelligent systems is not simply about increasing model capability.</li>
+          <li>It is equally important to communicate the reliability of every conclusion.</li>
+          <li>Separating what Jaspa knows from how confidently Jaspa knows it improves transparency and debuggability.</li>
+          <li>Trust is not an optional feature layered on after deployment.</li>
+          <li>It is an architectural principle embedded into every reasoning decision Jaspa makes.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Engineering Snapshot</h2>
+        <div class="snapshot-box">
+          <div class="snap-title">// Log #016 Summary</div>
+          <div class="snap-row"><div class="snap-label">Date</div><div class="snap-value">30 June 2026</div></div>
+          <div class="snap-row"><div class="snap-label">Milestone</div><div class="snap-value">Trust and Evidence Framework</div></div>
+          <div class="snap-row">
+            <div class="snap-label">Major Decisions</div>
+            <div class="snap-value">
+              <ul class="snap-checks">
+                <li>Trust metadata standardized across providers.</li>
+                <li>Confidence tiers established.</li>
+                <li>Evidence traceability introduced.</li>
+                <li>Uncertainty handling formalized.</li>
+                <li>Foundation laid for collaborative reasoning.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="snap-stats">
+            <div class="snap-stat"><span class="stat-num">12</span><span class="stat-label">Engineering Principles</span></div>
+            <div class="snap-stat"><span class="stat-num">Established</span><span class="stat-label">Trust Framework</span></div>
+            <div class="snap-stat"><span class="stat-num">98%</span><span class="stat-label">Architecture Stability</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="state-panel">
+        <div class="state-title">Conclusion — State of Jaspa OS</div>
+        <div class="state-sub">// component maturity as of Engineering Log #016</div>
+        <div class="gauge-row"><div class="gauge-label">Architecture</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Planner</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Registry</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Knowledge Engine</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Internet Provider</div><div class="gauge-bar"><span class="fill">██████████</span></div><div class="gauge-pct">100%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Memory Provider</div><div class="gauge-bar"><span class="fill">█████████</span><span class="empty">░</span></div><div class="gauge-pct">90%</div></div>
+        <div class="gauge-row"><div class="gauge-label">Trust Framework</div><div class="gauge-bar"><span class="fill">███████</span><span class="empty">░░░</span></div><div class="gauge-pct">70%</div></div>
+      </div>
+
+      <div class="next-question">
+        <div class="nq-tag">// Next Steps</div>
+        <p>With a formal Trust Framework established, the next phase focuses on making Jaspa extensible through a standardized provider architecture.</p>
+        <p>Future engineering work will introduce a Provider SDK, provider certification process, and collaborative reasoning between independent knowledge sources, enabling Jaspa to grow into a modular cognitive operating system.</p>
+      </div>
+
+      <div class="page-stamp">
+        <span>Engineering Log</span><span class="dot">·</span><span>Page 16 of 72</span><span class="dot">·</span><span>Version 1.0</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="turn-wrap">
+    <a href="engineering_log_015.html" class="turn-btn"><span class="flip-icon">←</span> Turn Page</a>
+    <a href="engineering_log_017.html" class="turn-btn">Turn Page <span class="flip-icon">→</span></a>
+  </div>
+
+  <div class="bottom-close">
+    <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
+  </div>
+
+</body>
+</html>
