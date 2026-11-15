@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Creation Phase 1 — Part 4: Where Jaspa's Story Gets Documented | Mark Wanjau</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="matrix.js" defer></script>
+  <style>
+    .article-nav-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 3rem 0 1.5rem;
+      padding: 1.1rem 1.5rem;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .article-nav-strip a { font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-prev   { color: #58a6ff !important; }
+    .nav-center { color: #8b949e !important; font-size: 0.75rem !important; }
+    .nav-next   { color: #81ff7f !important; }
+    .article-nav-strip a:hover { text-decoration: underline; }
+
+    .return-home {
+      display: block;
+      text-align: center;
+      margin: 1.5rem auto 0;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, #0f2d18, #1a4a28);
+      border: 1px solid #81ff7f;
+      border-radius: 10px;
+      color: #81ff7f;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-decoration: none;
+      max-width: 320px;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .return-home:hover {
+      box-shadow: 0 0 20px rgba(129,255,127,0.3);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .series-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: #58a6ff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Notebook teaser card */
+    .notebook-teaser {
+      background: linear-gradient(135deg, #17140f, #1e1a12);
+      border: 1px solid #3a3221;
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .notebook-teaser::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #b0483f, #8a3324);
+    }
+    .notebook-teaser img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border: 1px solid #3a3221;
+    }
+    .notebook-teaser .nt-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #d9c98a;
+      background: rgba(217,201,138,0.08);
+      border: 1px solid rgba(217,201,138,0.25);
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 0.85rem;
+      font-family: monospace;
+      font-weight: 600;
+    }
+    .notebook-teaser h3 {
+      font-size: 1.15rem;
+      color: #f3ecd9;
+      margin-bottom: 0.6rem;
+      font-family: Georgia, serif;
+      line-height: 1.3;
+    }
+    .notebook-teaser p {
+      font-size: 0.9rem;
+      color: #b8ae94;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .notebook-teaser .nt-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f3ecd9;
+      background: rgba(176,72,63,0.15);
+      border: 1px solid rgba(176,72,63,0.4);
+      padding: 0.6rem 1.3rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .notebook-teaser .nt-open:hover {
+      background: rgba(176,72,63,0.28);
+      border-color: #b0483f;
+      transform: translateX(3px);
+      text-decoration: none;
+    }
+
+    .series-nav {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0 1rem;
+    }
+    .series-nav h4 {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #8b949e;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+    .series-nav a {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #58a6ff;
+      transition: color 0.2s;
+    }
+    .series-nav a:last-child { border-bottom: none; }
+    .series-nav a:hover { color: #81ff7f; }
+    .series-nav a.current { color: #81ff7f; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<nav>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li class="dropdown">
+      <a href="projects.html">Projects ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="project-proxmox-lab.html">🖥️ Homelab</a></li>
+        <li><a href="project-cryptxsnare.html">🔐 CryptXSnare SIEM</a></li>
+        <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
+        <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
+        <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+        <li><a href="jaspa_os_journal_frontmatter.html">📓 Jaspa OS Engineering Journal</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="blogs.html">Blogs ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="blogs.html#homelab">🔬 Homelab Series</a></li>
+        <li><a href="blogs.html#webdev">🌐 Web Development</a></li>
+        <li><a href="blogs.html#devtools">⚙️ Dev Tools</a></li>
+        <li><a href="blogs.html#cloud">☁️ Cloud & Backend</a></li>
+        <li><a href="blogs.html#soc">🧠 SOC Engineering</a></li>
+        <li><a href="blogs.html#ai">🤖 AI &amp; Automation</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#">Career ▾</a>
+      <ul class="dropdown-menu">
+        <li><a href="career-ku.html">Kenyatta University</a></li>
+        <li><a href="career-deckfirm.html">Deckfirm Technologies</a></li>
+      </ul>
+    </li>
+    <li><a href="education.html">Education & Certs</a></li>
+  </ul>
+</nav>
+
+<main class="content-wrapper">
+  <article class="mag-article">
+
+    <!-- HERO -->
+    <header class="mag-hero">
+      <p class="mag-kicker">Week 18 · AI & Automation · Bot Development Series</p>
+      <div class="series-badge">📖 Part 4 of Series</div>
+      <h1 class="mag-title">Bot Creation Phase 1 — Part 4</h1>
+      <p class="mag-subtitle">Where Jaspa's Story Gets Documented</p>
+      <div class="mag-meta">
+        Published: Monday, 18 May 2026 &nbsp;·&nbsp; Author: Mark Andrew Wanjau &nbsp;·&nbsp;
+        5 min read &nbsp;·&nbsp; Tags: AI · Jaspa OS · Hermes · Engineering Journal
+      </div>
+    </header>
+
+    <!-- LEAD -->
+    <section class="mag-lead">
+      <p>
+        By the end of Part 3, something had become obvious: Jaspa had outgrown the blog format.
+      </p>
+      <p>
+        Weeks 14 through 17 documented the surface of the story — getting a bot running, teaching it
+        to think like a technician, and eventually rebuilding the whole approach into something closer
+        to real software engineering. But underneath those four posts was a much longer, much more
+        detailed thread: the actual architecture decisions, the failed assumptions, the principles that
+        got adopted along the way.
+      </p>
+      <p>
+        That thread deserved its own space. Not a blog post. A journal.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <h2>Why a Blog Post Wasn't Enough</h2>
+      <p>
+        A blog post works well for a single lesson — "here's what broke, here's what I learned."
+        But Jaspa OS isn't a single lesson. It's dozens of them, stacked on top of each other,
+        each one shaping the next.
+      </p>
+      <p>
+        Trying to compress that into blog-length posts meant constantly summarizing, skipping
+        detail, and losing the actual engineering reasoning behind each decision. The parts that
+        mattered most — the "why," not just the "what" — kept getting cut for length.
+      </p>
+      <p>
+        So instead of writing Part 5, Part 6, Part 7 as more blog posts, the decision was to build
+        something that could hold the whole story properly: a page-by-page engineering journal,
+        documenting Jaspa OS the way a real engineering team would document a platform.
+      </p>
+    </section>
+
+    <section class="mag-section">
+      <h2>What Changes, What Doesn't</h2>
+      <p>
+        This series — the Bot Development Series you've been reading since Week 14 — stays exactly
+        where it is, in the AI & Automation section of the blog. Parts 1 through 4 tell the
+        introductory arc: getting something running, giving it purpose, and realizing that
+        purpose needed real engineering discipline behind it.
+      </p>
+      <p>
+        The deeper story — the architecture, the providers, the governance decisions, the
+        acceptance tests — now lives in its own home under <strong>Projects</strong>, as a proper
+        long-form engineering journal rather than a blog series.
+      </p>
+    </section>
+
+    <!-- NOTEBOOK TEASER -->
+    <section class="mag-section">
+      <h2>The Engineering Journal</h2>
+      <div class="notebook-teaser">
+        <img src="images/jaspa-notebook-cover.jpg" alt="Jaspa OS Engineering Journal" />
+        <div class="nt-tag">📓 Now Under Projects · Ongoing Series</div>
+        <h3>Jaspa OS — Engineering Journal, Volume I</h3>
+        <p>
+          A page-by-page engineering notebook tracking the build of Jaspa OS from first principles
+          through architecture, providers, and platform governance. Every entry follows a real
+          engineering log format — Objective, Problem, Hypothesis, Implementation, Result, Lessons
+          Learned — and closes with a live "State of Jaspa OS" progress readout. 72 planned pages,
+          24 published and counting.
+        </p>
+        <a href="jaspa_os_journal_frontmatter.html" class="nt-open">Open the Notebook →</a>
+      </div>
+      <p>
+        If you've been following along since Week 14 and want the full engineering depth behind
+        Jaspa OS — not just the highlights — that's where the story continues.
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="mag-section">
+      <h2>Final Thoughts</h2>
+      <p>
+        Splitting the story this way felt right rather than tidy. The blog series is still the best
+        place to read about the moments — the first Telegram response, the corrupted React component,
+        the shift from prompting to engineering. The journal is where the actual system gets built,
+        page by page, in the detail it deserves.
+      </p>
+      <p>
+        Part 4 closes this introductory arc. What comes next lives in the notebook.
+      </p>
+    </section>
+
+    <!-- SERIES NAV -->
+    <div class="series-nav">
+      <h4>// Building an AI IT Support Assistant — Series</h4>
+      <a href="blog_openclaw_bot_phase1_part1_14.html">
+        📖 Part 1 — Getting OpenClaw Running and Connecting the Core Components
+      </a>
+      <a href="blog_openclaw_bot_phase1_part2_16.html">
+        📖 Part 2 — Teaching Jaspa to Think Like an IT Engineer
+      </a>
+      <a href="blog_hermes_engineering_partner_17.html">
+        📖 Part 3 — From AI Assistant to AI Engineering Partner
+      </a>
+      <a href="blog_jaspa_notebook_intro_18.html" class="current">
+        📖 Part 4 — Where Jaspa's Story Gets Documented ← You are here
+      </a>
+    </div>
+
+    <footer class="mag-footer">
+      <p>
+        Have you ever had a project outgrow the format you were documenting it in? What did you
+        move it to?
+      </p>
+      <p style="margin-top:1.25rem;">
+        Connect with me on
+        <a href="https://www.linkedin.com/in/mark-wanjau-0052946b" target="_blank"
+           style="color:#0a66c2;font-weight:600;">LinkedIn</a>
+        — I'd love to hear how other engineers document long-running projects.
+      </p>
+    </footer>
+
+    <!-- NAV STRIP -->
+    <div class="article-nav-strip">
+      <a href="blog_hermes_engineering_partner_17.html" class="nav-prev">← 🧠 Week 17 — Engineering Partner</a>
+      <a href="blogs.html#ai" class="nav-center">🤖 AI & Automation</a>
+      <a href="jaspa_os_journal_frontmatter.html" class="nav-next">📓 Open the Journal →</a>
+    </div>
+    <a href="index.html" class="return-home">⌂ &nbsp; Return to Home</a>
+
+  </article>
+</main>
+
+<footer>
+  <p>&copy; 2026 Mark Andrew Wanjau | Built by Makbuilt Solutions</p>
+</footer>
+
+</body>
+</html>

@@ -41,10 +41,72 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.72rem;
     letter-spacing: 0.5px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .exit-strip a { color: #a8a290; text-decoration: none; transition: color 0.2s; }
   .exit-strip a:hover { color: #f3ecd9; }
   .exit-strip .vol-tag { color: #6b6350; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* ============ JUMP-TO-PAGE DROPDOWN ============ */
+  .jump-nav { position: relative; }
+  .jump-toggle {
+    background: none;
+    border: none;
+    color: #a8a290;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .jump-toggle:hover { color: #f3ecd9; }
+  .jump-toggle.open { color: #f3ecd9; }
+  .jump-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c1a15;
+    border: 1px solid #3a3628;
+    border-radius: 6px;
+    padding: 0.5rem 0;
+    min-width: 320px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    z-index: 50;
+  }
+  .jump-menu.open { display: block; }
+  .jump-part {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6b6350;
+    padding: 0.6rem 1.1rem 0.3rem;
+    border-top: 1px solid #2a271f;
+  }
+  .jump-part:first-child { border-top: none; }
+  .jump-menu a {
+    display: block;
+    padding: 0.4rem 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #d8d2bc;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .jump-menu a:hover { background: #262319; color: #f3ecd9; }
+  .jump-menu a.current { color: #b0483f; font-weight: 700; }
+  .jump-menu a.toc-link {
+    border-top: 1px solid #2a271f;
+    margin-top: 0.3rem;
+    padding-top: 0.6rem;
+    color: #8a8672;
+  }
 
   .notebook-stage {
     min-height: calc(100vh - 46px);
@@ -521,7 +583,41 @@
   <!-- ══════════ EXIT / CONTEXT STRIP ══════════ -->
   <div class="exit-strip">
     <a href="blogs.html#ai">← Close Notebook</a>
-    <span class="vol-tag">Jaspa OS · Engineering Journal · Vol. I</span>
+    <div class="jump-nav">
+      <button class="jump-toggle" onclick="toggleJumpMenu(this)">📖 Jump to Page ▾</button>
+      <div class="jump-menu" id="jumpMenu">
+        <div class="jump-part">Part I — The Beginning</div>
+        <a href="engineering_log_001.html">#001 Why Jaspa Exists</a>
+        <a href="engineering_log_002.html">#002 The Problem with Traditional AI Assistants</a>
+        <a href="engineering_log_003.html">#003 Defining the Vision</a>
+        <a href="engineering_log_004.html">#004 — title TBC</a>
+        <a href="engineering_log_005.html">#005 — title TBC</a>
+        <div class="jump-part">Part II — Building the Cognitive Platform</div>
+        <a href="engineering_log_006.html">#006 — title TBC</a>
+        <a href="engineering_log_007.html" class="current">#007 The Provider Registry</a>
+        <a href="engineering_log_008.html">#008 — title TBC</a>
+        <a href="engineering_log_009.html">#009 — title TBC</a>
+        <a href="engineering_log_010.html">#010 — title TBC</a>
+        <a href="engineering_log_011.html">#011 — title TBC</a>
+        <a href="engineering_log_012.html">#012 — title TBC</a>
+        <div class="jump-part">Part III — Knowledge Providers</div>
+        <a href="engineering_log_013.html">#013 — title TBC</a>
+        <a href="engineering_log_014.html">#014 — title TBC</a>
+        <a href="engineering_log_015.html">#015 — title TBC</a>
+        <a href="engineering_log_016.html">#016 — title TBC</a>
+        <div class="jump-part">Part IV — Platform Governance</div>
+        <a href="engineering_log_017.html">#017 — title TBC</a>
+        <a href="engineering_log_018.html">#018 — title TBC</a>
+        <a href="engineering_log_019.html">#019 — title TBC</a>
+        <a href="engineering_log_020.html">#020 — title TBC</a>
+        <a href="engineering_log_021.html">#021 — title TBC</a>
+        <a href="engineering_log_022.html">#022 — title TBC</a>
+        <a href="engineering_log_023.html">#023 — title TBC</a>
+        <a href="engineering_log_024.html">#024 — title TBC</a>
+        <a href="jaspa_os_journal_frontmatter.html" class="toc-link">📑 Full Table of Contents</a>
+      </div>
+    </div>
+    <span class="vol-tag">Jaspa OS • Engineering Journal • Vol. I</span>
   </div>
 
   <!-- ══════════ NOTEBOOK PAGE ══════════ -->
@@ -531,7 +627,7 @@
       <!-- MASTHEAD -->
       <div class="masthead">
         <div class="journal-name">Jaspa OS — Cognitive Platform</div>
-        <div class="journal-vol">Engineering Journal · Volume I · Part II — Building the Cognitive Platform</div>
+        <div class="journal-vol">Engineering Journal • Volume I • Part II — Building the Cognitive Platform</div>
       </div>
 
       <!-- LOG HEADER -->
@@ -582,7 +678,7 @@
         <p class="log-kicker" style="margin-bottom:0.5rem;">Original Jaspa Response</p>
         <p>After reviewing the revised architecture, Jaspa proposed a different direction.</p>
         <div class="conversation-block">
-          <div class="conversation-tag">Response · Jaspa OS</div>
+          <div class="conversation-tag">Response • Jaspa OS</div>
           <div class="conversation-msg jaspa">
             <div class="speaker">Jaspa</div>
             <p>"I have implemented the hybrid provider architecture and the core logic for the dynamic Provider Registry."</p>
@@ -679,7 +775,7 @@ capabilities:
         <p class="log-kicker" style="margin-bottom:0.5rem;">Validation Results</p>
         <p>After implementing the Registry, Jaspa reported:</p>
         <div class="conversation-block">
-          <div class="conversation-tag">Response · Jaspa OS</div>
+          <div class="conversation-tag">Response • Jaspa OS</div>
           <div class="conversation-msg jaspa">
             <div class="speaker">Jaspa</div>
             <p>"The Provider Registry has been successfully validated."</p>
@@ -834,9 +930,9 @@ capabilities:
       <!-- PAGE STAMP -->
       <div class="page-stamp">
         <span>Engineering Log</span>
-        <span class="dot">·</span>
+        <span class="dot">•</span>
         <span>Page 7 of 72</span>
-        <span class="dot">·</span>
+        <span class="dot">•</span>
         <span>Version 1.0</span>
       </div>
 
@@ -848,16 +944,30 @@ capabilities:
     <a href="engineering_log_006.html" class="turn-btn">
       <span class="flip-icon">←</span> Turn Page
     </a>
-    <a href="#" class="turn-btn disabled" aria-disabled="true">
+    <a href="engineering_log_008.html" class="turn-btn">
       Turn Page <span class="flip-icon">→</span>
     </a>
-    <!-- Next page (Engineering Log #008) will replace the disabled state above once written -->
   </div>
 
   <!-- ══════════ BOTTOM CLOSE-NOTEBOOK FOOTER ══════════ -->
   <div class="bottom-close">
     <a href="blogs.html#ai"><span class="close-icon">✕</span> Close Notebook</a>
   </div>
+
+  <script>
+  function toggleJumpMenu(btn){
+    const menu = document.getElementById('jumpMenu');
+    menu.classList.toggle('open');
+    btn.classList.toggle('open');
+    document.addEventListener('click', function closeOnOutside(e){
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+      }
+    });
+  }
+  </script>
 
 </body>
 </html>

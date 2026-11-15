@@ -121,83 +121,6 @@
       text-decoration: none;
     }
 
-    /* Engineering Notebook — featured card, distinct journal-toned styling */
-    .notebook-feature {
-      margin-bottom: 1.75rem;
-      background: linear-gradient(135deg, #17140f, #1e1a12);
-      border: 1px solid #3a3221;
-      border-radius: 12px;
-      padding: 1.75rem 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .notebook-feature::before {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0; left: 0;
-      width: 4px;
-      background: linear-gradient(180deg, #b0483f, #8a3324);
-    }
-    .notebook-feature-inner { position: relative; }
-    .nf-tag {
-      display: inline-block;
-      font-size: 0.68rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: #d9c98a;
-      background: rgba(217,201,138,0.08);
-      border: 1px solid rgba(217,201,138,0.25);
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-bottom: 0.85rem;
-      font-family: monospace;
-      font-weight: 600;
-    }
-    .notebook-feature h3 {
-      font-size: 1.2rem;
-      color: #f3ecd9;
-      margin-bottom: 0.65rem;
-      font-family: Georgia, serif;
-      line-height: 1.3;
-    }
-    .notebook-feature p {
-      font-size: 0.88rem;
-      color: #b8ae94;
-      line-height: 1.7;
-      max-width: 640px;
-      margin-bottom: 1rem;
-    }
-    .nf-meta {
-      font-size: 0.75rem;
-      font-family: monospace;
-      color: #8a8267;
-      letter-spacing: 0.5px;
-      margin-bottom: 1.25rem;
-    }
-    .nf-dot { margin: 0 0.5rem; color: #4a4433; }
-    .nf-open {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #f3ecd9;
-      background: rgba(176,72,63,0.15);
-      border: 1px solid rgba(176,72,63,0.4);
-      padding: 0.55rem 1.2rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-family: monospace;
-      letter-spacing: 0.5px;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    }
-    .nf-open:hover {
-      background: rgba(176,72,63,0.28);
-      border-color: #b0483f;
-      transform: translateX(3px);
-      text-decoration: none;
-    }
-
     /* Homelab series — special styling */
     #homelab .blog-card {
       border-color: #1a3a2a;
@@ -223,6 +146,7 @@
           <li><a href="blog_personal_web_tailwindcss_8.html">🌐 Personal Website</a></li>
           <li><a href="blog_windsurf_to_cursor_10.html">⚙️ App Development</a></li>
           <li><a href="blog_docker_nginx_isolated_webservers_11.html">🐳 Docker Infrastructure</a></li>
+          <li><a href="jaspa_os_journal_frontmatter.html">📓 Jaspa OS Engineering Journal</a></li>
         </ul>
       </li>
       <li class="dropdown">
@@ -437,30 +361,7 @@
     <section class="blog-category" id="ai">
       <div class="blog-cat-header">
         <h2>🤖 AI &amp; Automation</h2>
-      <span class="blog-cat-count">4 posts · 1 ongoing journal</span>
-      </div>
-
-      <!-- Engineering Notebook — featured entry, distinct visual treatment -->
-      <div class="notebook-feature">
-        <div class="notebook-feature-inner">
-          <div class="nf-tag">📓 New Format · Ongoing Series</div>
-          <h3>Jaspa OS — Engineering Journal, Volume I</h3>
-          <p>
-            A different kind of documentation. Instead of another blog post, this is a page-by-page
-            engineering notebook tracking the build of Jaspa OS — a cognitive platform built on
-            Hermes-Agent — from first principles through architecture, providers, and acceptance testing.
-            Every entry follows a real engineering log format: Objective, Problem, Hypothesis, Implementation,
-            Result, Lessons Learned — and closes with a live "State of Jaspa OS" progress readout.
-          </p>
-          <div class="nf-meta">
-            <span>72 planned pages</span>
-            <span class="nf-dot">·</span>
-            <span>24 published</span>
-            <span class="nf-dot">·</span>
-            <span>Volume I in progress</span>
-          </div>
-          <a href="jaspa_os_journal_frontmatter.html" class="nf-open">Open the Notebook →</a>
-        </div>
+        <span class="blog-cat-count">5 posts</span>
       </div>
 
       <div class="blog-grid">
@@ -498,6 +399,15 @@
             <h3>From AI Assistant to AI Engineering Partner</h3>
             <p>How a corrupted React component changed everything — why I stopped prompting Hermes and started building a proper engineering system around it.</p>
             <a href="blog_hermes_engineering_partner_17.html" class="read-link">Read →</a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <div class="blog-card-body">
+            <div class="blog-week-badge">Week 18 · 18 May 2026</div>
+            <h3>Bot Creation Phase 1 — Part 4: Where Jaspa's Story Gets Documented</h3>
+            <p>Why the deeper engineering story of Jaspa OS outgrew the blog format — and moved into a dedicated engineering journal under Projects.</p>
+            <a href="blog_jaspa_notebook_intro_18.html" class="read-link">Read →</a>
           </div>
         </div>
 
